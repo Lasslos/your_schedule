@@ -1,40 +1,32 @@
 class SchoolClass {
   ///Üblicherweise 1: Klasse
-  int type;
+  final int type;
 
   ///Die ID der Klasse
-  int id;
+  final int id;
 
   ///Name der Klasse: BS FI 21A
-  String name;
+  final String name;
 
   ///Displayname: BS FI 21A
-  String displayName;
+  final String displayName;
 
   ///Kürzel des Klassenlehrers. Üblicherweise 3 Buchstaben
-  String? classTeacherName;
+  final String? classTeacherName;
 
   ///Der Nachnahme des Lehrers
-  String? classTeacherLongName;
+  final String? classTeacherLongName;
 
   ///Kürzel des zweiten Klassenlehrers. Üblicherweise 3 Buchstaben
   ///Nullable
-  String? classTeacher2Name;
+  final String? classTeacher2Name;
 
   ///Der Nachnahme des zweiten Klassenlehrers
   ///Nullable
-  String? classTeacher2LongName;
+  final String? classTeacher2LongName;
 
-  SchoolClass._(
-      this.type,
-      this.id,
-      this.name,
-      this.displayName,
-      this.classTeacherName,
-      this.classTeacherLongName,
-      this.classTeacher2Name,
-      this.classTeacher2LongName);
-
+  ///Constructs a [SchoolClass] from a [Map] with the keys `type`, `id`, `name`, `displayName`, `classTeacher-Name`, `classTeacher-LongName`, `classTeacher2-Name` and `classTeacher2-LongName` (lowercase).
+  ///This is unsafe if the map does not contain these keys.
   SchoolClass.fromJson(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
