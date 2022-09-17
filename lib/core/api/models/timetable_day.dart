@@ -1,28 +1,46 @@
+import 'package:your_schedule/core/api/models/timetable_period.dart';
+import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/weekday.dart';
 
 class TimeTableDay {
   final DateTime date;
 
   /// How many hours minimum should be displayed per day, if there are no lessons
-  static const int minHoursPerDay = 5;
+  static const int minHoursPerDay = 8;
 
-  final hours = <TimeTableHour>[];
+  final List<TimeTablePeriod?> hours = [];
   final Weekday weekday;
   final String formattedDay;
   final String formattedMonth;
 
-  int daysSinceEpoch;
-  bool outOfScope = false;
+  String get formattedDate => "$formattedDay.$formattedMonth";
 
-  //TODO: Rename as soon as you know what this means
-  int xIndex = -1;
+  int daysSinceEpoch;
+  bool isHolidayOrWeekend = false;
+
+  ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
+  final int dayNumber;
 
   final TimeTableRange range;
 
   TimeTableDay(this.date, this.range)
       : weekday = Weekday.values[date.weekday - 1],
-        formattedDay = DateFormat('dd').format(date),
-        formattedMonth = DateFormat('MMM').format(date);
+        formattedDay = convertToUntisDate(date).substring(6),
+        formattedMonth = convertToUntisDate(date).substring(4, 6) {
+    //TODO: Understand this
+    for (int i = 0; i < minHoursPerDay; i++) {
+      TimeTablePeriod? t = TimeTablePeriod(null, range);
+      t.startAsString = _rng
+          .getBoundFrame()
+          .getManager()
+          .timegrid
+          .getEntryByYIndex(yIndex: i)
+          .startTime;
+      hours.add(TimeTablePeriod(null, range)); //Leere Stunden
+    }
+  }
 
-//TODO (Lasslos): Implement as soon as other important models (timetable.hour, timetable.entity) are done.
+  void insertPeriod(TimeTablePeriod period) {
+    //TODO: Understand this
+  }
 }

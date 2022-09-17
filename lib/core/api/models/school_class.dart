@@ -1,28 +1,15 @@
+///Stores information about the class (Grade, Tutor group, School Class), the user is in.
 class SchoolClass {
   ///Üblicherweise 1: Klasse
+  ///TODO: Herausfinden was es bedeutet und umbenennen! Das versteht kein Mensch!
   final int type;
 
-  ///Die ID der Klasse
   final int id;
-
-  ///Name der Klasse: BS FI 21A
   final String name;
-
-  ///Displayname: BS FI 21A
   final String displayName;
-
-  ///Kürzel des Klassenlehrers. Üblicherweise 3 Buchstaben
   final String? classTeacherName;
-
-  ///Der Nachnahme des Lehrers
   final String? classTeacherLongName;
-
-  ///Kürzel des zweiten Klassenlehrers. Üblicherweise 3 Buchstaben
-  ///Nullable
   final String? classTeacher2Name;
-
-  ///Der Nachnahme des zweiten Klassenlehrers
-  ///Nullable
   final String? classTeacher2LongName;
 
   ///Constructs a [SchoolClass] from a [Map] with the keys `type`, `id`, `name`, `displayName`, `classTeacher-Name`, `classTeacher-LongName`, `classTeacher2-Name` and `classTeacher2-LongName` (lowercase).

@@ -1,3 +1,4 @@
+/// Profile Data about the Student.
 class ProfileData {
   ///Der vollständige Name. Der Nachname kommt vor dem Vornahmen.
   ///
