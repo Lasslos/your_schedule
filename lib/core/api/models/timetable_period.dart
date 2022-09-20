@@ -1,4 +1,5 @@
 import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
+import 'package:your_schedule/core/api/timetable_time_span.dart';
 
 ///Stores information about the status of a period.
 enum PeriodStatus {
@@ -85,7 +86,7 @@ class TimeTablePeriod {
   );
 
   factory TimeTablePeriod.fromJSON(
-      Map<String, dynamic> json, TimeTableRange range) {
+      Map<String, dynamic> json, TimeTableTimeSpan timeSpan) {
     assert(json.isNotEmpty, "json must not be empty.");
     int id = json["id"];
     String startAsString = json["startTime"].toString();
@@ -113,7 +114,7 @@ class TimeTablePeriod {
     //TODO: Understand this
     int dayNumber = -1;
     for (int i = 0;
-        i < range.getBoundFrame().getManager().timegrid.entries.length;
+        i < timeSpan.getBoundFrame().getManager().timegrid.entries.length;
         i++) {
       if (startAsString ==
           range

@@ -21,16 +21,16 @@ class TimeTableDay {
   ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
   final int dayNumber;
 
-  final TimeTableRange range;
+  final TimeTableTimeSpan timeSpan;
 
-  TimeTableDay(this.date, this.range)
+  TimeTableDay(this.date, this.timeSpan)
       : weekday = Weekday.values[date.weekday - 1],
-        formattedDay = convertToUntisDate(date).substring(6),
-        formattedMonth = convertToUntisDate(date).substring(4, 6) {
+        formattedDay = date.convertToUntisDate().substring(6),
+        formattedMonth = date.convertToUntisDate().substring(4, 6) {
     //TODO: Understand this
     for (int i = 0; i < minHoursPerDay; i++) {
-      TimeTablePeriod? t = TimeTablePeriod(null, range);
-      t.startAsString = _rng
+      TimeTablePeriod? period = TimeTablePeriod(null, timeSpan);
+      period.startAsString = timeSpan
           .getBoundFrame()
           .getManager()
           .timegrid
