@@ -1,4 +1,5 @@
 import 'package:your_schedule/core/api/models/timetable_period.dart';
+import 'package:your_schedule/core/api/timetable_time_span.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/weekday.dart';
 
@@ -15,7 +16,6 @@ class TimeTableDay {
 
   String get formattedDate => "$formattedDay.$formattedMonth";
 
-  int daysSinceEpoch;
   bool isHolidayOrWeekend = false;
 
   ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
@@ -23,7 +23,7 @@ class TimeTableDay {
 
   final TimeTableTimeSpan timeSpan;
 
-  TimeTableDay(this.date, this.timeSpan)
+  TimeTableDay(this.date, this.timeSpan, this.dayNumber)
       : weekday = Weekday.values[date.weekday - 1],
         formattedDay = date.convertToUntisDate().substring(6),
         formattedMonth = date.convertToUntisDate().substring(4, 6) {
@@ -40,7 +40,7 @@ class TimeTableDay {
     }
   }
 
-  void insertPeriod(TimeTablePeriod period) {
+  void insertPeriod(TimeTablePeriod Function(TimeTableTimeSpan) createPeriod) {
     //TODO: Understand this
   }
 }

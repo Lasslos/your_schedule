@@ -2,13 +2,13 @@ import 'package:your_schedule/core/api/timetable_manager.dart';
 import 'package:your_schedule/core/api/timetable_time_span.dart';
 import 'package:your_schedule/core/api/user_session.dart';
 
-///[CachedTimetableWeekData] contains persistent information and is stored in the cache.
+///[CachedTimeTableWeekData] contains persistent information and is stored in the cache.
 ///This includes:
 /// * Period Start and End
 /// * Start of the week
 /// * End of the week
 /// * Index of the current week
-class CachedTimetableWeekData {
+class CachedTimeTableWeekData {
   final DateTime startDate;
   final DateTime endDate;
 
@@ -18,9 +18,9 @@ class CachedTimetableWeekData {
   final TimeTableManager manager;
   final UserSession activeSession;
 
-  TimeTableTimeSpan? _cachedWeekData;
+  TimeTableTimeSpan? cachedWeekData;
 
-  CachedTimetableWeekData(this.startDate, this.endDate,
+  CachedTimeTableWeekData(this.startDate, this.endDate,
       this.relativeToCurrentWeek, this.manager, this.activeSession) {
     //TODO: What is current week and caculate week index!
   }
@@ -29,14 +29,14 @@ class CachedTimetableWeekData {
       {bool reload = false,
       int personId = -1,
       PersonType personType = PersonType.unknown}) async {
-    if (!reload && _cachedWeekData != null) {
-      return _cachedWeekData!;
+    if (!reload && cachedWeekData != null) {
+      return cachedWeekData!;
     }
 
     TimeTableTimeSpan timeSpan = await activeSession.getTimeTable(
         startDate, endDate, this,
         personId: personId, personType: personType);
-    _cachedWeekData = timeSpan;
+    cachedWeekData = timeSpan;
 
     return timeSpan;
   }

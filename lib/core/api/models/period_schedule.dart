@@ -48,7 +48,7 @@ class PeriodSchedule {
   }
 
   //Fallback to default values.
-  static PeriodSchedule timeGridFallback = PeriodSchedule._(
+  static PeriodSchedule periodScheduleFallback = PeriodSchedule._(
     -1,
     [
       PeriodScheduleEntry._(0, "755", "855"),
