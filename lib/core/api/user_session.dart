@@ -326,5 +326,3 @@ class UserSession {
     return "JSESSIONID=$_sessionId; schoolname=${schoolBase64.replaceAll("=", "%3D")}";
   }
 }
-
-///TODO: I left out quite a lot. Just add methods as needed.

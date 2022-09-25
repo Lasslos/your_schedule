@@ -13,7 +13,7 @@ class TimeTableTimeSpan {
   final DateTime endDate;
 
   final Map<DateTime, TimeTableDay> days = {};
-  int _maxDayLength = TimeTableDay.minHoursPerDay;
+  final int _maxDayLength = TimeTableDay.minHoursPerDay;
 
   int get maxDayLength => _maxDayLength;
 
@@ -65,8 +65,7 @@ class TimeTableTimeSpan {
                 entryDate,
                 () => TimeTableDay(
                     entryDate, this, entryDate.difference(startDate).inDays))
-            .insertPeriod(
-                (timeSpan) => TimeTablePeriod.fromJSON(entry, timeSpan));
+            .addPeriod((timeSpan) => TimeTablePeriod.fromJSON(entry, timeSpan));
       }
     } catch (e) {
       debugPrint(
@@ -81,17 +80,9 @@ class TimeTableTimeSpan {
       var day = days.putIfAbsent(
           date, () => TimeTableDay(date, this, i)..isHolidayOrWeekend = true);
 
-      if (day.hours.length > _maxDayLength) {
-        _maxDayLength = day.hours.length;
-      }
-
-      if (day.hours.isNotEmpty) {
+      if (day.periods.isNotEmpty) {
         _isEmpty = false;
       }
-
-      //TODO: Ich habe den x und y index einfach mal gekonnt ausgelassen, weil die schultage so nicht funktionieren.
-      //Es gibt nicht eine klasse pro stunde, und dinge wie klausuren sind ganz außerhalb des [PeriodSchedule], also müssen wir das mit den listen eh nochmal überarbeiten
-      // und einen index kann es dann eh nicht mehr geben.
     }
   }
 }

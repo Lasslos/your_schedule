@@ -114,8 +114,6 @@ class TimeTablePeriod {
     );
   }
 
-  //TODO: Find out if we need setYIndex equivalent
-
   String getStartEndTimeAsString() {
     return "$startAsString - $endAsString";
   }

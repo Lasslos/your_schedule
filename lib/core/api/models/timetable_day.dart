@@ -10,7 +10,13 @@ class TimeTableDay {
   static const int minHoursPerDay = 8;
 
   ///Maps the start time to a TimeTablePeriod
-  final Map<DateTime, TimeTablePeriod?> hours = {};
+  final Map<DateTime, TimeTablePeriod?> periods = {};
+
+  void addPeriod(TimeTablePeriod Function(TimeTableTimeSpan) createPeriod) {
+    TimeTablePeriod period = createPeriod(timeSpan);
+    periods[period.start] = period;
+  }
+
   final Weekday weekday;
   final String formattedDay;
   final String formattedMonth;
@@ -28,8 +34,4 @@ class TimeTableDay {
       : weekday = Weekday.values[date.weekday - 1],
         formattedDay = date.convertToUntisDate().substring(6),
         formattedMonth = date.convertToUntisDate().substring(4, 6);
-
-  void insertPeriod(TimeTablePeriod Function(TimeTableTimeSpan) createPeriod) {
-    //TODO: Understand this
-  }
 }

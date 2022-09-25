@@ -1,7 +1,5 @@
 ///Stores information about the class (Grade, Tutor group, School Class), the user is in.
 class SchoolClass {
-  ///Üblicherweise 1: Klasse
-  ///TODO: Herausfinden was es bedeutet und umbenennen! Das versteht kein Mensch!
   final int type;
 
   final int id;
