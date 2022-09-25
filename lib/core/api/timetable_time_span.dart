@@ -31,7 +31,7 @@ class TimeTableTimeSpan {
       RPCResponse response)
       : endDate = _endDate.normalized(),
         startDate = _startDate.normalized() {
-    if (!response.isOK) {
+    if (response.isError) {
       if (response.errorCode == -7004) {
         //"no allowed date"
         //create empty table

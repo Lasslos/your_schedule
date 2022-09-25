@@ -29,7 +29,7 @@ class PeriodSchedule {
 
   ///Constructs a [PeriodSchedule] from a [Map] with the keys `schoolyearId` and `units`.
   ///This is unsafe if the map does not contain these keys.
-  PeriodSchedule.fromJson(Map<String, dynamic> json)
+  PeriodSchedule.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
         schoolYearId = json['schoolyearId'],

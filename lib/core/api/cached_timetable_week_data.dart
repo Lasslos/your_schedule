@@ -12,7 +12,6 @@ class CachedTimeTableWeekData {
   final DateTime startDate;
   final DateTime endDate;
 
-  int? _weekIndex;
   final int relativeToCurrentWeek;
 
   final TimeTableManager manager;
@@ -21,13 +20,11 @@ class CachedTimeTableWeekData {
   TimeTableTimeSpan? cachedWeekData;
 
   CachedTimeTableWeekData(this.startDate, this.endDate,
-      this.relativeToCurrentWeek, this.manager, this.activeSession) {
-    //TODO: What is current week and caculate week index!
-  }
+      this.relativeToCurrentWeek, this.manager, this.activeSession);
 
   Future<TimeTableTimeSpan> getWeekData(
       {bool reload = false,
-      int personId = -1,
+      int personID = -1,
       PersonType personType = PersonType.unknown}) async {
     if (!reload && cachedWeekData != null) {
       return cachedWeekData!;
@@ -35,30 +32,9 @@ class CachedTimeTableWeekData {
 
     TimeTableTimeSpan timeSpan = await activeSession.getTimeTable(
         startDate, endDate, this,
-        personId: personId, personType: personType);
+        personID: personID, personType: personType);
     cachedWeekData = timeSpan;
 
     return timeSpan;
-  }
-
-  ///TODO: This is somehow defined as the amount of weeks since the last school-free week but only the last five weeks otherwise its zero? idk man.
-  ///Do we really need this for anything?
-  Future<int?> getCurrentWeekIndex([bool concurrentSave = false]) async {
-    if (_weekIndex != null) {
-      return _weekIndex!;
-    }
-
-    int steps = -1;
-    for (int i = relativeToCurrentWeek; i >= -5; i--, steps++) {
-      TimeTableTimeSpan week = await manager
-          .getFrameRelativeToCurrent(i, locked: concurrentSave)
-          .getWeekData();
-      if (week.isNonSchoolblockWeek()) {
-        _weekIndex = steps;
-        return steps;
-      }
-    }
-    _weekIndex = null;
-    return _weekIndex;
   }
 }

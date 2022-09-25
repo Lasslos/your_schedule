@@ -35,12 +35,7 @@ class TimeTablePeriod {
   final TimeTablePeriodSubjectInformation subject;
   final TimeTablePeriodRoomInformation room;
 
-  final List<TimeTablePeriod> replacementLessons = <TimeTablePeriod>[];
-
   ///If the status of this period is irregular, this will contain the replacement for the lesson.
-  TimeTablePeriod? get replacement =>
-      replacementLessons.isNotEmpty ? replacementLessons.first : null;
-
   bool get isIrregular => periodStatus == PeriodStatus.irregular;
 
   ///Information that the teacher might have added to the period. Important if the period is irregular.
@@ -61,13 +56,7 @@ class TimeTablePeriod {
 
   PeriodStatus periodStatus;
 
-  ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
-  final int dayNumber;
-
-  ///What period of the day it is. First period is 0.
-  final int periodNumber;
-
-  final TimeTableRange range;
+  final TimeTableTimeSpan timeSpan;
 
   TimeTablePeriod._(
     this.schoolClass,
@@ -80,9 +69,7 @@ class TimeTablePeriod {
     this.start,
     this.end,
     this.periodStatus,
-    this.dayNumber,
-    this.periodNumber,
-    this.range,
+    this.timeSpan,
   );
 
   factory TimeTablePeriod.fromJSON(
@@ -111,22 +98,6 @@ class TimeTablePeriod {
 
     PeriodStatus status = PeriodStatus.fromCode(json["code"]);
 
-    //TODO: Understand this
-    int dayNumber = -1;
-    for (int i = 0;
-        i < timeSpan.getBoundFrame().getManager().timegrid.entries.length;
-        i++) {
-      if (startAsString ==
-          range
-              .getBoundFrame()
-              .getManager()
-              .timegrid
-              .getEntryByYIndex(yIndex: i)
-              .startTime) {
-        dayNumber = i;
-        break;
-      }
-    }
 
     return TimeTablePeriod._(
       schoolClass,
@@ -139,11 +110,7 @@ class TimeTablePeriod {
       start,
       end,
       status,
-      dayNumber,
-      //TODO
-      -1,
-      //TODO
-      range,
+      timeSpan,
     );
   }
 

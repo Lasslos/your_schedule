@@ -27,7 +27,7 @@ class RPCResponse {
       (payload is Map<String, dynamic> ? payload.isEmpty : true) &&
       statusMessage == "http error";
 
-  bool get isOK => !isApiError && !isHttpError;
+  bool get isError => isApiError || isHttpError;
 
   final http.Response? originalResponse;
 
