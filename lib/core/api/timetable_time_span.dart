@@ -2,7 +2,6 @@
 //New Names: CachedTimeTableData, TimeTableTimeSpan, TimeTableManager
 
 import 'package:flutter/material.dart';
-import 'package:your_schedule/core/api/cached_timetable_week_data.dart';
 import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
@@ -20,14 +19,12 @@ class TimeTableTimeSpan {
 
   bool get isEmpty => days.isEmpty;
 
-  final CachedTimeTableWeekData weekData;
 
   TimeTableTimeSpan(
       // ignore: no_leading_underscores_for_local_identifiers
       DateTime _startDate,
       // ignore: no_leading_underscores_for_local_identifiers
       DateTime _endDate,
-      this.weekData,
       RPCResponse response)
       : endDate = _endDate.normalized(),
         startDate = _startDate.normalized() {

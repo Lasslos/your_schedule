@@ -1,4 +1,4 @@
-import 'package:your_schedule/core/api/timetable_manager.dart';
+import 'package:flutter/material.dart';
 import 'package:your_schedule/core/api/timetable_time_span.dart';
 import 'package:your_schedule/core/api/user_session.dart';
 
@@ -8,33 +8,29 @@ import 'package:your_schedule/core/api/user_session.dart';
 /// * Start of the week
 /// * End of the week
 /// * Index of the current week
+@immutable
 class CachedTimeTableWeekData {
   final DateTime startDate;
   final DateTime endDate;
-
   final int relativeToCurrentWeek;
 
-  final TimeTableManager manager;
-  final UserSession activeSession;
+  final TimeTableTimeSpan cachedWeekData;
 
-  TimeTableTimeSpan? cachedWeekData;
+  const CachedTimeTableWeekData(this.startDate, this.endDate,
+      this.relativeToCurrentWeek, this.cachedWeekData);
 
-  CachedTimeTableWeekData(this.startDate, this.endDate,
-      this.relativeToCurrentWeek, this.manager, this.activeSession);
-
-  Future<TimeTableTimeSpan> getWeekData(
-      {bool reload = false,
-      int personID = -1,
-      PersonType personType = PersonType.unknown}) async {
-    if (!reload && cachedWeekData != null) {
-      return cachedWeekData!;
-    }
-
+  static Future<CachedTimeTableWeekData> getWeekData(
+    UserSession activeSession,
+    DateTime startDate,
+    DateTime endDate,
+    int relativeToCurrentWeek, {
+    int personID = -1,
+    PersonType personType = PersonType.unknown,
+  }) async {
     TimeTableTimeSpan timeSpan = await activeSession.getTimeTable(
-        startDate, endDate, this,
+        startDate, endDate,
         personID: personID, personType: personType);
-    cachedWeekData = timeSpan;
-
-    return timeSpan;
+    return CachedTimeTableWeekData(
+        startDate, endDate, relativeToCurrentWeek, timeSpan);
   }
 }

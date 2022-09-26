@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:your_schedule/core/api/cached_timetable_week_data.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/models/profile_data.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
@@ -45,8 +44,8 @@ class UserSession {
   ///Die base url von allen API Endpunkten.
   final String apiBaseUrl = "https://herakles.webuntis.com";
 
-  ///JsonRPC endpoint. Überlicherweise: https://hepta.webuntis.com/WebUntis/jsonrpc.do?school=bbs1-mainz
-  String rpcUrl = "";
+  ///JsonRPC endpoint. Überlicherweise: https://herakles.webuntis.com/WebUntis/jsonrpc.do?school=cjd-königswinter
+  String get rpcUrl => "$apiBaseUrl/WebUntis/jsonrpc.do?school=$school";
   bool _sessionIsValid = false;
 
   // Empfindliche Variablen:
@@ -59,7 +58,6 @@ class UserSession {
 
   ProfileData? _cachedProfileData;
   TimeTableManager? _manager;
-  PeriodSchedule? _periodSchedule;
 
   UserSession(this.school, this.appName);
 
@@ -138,7 +136,6 @@ class UserSession {
     _cachedProfileData = await getProfileData(loadFromCache: false);
 
     PeriodSchedule schedule = await getPeriodSchedule();
-    _periodSchedule = schedule;
     if (_manager != null) {
       _manager!.periodSchedule = schedule;
     }
@@ -159,8 +156,7 @@ class UserSession {
     return response;
   }
 
-  Future<TimeTableTimeSpan> getTimeTable(
-      DateTime from, DateTime to, CachedTimeTableWeekData weekData,
+  Future<TimeTableTimeSpan> getTimeTable(DateTime from, DateTime to,
       {int personID = -1, PersonType personType = PersonType.unknown}) async {
     if (!_sessionIsValid) {
       throw Exception("Session is not valid");
@@ -169,7 +165,6 @@ class UserSession {
     return TimeTableTimeSpan(
       from,
       to,
-      weekData,
       await _queryRPC(
         "getTimetable",
         {
