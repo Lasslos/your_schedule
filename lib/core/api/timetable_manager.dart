@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:your_schedule/core/api/cached_timetable_week_data.dart';
+import 'package:your_schedule/core/api/models/helpers/cached_timetable_week_data.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/user_session.dart';
 import 'package:your_schedule/util/date_utils.dart';
@@ -58,3 +58,5 @@ class TimeTableManager {
     return weekData;
   }
 }
+
+///TODO: Move this into a provider. Maybe even the same provider as user_session. This should not be a ChangeNotifierProvider, but instead a ValueNotifierProvider. That means: Extract all the variables, and then move the methods into the provider.

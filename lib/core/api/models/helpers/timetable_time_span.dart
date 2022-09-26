@@ -74,10 +74,16 @@ class TimeTableTimeSpan {
 
     ///Now go through all the days in the list and fill in those with no lessons
     ///Calculate the max day length and set the isEmpty flag
-    for (int i = 0; i < endDate.difference(startDate).inDays; i++) {
+    for (int i = 0; i < endDate
+        .difference(startDate)
+        .inDays; i++) {
       DateTime date = startDate.add(Duration(days: i));
       days.putIfAbsent(
           date, () => TimeTableDay(date, i, isHolidayOrWeekend: true));
     }
   }
 }
+
+///TODO: Even though this is marked as immutable, one might still just think oh lets just add something to this map and ill be good.
+///TODO: This is not the case. The map is immutable, but the values are not. So if you want to add something to the map, you have to create a new instance of this class.
+///TODO: So, maybe, move the logic to a provider? Like it might be helpful to have a provider that just gives you the current week and the next week and the previous week etc.

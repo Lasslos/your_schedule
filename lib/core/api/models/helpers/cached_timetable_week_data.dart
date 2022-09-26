@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:your_schedule/core/api/timetable_time_span.dart';
+import 'package:your_schedule/core/api/models/helpers/timetable_time_span.dart';
 import 'package:your_schedule/core/api/user_session.dart';
 
 ///[CachedTimeTableWeekData] contains persistent information and is stored in the cache.

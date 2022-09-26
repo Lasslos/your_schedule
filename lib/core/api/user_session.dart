@@ -3,11 +3,11 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:your_schedule/core/api/models/helpers/timetable_time_span.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/models/profile_data.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
 import 'package:your_schedule/core/api/timetable_manager.dart';
-import 'package:your_schedule/core/api/timetable_time_span.dart';
 import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -323,3 +323,6 @@ class UserSession {
     return "JSESSIONID=$_sessionId; schoolname=${schoolBase64.replaceAll("=", "%3D")}";
   }
 }
+
+///TODO: Move this into a provider. This should not be a ChangeNotifierProvider, but instead a ValueNotifierProvider. That means: Extract all the variables, and then move the methods into the provider.
+///TODO No. 2: Go over all the methods in SOL-Connect and check if there is any missing that should be added here.
