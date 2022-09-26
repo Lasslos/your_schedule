@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/core/api/timetable_time_span.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/weekday.dart';
 
+@immutable
 class TimeTableDay {
   final DateTime date;
 
@@ -10,11 +11,11 @@ class TimeTableDay {
   static const int minHoursPerDay = 8;
 
   ///Maps the start time to a TimeTablePeriod
-  final Map<DateTime, TimeTablePeriod?> periods = {};
+  final Map<DateTime, List<TimeTablePeriod>> periods;
 
-  void addPeriod(TimeTablePeriod Function(TimeTableTimeSpan) createPeriod) {
-    TimeTablePeriod period = createPeriod(timeSpan);
-    periods[period.start] = period;
+  TimeTableDay withPeriod(TimeTablePeriod period) {
+    return copyWith(
+        periods: {...periods}..putIfAbsent(period.start, () => []).add(period));
   }
 
   final Weekday weekday;
@@ -23,15 +24,28 @@ class TimeTableDay {
 
   String get formattedDate => "$formattedDay.$formattedMonth";
 
-  bool isHolidayOrWeekend = false;
+  final bool isHolidayOrWeekend;
 
   ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
   final int dayNumber;
 
-  final TimeTableTimeSpan timeSpan;
-
-  TimeTableDay(this.date, this.timeSpan, this.dayNumber)
+  TimeTableDay(this.date, this.dayNumber,
+      {this.isHolidayOrWeekend = false, this.periods = const {}})
       : weekday = Weekday.values[date.weekday - 1],
         formattedDay = date.convertToUntisDate().substring(6),
         formattedMonth = date.convertToUntisDate().substring(4, 6);
+
+  TimeTableDay copyWith({
+    DateTime? date,
+    int? dayNumber,
+    bool? isHolidayOrWeekend,
+    Map<DateTime, List<TimeTablePeriod>>? periods,
+  }) {
+    return TimeTableDay(
+      date ?? this.date,
+      dayNumber ?? this.dayNumber,
+      isHolidayOrWeekend: isHolidayOrWeekend ?? this.isHolidayOrWeekend,
+      periods: periods ?? this.periods,
+    );
+  }
 }

@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 ///Stores information about the class (Grade, Tutor group, School Class), the user is in.
+@immutable
 class SchoolClass {
   final int type;
 

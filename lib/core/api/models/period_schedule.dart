@@ -1,11 +1,14 @@
+import 'package:flutter/material.dart';
+
 ///Entry in [PeriodSchedule] representing one period of time, in which a lesson (could) take place.
+@immutable
 class PeriodScheduleEntry {
   ///What period of the day it is. First period is 0.
   final int periodNumber;
   final String startTime;
   final String endTime;
 
-  PeriodScheduleEntry._(this.periodNumber, this.startTime, this.endTime);
+  const PeriodScheduleEntry._(this.periodNumber, this.startTime, this.endTime);
 
   ///Constructs a [PeriodScheduleEntry] from a [Map] with the keys `unitOfDay`, `startTime` and `endTime`.
   ///This is unsafe if the map does not contain these keys.
@@ -18,14 +21,15 @@ class PeriodScheduleEntry {
 }
 
 ///A [PeriodSchedule] is a list of [PeriodScheduleEntry]s. This represents the schedule of a day.
+@immutable
 class PeriodSchedule {
   final int schoolYearId;
   final List<PeriodScheduleEntry> entries;
 
   final PeriodScheduleEntry fallback =
-      PeriodScheduleEntry._(-1, "0000", "0000");
+      const PeriodScheduleEntry._(-1, "0000", "0000");
 
-  PeriodSchedule._(this.schoolYearId, this.entries);
+  const PeriodSchedule._(this.schoolYearId, this.entries);
 
   ///Constructs a [PeriodSchedule] from a [Map] with the keys `schoolyearId` and `units`.
   ///This is unsafe if the map does not contain these keys.
@@ -48,7 +52,7 @@ class PeriodSchedule {
   }
 
   //Fallback to default values.
-  static PeriodSchedule periodScheduleFallback = PeriodSchedule._(
+  static PeriodSchedule periodScheduleFallback = const PeriodSchedule._(
     -1,
     [
       PeriodScheduleEntry._(0, "755", "855"),

@@ -8,6 +8,7 @@ import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
+@immutable
 class TimeTableTimeSpan {
   final DateTime startDate;
   final DateTime endDate;
@@ -17,15 +18,14 @@ class TimeTableTimeSpan {
 
   int get maxDayLength => _maxDayLength;
 
-  bool _isEmpty = true;
-
-  bool get isEmpty => _isEmpty;
+  bool get isEmpty => days.isEmpty;
 
   final CachedTimeTableWeekData weekData;
 
   TimeTableTimeSpan(
       // ignore: no_leading_underscores_for_local_identifiers
       DateTime _startDate,
+      // ignore: no_leading_underscores_for_local_identifiers
       DateTime _endDate,
       this.weekData,
       RPCResponse response)
@@ -41,7 +41,7 @@ class TimeTableTimeSpan {
 
         for (int i = 0; i < endDate.difference(startDate).inDays; i++) {
           DateTime day = startDate.add(Duration(days: i));
-          days[day] = TimeTableDay(day, this, i);
+          days[day] = TimeTableDay(day, i);
         }
         return;
       } else {
@@ -60,12 +60,14 @@ class TimeTableTimeSpan {
         DateTime entryDate = (entry['date']!.toString())
             .convertUntisDateToDateTime()
             .normalized();
-        days
+        days[entryDate] = days
             .putIfAbsent(
                 entryDate,
                 () => TimeTableDay(
-                    entryDate, this, entryDate.difference(startDate).inDays))
-            .addPeriod((timeSpan) => TimeTablePeriod.fromJSON(entry, timeSpan));
+                      entryDate,
+                      entryDate.difference(startDate).inDays,
+                    ))
+            .withPeriod(TimeTablePeriod.fromJSON(entry));
       }
     } catch (e) {
       debugPrint(
@@ -77,12 +79,8 @@ class TimeTableTimeSpan {
     ///Calculate the max day length and set the isEmpty flag
     for (int i = 0; i < endDate.difference(startDate).inDays; i++) {
       DateTime date = startDate.add(Duration(days: i));
-      var day = days.putIfAbsent(
-          date, () => TimeTableDay(date, this, i)..isHolidayOrWeekend = true);
-
-      if (day.periods.isNotEmpty) {
-        _isEmpty = false;
-      }
+      days.putIfAbsent(
+          date, () => TimeTableDay(date, i, isHolidayOrWeekend: true));
     }
   }
 }

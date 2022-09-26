@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
-import 'package:your_schedule/core/api/timetable_time_span.dart';
 
 ///Stores information about the status of a period.
 enum PeriodStatus {
@@ -29,6 +29,7 @@ enum PeriodStatus {
   final String readableName;
 }
 
+@immutable
 class TimeTablePeriod {
   final TimeTablePeriodSchoolClassInformation schoolClass;
   final TimeTablePeriodTeacherInformation teacher;
@@ -54,11 +55,9 @@ class TimeTablePeriod {
       end.hour.toString().padLeft(2, "0") +
       end.minute.toString().padLeft(2, "0");
 
-  PeriodStatus periodStatus;
+  final PeriodStatus periodStatus;
 
-  final TimeTableTimeSpan timeSpan;
-
-  TimeTablePeriod._(
+  const TimeTablePeriod._(
     this.schoolClass,
     this.teacher,
     this.subject,
@@ -69,11 +68,9 @@ class TimeTablePeriod {
     this.start,
     this.end,
     this.periodStatus,
-    this.timeSpan,
   );
 
-  factory TimeTablePeriod.fromJSON(
-      Map<String, dynamic> json, TimeTableTimeSpan timeSpan) {
+  factory TimeTablePeriod.fromJSON(Map<String, dynamic> json) {
     assert(json.isNotEmpty, "json must not be empty.");
     int id = json["id"];
     String startAsString = json["startTime"].toString();
@@ -85,11 +82,12 @@ class TimeTablePeriod {
     String? substText = json["substText"];
     TimeTablePeriodSchoolClassInformation schoolClass = json["kl"] != null
         ? TimeTablePeriodSchoolClassInformation.fromJSON(json["schoolClass"])
-        : TimeTablePeriodSchoolClassInformation("unknown", "unknown", null);
+        : const TimeTablePeriodSchoolClassInformation(
+            "unknown", "unknown", null);
 
     TimeTablePeriodTeacherInformation teacher = json["te"] != null
         ? TimeTablePeriodTeacherInformation.fromJSON(json["te"])
-        : TimeTablePeriodTeacherInformation("---", "Kein Lehrer", null);
+        : const TimeTablePeriodTeacherInformation("---", "Kein Lehrer", null);
 
     TimeTablePeriodSubjectInformation subject =
         TimeTablePeriodSubjectInformation.fromJSON(json["su"]);
@@ -97,7 +95,6 @@ class TimeTablePeriod {
         TimeTablePeriodRoomInformation.fromJSON(json["ro"]);
 
     PeriodStatus status = PeriodStatus.fromCode(json["code"]);
-
 
     return TimeTablePeriod._(
       schoolClass,
@@ -110,7 +107,6 @@ class TimeTablePeriod {
       start,
       end,
       status,
-      timeSpan,
     );
   }
 

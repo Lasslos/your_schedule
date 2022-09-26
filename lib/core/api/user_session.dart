@@ -322,7 +322,9 @@ class UserSession {
   }
 
   String _buildAuthCookie() {
-    if (!_sessionIsValid) return "";
+    if (!_sessionIsValid) {
+      return "";
+    }
     return "JSESSIONID=$_sessionId; schoolname=${schoolBase64.replaceAll("=", "%3D")}";
   }
 }

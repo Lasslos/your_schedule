@@ -1,4 +1,7 @@
+import 'package:flutter/material.dart';
+
 /// Profile Data about the Student.
+@immutable
 class ProfileData {
   ///Der vollständige Name. Der Nachname kommt vor dem Vornahmen.
   ///

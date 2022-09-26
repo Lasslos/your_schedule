@@ -1,10 +1,13 @@
-///Information about the period's school class.
-class TimeTablePeriodSchoolClassInformation {
-  String name;
-  String longName;
-  int? identifier;
+import 'package:flutter/material.dart';
 
-  TimeTablePeriodSchoolClassInformation(
+///Information about the period's school class.
+@immutable
+class TimeTablePeriodSchoolClassInformation {
+  final String name;
+  final String longName;
+  final int? identifier;
+
+  const TimeTablePeriodSchoolClassInformation(
       this.name, this.longName, this.identifier);
 
   TimeTablePeriodSchoolClassInformation.fromJSON(Map<String, dynamic> json)
@@ -16,12 +19,14 @@ class TimeTablePeriodSchoolClassInformation {
 }
 
 ///Information about the period's teacher.
+@immutable
 class TimeTablePeriodTeacherInformation {
-  String name;
-  String longName;
-  int? identifier;
+  final String name;
+  final String longName;
+  final int? identifier;
 
-  TimeTablePeriodTeacherInformation(this.name, this.longName, this.identifier);
+  const TimeTablePeriodTeacherInformation(
+      this.name, this.longName, this.identifier);
 
   TimeTablePeriodTeacherInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
@@ -32,12 +37,14 @@ class TimeTablePeriodTeacherInformation {
 }
 
 ///Information about the period's subject.
+@immutable
 class TimeTablePeriodSubjectInformation {
-  String name;
-  String longName;
-  int? identifier;
+  final String name;
+  final String longName;
+  final int? identifier;
 
-  TimeTablePeriodSubjectInformation(this.name, this.longName, this.identifier);
+  const TimeTablePeriodSubjectInformation(
+      this.name, this.longName, this.identifier);
 
   TimeTablePeriodSubjectInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
@@ -48,12 +55,14 @@ class TimeTablePeriodSubjectInformation {
 }
 
 ///Information about the period's room.
+@immutable
 class TimeTablePeriodRoomInformation {
-  String name;
-  String longName;
-  int? identifier;
+  final String name;
+  final String longName;
+  final int? identifier;
 
-  TimeTablePeriodRoomInformation(this.name, this.longName, this.identifier);
+  const TimeTablePeriodRoomInformation(
+      this.name, this.longName, this.identifier);
 
   TimeTablePeriodRoomInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),

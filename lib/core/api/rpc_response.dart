@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+@immutable
 class RPCResponse {
   static const rpcWrongCredentials = -8504;
 
@@ -31,7 +33,7 @@ class RPCResponse {
 
   final http.Response? originalResponse;
 
-  RPCResponse(this.appName, this.rpcVersion, this.payload,
+  const RPCResponse(this.appName, this.rpcVersion, this.payload,
       [this.statusMessage = "",
       this.errorCode = 0,
       this.httpResponse = -1,
@@ -44,7 +46,7 @@ class RPCResponse {
   factory RPCResponse.fromHttpResponse(http.Response httpResponse) {
     //Check status code
     if (httpResponse.statusCode != 200) {
-      return RPCResponse("", "", <String, dynamic>{}, "http error", 0,
+      return RPCResponse("", "", const <String, dynamic>{}, "http error", 0,
           httpResponse.statusCode, httpResponse);
     }
 
@@ -76,7 +78,7 @@ class RPCResponse {
       return RPCResponse(
           appId,
           rpcVersion,
-          <String, dynamic>{},
+          const <String, dynamic>{},
           json['error']['message'],
           json['error']['code'],
           httpResponse?.statusCode ?? -1,
@@ -84,7 +86,7 @@ class RPCResponse {
     }
 
     //If there is no result and no error, return an empty response
-    return RPCResponse(appId, rpcVersion, <String, dynamic>{}, "", 0,
+    return RPCResponse(appId, rpcVersion, const <String, dynamic>{}, "", 0,
         httpResponse?.statusCode ?? -1, httpResponse);
   }
 }

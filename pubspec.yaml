@@ -9,9 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  provider: ^6.0.3
   http: ^0.13.5
   logger: ^1.1.0
+  flutter_riverpod: ^2.0.0-dev.9
 
 dev_dependencies:
   flutter_test:
