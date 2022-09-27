@@ -145,7 +145,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     );
 
     ///Check if two-factor authentication is enabled
-    http.Response twoFactor = await _queryURL(
+    http.Response twoFactor = await queryURL(
       "/WebUntis/j_spring_security_check",
       needsAuthorization: true,
       body: {
@@ -171,7 +171,6 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     await regenerateSessionBearerToken();
     state = state.copyWith(profileData: await _getProfileData());
 
-    ///TODO: Didnt call getPeriodSchedule here
   }
 
   Future<RPCResponse> logout() async {
@@ -190,11 +189,8 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     return response;
   }
 
-  ///TODO: I left out getTimeTable and moved it to timetable_provider.dart
-  ///TODO: I left out getPeriodSchedule because it doesnt belong here technically
-
   FutureOr<ProfileData> _getProfileData() async {
-    http.Response response = await _queryURL(
+    http.Response response = await queryURL(
         "/WebUntis/api/rest/view/v1/app/data",
         needsAuthorization: true);
     return ProfileData.fromJSON(jsonDecode(response.body));
@@ -244,7 +240,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     }
   }
 
-  Future<http.Response> _queryURL(String url,
+  Future<http.Response> queryURL(String url,
       {bool needsAuthorization = false, dynamic body}) async {
     if (needsAuthorization && !state.isAPIAuthorized) {
       getLogger().w("Failed to fetch bearer token. Retrying ...");
@@ -281,7 +277,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
 
   Future<void> regenerateSessionBearerToken() async {
     getLogger().d("Regenerating bearer token ...");
-    http.Response response = await _queryURL(
+    http.Response response = await queryURL(
       "/WebUntis/api/token/new",
       needsAuthorization: false,
     );
