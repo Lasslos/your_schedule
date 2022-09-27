@@ -8,18 +8,19 @@ import 'package:your_schedule/core/api/models/profile_data.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
 import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/util/secure_storage_util.dart';
 
 @immutable
 class UserSession {
   const UserSession(
-      {this.appName = "",
+      {this.school = "",
+      this.appName = "",
       this.sessionID = "",
       this.loggedInPersonID = -1,
       this.schoolClassID = -1,
       this.loggedInPersonType = PersonType.unknown,
       this.timeTablePersonID = -1,
       this.timeTablePersonType = PersonType.unknown,
-      this.school = "",
       this.sessionIsValid = false,
       this.username = "",
       String password = "",
@@ -72,7 +73,7 @@ class UserSession {
   String get schoolBase64 => base64Encode(utf8.encode(school));
 
   ///Base url of all API calls. This might be different for different schools.
-  final String apiBaseURL = "https://herkales.webuntis.com";
+  final String apiBaseURL = "https://herakles.webuntis.com";
 
   ///JsonRPC endpoint.
   String get rpcURL => "$apiBaseURL/WebUntis/jsonrpc.do?school=$school";
@@ -97,15 +98,17 @@ class UserSession {
 class UserSessionNotifier extends StateNotifier<UserSession> {
   UserSessionNotifier() : super(const UserSession());
 
-  Future<void> createSession(String username, String password,
+  Future<void> createSession(String username, String password, String school,
       [String token = ""]) async {
+    getLogger().i("Creating session for $username");
+    state = state.copyWith(school: school);
     if (state.sessionIsValid) {
       throw UserAlreadyLoggedInException(
           "Der Benutzer ist bereits eingeloggt. Versuche eine neues User Objekt zu erstellen oder die Funktion 'logout()' vorher aufzurufen!");
     }
-    if (username.isEmpty || password.isEmpty) {
+    if (username.isEmpty || password.isEmpty || school.isEmpty) {
       throw MissingCredentialsException(
-          "Bitte gib einen Benutzernamen und ein Passwort an");
+          "Bitte gib einen Benutzernamen, ein Passwort und eine Schule an");
     }
 
     RPCResponse response = await queryRPC("authenticate",
@@ -136,12 +139,16 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       loggedInPersonID: response.payload["personId"],
       timeTablePersonID: response.payload["personId"],
       schoolClassID: response.payload["schoolClassId"],
-      loggedInPersonType: PersonType.values[response.payload["personType"] - 1],
-      timeTablePersonType:
-          PersonType.values[response.payload["personType"] - 1],
+      loggedInPersonType: response.payload["personType"] != null
+          ? PersonType.values[response.payload["personType"] - 1]
+          : null,
+      timeTablePersonType: response.payload["personType"] != null
+          ? PersonType.values[response.payload["personType"] - 1]
+          : null,
       sessionIsValid: true,
       username: username,
       password: password,
+      school: school,
     );
 
     ///Check if two-factor authentication is enabled
@@ -170,10 +177,15 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
 
     await regenerateSessionBearerToken();
     state = state.copyWith(profileData: await _getProfileData());
-
+    getLogger().i("Successfully created session!");
+    secureStorage
+      ..write(key: usernameKey, value: username)
+      ..write(key: passwordKey, value: password)
+      ..write(key: schoolKey, value: school);
   }
 
   Future<RPCResponse> logout() async {
+    getLogger().i("Logging out");
     RPCResponse response = await queryRPC("logout", {}, validateSession: false);
     state = state.copyWith(
       sessionIsValid: false,
@@ -250,15 +262,14 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     Map<String, String> headers = {
       "Content-type": "application/json",
       "Cookie": _buildAuthCookie(),
-      if (needsAuthorization) "Authorization": "Bearer $state.bearerToken"
+      if (needsAuthorization) "Authorization": "Bearer ${state.bearerToken}"
     };
 
     if (body == null) {
       return http.Client()
           .get(Uri.parse(state.apiBaseURL + url), headers: headers);
     } else {
-      return http.Client().post(Uri.parse(state.apiBaseURL + url),
-          headers: headers, body: body);
+      return http.Client().post(Uri.parse(state.apiBaseURL + url), body: body);
     }
   }
 
@@ -266,13 +277,13 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     if (!state.sessionIsValid) {
       return "";
     }
-    return "JSESSIONID=$state.sessionId; schoolname=${state.schoolBase64.replaceAll("=", "%3D")}";
+    return "JSESSIONID=${state.sessionID}; schoolname=${state.schoolBase64.replaceAll("=", "%3D")}";
   }
 
   Future<void> _validateSession() async {
     state = state.copyWith(sessionIsValid: false);
     getLogger().v("Revalidation active session");
-    await createSession(state.username, state._password);
+    await createSession(state.username, state._password, state.school);
   }
 
   Future<void> regenerateSessionBearerToken() async {

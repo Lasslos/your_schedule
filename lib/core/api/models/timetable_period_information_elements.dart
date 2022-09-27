@@ -14,7 +14,7 @@ class TimeTablePeriodSchoolClassInformation {
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
         name = json['name'].toString(),
-        longName = json['longName'],
+        longName = json['longname'],
         identifier = json['id'];
 }
 
@@ -32,7 +32,7 @@ class TimeTablePeriodTeacherInformation {
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
         name = json['name'].toString(),
-        longName = json['longName'],
+        longName = json['longname'],
         identifier = json['id'];
 }
 
@@ -50,7 +50,7 @@ class TimeTablePeriodSubjectInformation {
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
         name = json['name'].toString(),
-        longName = json['longName'],
+        longName = json['longname'],
         identifier = json['id'];
 }
 
@@ -68,6 +68,6 @@ class TimeTablePeriodRoomInformation {
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
         name = json['name'].toString(),
-        longName = json['longName'],
+        longName = json['longname'],
         identifier = json['id'];
 }

@@ -69,7 +69,7 @@ class RPCResponse {
     //Read data
     var result = json['result'];
     if (result != null) {
-      return RPCResponse(appId, rpcVersion, result, "OK", 0, 200, httpResponse);
+      return RPCResponse(appId, rpcVersion, result, "", 0, 200, httpResponse);
     }
 
     //If there is no result, try to read an error

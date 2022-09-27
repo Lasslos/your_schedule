@@ -12,6 +12,8 @@ dependencies:
   http: ^0.13.5
   logger: ^1.1.0
   flutter_riverpod: ^2.0.0-dev.9
+  flutter_secure_storage: ^6.0.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_test:

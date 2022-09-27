@@ -80,20 +80,23 @@ class TimeTablePeriod {
     DateTime end = _parseDate(date, endAsString);
     String? activityType = json["activityType"];
     String? substText = json["substText"];
-    TimeTablePeriodSchoolClassInformation schoolClass = json["kl"] != null
-        ? TimeTablePeriodSchoolClassInformation.fromJSON(json["schoolClass"])
-        : const TimeTablePeriodSchoolClassInformation(
-            "unknown", "unknown", null);
+    TimeTablePeriodSchoolClassInformation schoolClass =
+        json["kl"] != null && json["kl"].isNotEmpty
+            ? TimeTablePeriodSchoolClassInformation.fromJSON(json["kl"][0])
+            : const TimeTablePeriodSchoolClassInformation(
+                "unknown", "unknown", null);
 
-    TimeTablePeriodTeacherInformation teacher = json["te"] != null
-        ? TimeTablePeriodTeacherInformation.fromJSON(json["te"])
+    TimeTablePeriodTeacherInformation teacher = json["te"] != null &&
+            json["te"].isNotEmpty
+        ? TimeTablePeriodTeacherInformation.fromJSON(json["te"][0])
         : const TimeTablePeriodTeacherInformation("---", "Kein Lehrer", null);
 
-    TimeTablePeriodSubjectInformation subject =
-        TimeTablePeriodSubjectInformation.fromJSON(json["su"]);
-    TimeTablePeriodRoomInformation room =
-        TimeTablePeriodRoomInformation.fromJSON(json["ro"]);
-
+    TimeTablePeriodSubjectInformation subject = json["su"].isNotEmpty
+        ? TimeTablePeriodSubjectInformation.fromJSON(json["su"][0])
+        : const TimeTablePeriodSubjectInformation("---", "Kein Fach", null);
+    TimeTablePeriodRoomInformation room = json["ro"].isNotEmpty
+        ? TimeTablePeriodRoomInformation.fromJSON(json["ro"][0])
+        : const TimeTablePeriodRoomInformation("---", "Kein Raum", null);
     PeriodStatus status = PeriodStatus.fromCode(json["code"]);
 
     return TimeTablePeriod._(

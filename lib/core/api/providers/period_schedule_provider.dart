@@ -19,6 +19,7 @@ class PeriodScheduleNotifier extends StateNotifier<PeriodSchedule> {
   }
 
   Future<void> loadPeriodSchedule() async {
+    getLogger().i("Fetching period schedule");
     if (!_userSession.isAPIAuthorized) {
       throw ApiConnectionError("The user is not logged in!");
     }
@@ -35,3 +36,8 @@ class PeriodScheduleNotifier extends StateNotifier<PeriodSchedule> {
     }
   }
 }
+
+final periodScheduleProvider =
+    StateNotifierProvider<PeriodScheduleNotifier, PeriodSchedule>((ref) {
+  return PeriodScheduleNotifier(ref.read(userSessionProvider), ref);
+});

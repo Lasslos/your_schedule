@@ -6,6 +6,7 @@ import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/logger.dart';
 
 @immutable
 class TimeTable {
@@ -41,7 +42,7 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
     if (state.weekData.containsKey(week)) {
       return state.weekData[week]!;
     }
-
+    getLogger().i("Fetching timetable for week $week");
     return _loadTimeTableWeek(week);
   }
 
@@ -50,13 +51,13 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
     if (!_userSession.sessionIsValid) {
       throw Exception("Session is not valid");
     }
-    return TimeTableWeek.fromRPCResponse(
+    var timeTableWeek = TimeTableWeek.fromRPCResponse(
       week,
       await _ref.read(userSessionProvider.notifier).queryRPC(
         "getTimetable",
         {
           "options": {
-            "startDate": week.startDate.convertToUntisDate,
+            "startDate": week.startDate.convertToUntisDate(),
             "endDate": week.endDate.convertToUntisDate(),
             "element": {
               "id": personID == -1
@@ -86,6 +87,11 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
         },
       ),
     );
+    getLogger().i("Successfully fetched timetable for week $week");
+    state = state.copyWith(
+      weekData: Map.from(state.weekData)..[week] = timeTableWeek,
+    );
+    return timeTableWeek;
   }
 }
 
