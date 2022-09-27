@@ -1,6 +1,3 @@
-//TimeTable Frame, Range, Manager
-//New Names: CachedTimeTableData, TimeTableTimeSpan, TimeTableManager
-
 import 'package:flutter/material.dart';
 import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
@@ -8,46 +5,32 @@ import 'package:your_schedule/core/api/rpc_response.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 @immutable
-class TimeTableTimeSpan {
-  final DateTime startDate;
-  final DateTime endDate;
-
+class TimeTableWeek {
+  final Week week;
   final Map<DateTime, TimeTableDay> days;
-  final int _maxDayLength = TimeTableDay.minHoursPerDay;
-
-  int get maxDayLength => _maxDayLength;
+  final int maxDayLength = TimeTableDay.minHoursPerDay;
 
   bool get isEmpty => days.isEmpty;
 
-  TimeTableTimeSpan(
-      this.startDate, this.endDate, Map<DateTime, TimeTableDay> days)
+  TimeTableWeek(this.week, Map<DateTime, TimeTableDay> days)
       : days = Map.unmodifiable(days);
 
-  factory TimeTableTimeSpan.fromRPCResponse(
-      DateTime startDate, DateTime endDate, RPCResponse response) {
+  factory TimeTableWeek.fromRPCResponse(Week week, RPCResponse response) {
     final Map<DateTime, TimeTableDay> days = {};
 
     if (response.isError) {
       if (response.errorCode == -7004) {
         //"no allowed date"
         //create empty table
-        if (!startDate.isAfter(endDate)) {
-          throw Exception("The start date must be after the end date.");
-        }
-
-        for (int i = 0; i < endDate.difference(startDate).inDays; i++) {
-          DateTime day = startDate.add(Duration(days: i));
+        for (int i = 0; i < 7; i++) {
+          DateTime day = week.startDate.add(Duration(days: i));
           days[day] = TimeTableDay(day, i);
         }
-        return TimeTableTimeSpan(startDate, endDate, days);
+        return TimeTableWeek(week, days);
       } else {
         throw Exception(
             "Error while loading timetable: ${response.statusMessage} (${response.errorCode})");
       }
-    }
-
-    if (!startDate.isAfter(endDate)) {
-      throw Exception("The start date must be after the end date.");
     }
 
     ///Go through entries and put them into the days
@@ -61,7 +44,7 @@ class TimeTableTimeSpan {
                 entryDate,
                 () => TimeTableDay(
                       entryDate,
-                      entryDate.difference(startDate).inDays,
+                      entryDate.difference(week.startDate).inDays,
                     ))
             .withPeriod(TimeTablePeriod.fromJSON(entry));
       }
@@ -73,13 +56,49 @@ class TimeTableTimeSpan {
 
     ///Now go through all the days in the list and fill in those with no lessons
     ///Calculate the max day length and set the isEmpty flag
-    for (int i = 0; i < endDate
-        .difference(startDate)
-        .inDays; i++) {
-      DateTime date = startDate.add(Duration(days: i));
+    for (int i = 0; i < 7; i++) {
+      DateTime date = week.startDate.add(Duration(days: i));
       days.putIfAbsent(
           date, () => TimeTableDay(date, i, isHolidayOrWeekend: true));
     }
-    return TimeTableTimeSpan(startDate, endDate, days);
+    return TimeTableWeek(week, days);
   }
+}
+
+@immutable
+class Week {
+  final DateTime startDate;
+  final DateTime endDate;
+
+  int get relativeToCurrentWeek =>
+      startDate.startOfWeek().difference(DateTime.now().startOfWeek()).inDays ~/
+      7;
+
+  ///Constructs a week object the given [momentInWeek] is in.
+  Week(DateTime momentInWeek)
+      : startDate = momentInWeek.startOfWeek(),
+        endDate = momentInWeek.endOfWeek();
+
+  Week.relativeToCurrentWeek(int relative)
+      : startDate =
+            DateTime.now().startOfWeek().add(Duration(days: relative * 7)),
+        endDate = DateTime.now().endOfWeek().add(Duration(days: relative * 7));
+
+  @override
+  int get hashCode => Object.hash(startDate, endDate);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Week) {
+      return false;
+    }
+    return startDate.isAtSameMomentAs(other.startDate) &&
+        endDate.isAtSameMomentAs(other.endDate);
+  }
+}
+
+extension WeekUtils on DateTime {
+  DateTime startOfWeek() => normalized().subtract(Duration(days: weekday - 1));
+
+  DateTime endOfWeek() => normalized().add(Duration(days: 7 - weekday));
 }
