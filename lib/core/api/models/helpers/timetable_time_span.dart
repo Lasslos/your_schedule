@@ -12,22 +12,21 @@ class TimeTableTimeSpan {
   final DateTime startDate;
   final DateTime endDate;
 
-  final Map<DateTime, TimeTableDay> days = {};
+  final Map<DateTime, TimeTableDay> days;
   final int _maxDayLength = TimeTableDay.minHoursPerDay;
 
   int get maxDayLength => _maxDayLength;
 
   bool get isEmpty => days.isEmpty;
 
-
   TimeTableTimeSpan(
-      // ignore: no_leading_underscores_for_local_identifiers
-      DateTime _startDate,
-      // ignore: no_leading_underscores_for_local_identifiers
-      DateTime _endDate,
-      RPCResponse response)
-      : endDate = _endDate.normalized(),
-        startDate = _startDate.normalized() {
+      this.startDate, this.endDate, Map<DateTime, TimeTableDay> days)
+      : days = Map.unmodifiable(days);
+
+  factory TimeTableTimeSpan.fromRPCResponse(
+      DateTime startDate, DateTime endDate, RPCResponse response) {
+    final Map<DateTime, TimeTableDay> days = {};
+
     if (response.isError) {
       if (response.errorCode == -7004) {
         //"no allowed date"
@@ -40,7 +39,7 @@ class TimeTableTimeSpan {
           DateTime day = startDate.add(Duration(days: i));
           days[day] = TimeTableDay(day, i);
         }
-        return;
+        return TimeTableTimeSpan(startDate, endDate, days);
       } else {
         throw Exception(
             "Error while loading timetable: ${response.statusMessage} (${response.errorCode})");
@@ -81,9 +80,6 @@ class TimeTableTimeSpan {
       days.putIfAbsent(
           date, () => TimeTableDay(date, i, isHolidayOrWeekend: true));
     }
+    return TimeTableTimeSpan(startDate, endDate, days);
   }
 }
-
-///TODO: Even though this is marked as immutable, one might still just think oh lets just add something to this map and ill be good.
-///TODO: This is not the case. The map is immutable, but the values are not. So if you want to add something to the map, you have to create a new instance of this class.
-///TODO: So, maybe, move the logic to a provider? Like it might be helpful to have a provider that just gives you the current week and the next week and the previous week etc.

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_time_span.dart';
-import 'package:your_schedule/core/api/user_session.dart';
 
 ///[CachedTimeTableWeekData] contains persistent information and is stored in the cache.
 ///This includes:
@@ -18,19 +17,4 @@ class CachedTimeTableWeekData {
 
   const CachedTimeTableWeekData(this.startDate, this.endDate,
       this.relativeToCurrentWeek, this.cachedWeekData);
-
-  static Future<CachedTimeTableWeekData> getWeekData(
-    UserSession activeSession,
-    DateTime startDate,
-    DateTime endDate,
-    int relativeToCurrentWeek, {
-    int personID = -1,
-    PersonType personType = PersonType.unknown,
-  }) async {
-    TimeTableTimeSpan timeSpan = await activeSession.getTimeTable(
-        startDate, endDate,
-        personID: personID, personType: personType);
-    return CachedTimeTableWeekData(
-        startDate, endDate, relativeToCurrentWeek, timeSpan);
-  }
 }

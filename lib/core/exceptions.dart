@@ -64,17 +64,6 @@ class FailedToFetchNewsException implements Exception {
   }
 }
 
-class CurrentPhaseplanOutOfRange implements Exception {
-  String cause;
-
-  CurrentPhaseplanOutOfRange(this.cause);
-
-  @override
-  String toString() {
-    return "$runtimeType: $cause";
-  }
-}
-
 class InsufficientPermissionsException implements Exception {
   String cause;
 

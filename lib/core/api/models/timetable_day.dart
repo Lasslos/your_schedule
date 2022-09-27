@@ -30,10 +30,12 @@ class TimeTableDay {
   final int dayNumber;
 
   TimeTableDay(this.date, this.dayNumber,
-      {this.isHolidayOrWeekend = false, this.periods = const {}})
+      {this.isHolidayOrWeekend = false,
+      Map<DateTime, List<TimeTablePeriod>> periods = const {}})
       : weekday = Weekday.values[date.weekday - 1],
         formattedDay = date.convertToUntisDate().substring(6),
-        formattedMonth = date.convertToUntisDate().substring(4, 6);
+        formattedMonth = date.convertToUntisDate().substring(4, 6),
+        periods = Map.unmodifiable(periods);
 
   TimeTableDay copyWith({
     DateTime? date,

@@ -52,7 +52,7 @@ class PeriodSchedule {
   }
 
   //Fallback to default values.
-  static PeriodSchedule periodScheduleFallback = const PeriodSchedule._(
+  static const PeriodSchedule periodScheduleFallback = PeriodSchedule._(
     -1,
     [
       PeriodScheduleEntry._(0, "755", "855"),
