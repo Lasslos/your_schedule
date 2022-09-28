@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
@@ -19,7 +20,7 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
-  String _message = "";
+  String _message = "Logging in";
   bool _showTryAgain = false;
 
   @override
@@ -31,20 +32,17 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   Future<void> login() async {
     try {
       await ref.read(userSessionProvider.notifier).createSession(
-            await secureStorage.read(key: usernameKey) ?? "",
-            await secureStorage.read(key: passwordKey) ?? "",
-            await secureStorage.read(key: schoolKey) ?? "",
+        "", //await secureStorage.read(key: usernameKey) ?? "",
+        await secureStorage.read(key: passwordKey) ?? "",
+        await secureStorage.read(key: schoolKey) ?? "",
           );
     } catch (e) {
-      setState(() {
-        _message = e.toString();
-      });
       getLogger().e(e);
-      await Future.delayed(const Duration(seconds: 1));
       // This can be ignored as we use the context given by the state, meaning we don't store it.
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()));
+          MaterialPageRoute(
+              builder: (context) => LoginScreen(message: _message)));
       return;
     }
     setState(() {
@@ -77,7 +75,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     setState(() {
       _message = "Done";
     });
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 500));
     // This can be ignored as we use the context given by the state, meaning we don't store it.
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
@@ -87,22 +85,37 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Spacer(flex: 3),
-          Text(_message),
-          const Spacer(flex: 1),
-          if (_showTryAgain)
-            ElevatedButton(
-              onPressed: () {
-                login();
-              },
-              child: const Text("Try again"),
+      body: SizedBox.expand(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Spacer(),
+            const SizedBox(
+                height: 200,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Placeholder(
+                    child: Center(
+                      child: Text("Logo"),
+                    ),
+                  ),
+                )
             ),
-          if (!_showTryAgain) const CircularProgressIndicator(),
-          const Spacer(flex: 2),
-        ],
+            const Spacer(flex: 1),
+            if (_showTryAgain)
+              ElevatedButton(
+                onPressed: () {
+                  login();
+                },
+                child: const Text("Try again"),
+              ),
+            if (!_showTryAgain) const CircularProgressIndicator(),
+            const SizedBox(height: 25),
+            Text(_message, style: GoogleFonts.lato(fontSize: 16),
+                textAlign: TextAlign.center),
+            const Spacer(),
+          ],
+        ),
       ),
     );
   }

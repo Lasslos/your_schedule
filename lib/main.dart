@@ -11,9 +11,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Dein Stundenplan',
-      home: LoadingScreen(),
+      home: const LoadingScreen(),
+      theme: ThemeData.from(
+        colorScheme: const ColorScheme.dark(),
+        useMaterial3: true,
+      ),
+      themeMode: ThemeMode.dark,
     );
   }
 }
