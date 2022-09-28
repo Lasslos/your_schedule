@@ -115,12 +115,12 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
         {"user": username, "password": password, "client": state.appName});
 
     if (response.isHttpError) {
-      if (response.httpResponse == 501) {
+      if (response.httpStatusCode == 501) {
         throw ApiConnectionError(
             "${state.apiBaseURL} nicht verfügbar. Bitte versuche es später erneut.");
       } else {
         throw ApiConnectionError(
-            "Ein http Fehler ist aufgetreten: ${response.statusMessage}(${response.httpResponse})");
+            "Ein http Fehler ist aufgetreten: ${response.httpStatusCode}");
       }
     }
 
@@ -130,7 +130,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
             "Die eingegebenen Zugangsdaten sind falsch.");
       } else {
         throw ApiConnectionError(
-            "Ein Fehler ist aufgetreten: ${response.statusMessage}(${response.errorCode})");
+            "Ein Fehler ist aufgetreten: ${response.errorMessage} (${response.errorCode})");
       }
     }
 

@@ -29,7 +29,7 @@ class TimeTableWeek {
         return TimeTableWeek(week, days);
       } else {
         throw Exception(
-            "Error while loading timetable: ${response.statusMessage} (${response.errorCode})");
+            "Error while loading timetable: ${response.errorMessage} (${response.errorCode})");
       }
     }
 
@@ -94,6 +94,11 @@ class Week {
     }
     return startDate.isAtSameMomentAs(other.startDate) &&
         endDate.isAtSameMomentAs(other.endDate);
+  }
+
+  @override
+  String toString() {
+    return "from ${startDate.toString().substring(0, 10)} to ${endDate.toString().substring(0, 10)}";
   }
 }
 

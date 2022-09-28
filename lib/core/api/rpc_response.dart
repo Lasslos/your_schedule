@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:your_schedule/util/logger.dart';
 
 @immutable
 class RPCResponse {
@@ -14,30 +15,25 @@ class RPCResponse {
   ///Usually 2.0
   final String rpcVersion;
 
-  final String statusMessage;
+  final int httpStatusCode;
 
-  ///Zero means no error.
+  final String? errorMessage;
   final int errorCode;
-  final int httpResponse;
+
   final dynamic payload;
+  final http.Response? originalResponse;
 
-  bool get isApiError =>
-      statusMessage.isNotEmpty &&
-      (payload is Map<String, dynamic> ? payload.isNotEmpty : true);
+  bool get isApiError => errorMessage != null || errorCode != 0;
 
-  bool get isHttpError =>
-      (payload is Map<String, dynamic> ? payload.isEmpty : true) &&
-      statusMessage == "http error";
+  bool get isHttpError => httpStatusCode != 200;
 
   bool get isError => isApiError || isHttpError;
 
-  final http.Response? originalResponse;
-
   const RPCResponse(this.appName, this.rpcVersion, this.payload,
-      [this.statusMessage = "",
-      this.errorCode = 0,
-      this.httpResponse = -1,
-      this.originalResponse]);
+      [this.originalResponse,
+      this.httpStatusCode = 200,
+      this.errorMessage,
+      this.errorCode = 0]);
 
   factory RPCResponse.fromResponseBody(String httpResponseBody) {
     return RPCResponse._combine(httpResponseBody, null);
@@ -46,8 +42,8 @@ class RPCResponse {
   factory RPCResponse.fromHttpResponse(http.Response httpResponse) {
     //Check status code
     if (httpResponse.statusCode != 200) {
-      return RPCResponse("", "", const <String, dynamic>{}, "http error", 0,
-          httpResponse.statusCode, httpResponse);
+      return RPCResponse("unknown", "unknown", null, httpResponse,
+          httpResponse.statusCode, "", 0);
     }
 
     return RPCResponse._combine(httpResponse.body, httpResponse);
@@ -69,24 +65,22 @@ class RPCResponse {
     //Read data
     var result = json['result'];
     if (result != null) {
-      return RPCResponse(appId, rpcVersion, result, "", 0, 200, httpResponse);
+      return RPCResponse(appId, rpcVersion, result, httpResponse, 200, null, 0);
     }
 
     //If there is no result, try to read an error
     var error = json['error'];
     if (error != null) {
-      return RPCResponse(
-          appId,
-          rpcVersion,
-          const <String, dynamic>{},
-          json['error']['message'],
-          json['error']['code'],
-          httpResponse?.statusCode ?? -1,
-          httpResponse);
+      getLogger().w(
+          "Error in RPCResponse: $error from request ${httpResponse?.request?.url.toString()}");
+      return RPCResponse(appId, rpcVersion, null, httpResponse, 200,
+          json['error']['message'], json['error']['code']);
     }
 
     //If there is no result and no error, return an empty response
-    return RPCResponse(appId, rpcVersion, const <String, dynamic>{}, "", 0,
-        httpResponse?.statusCode ?? -1, httpResponse);
+    getLogger().w(
+        "Warning: Empty RPCResponse from request ${httpResponse?.request?.url ?? "null"}");
+    return RPCResponse(
+        appId, rpcVersion, null, httpResponse, 200, "empty response", -1);
   }
 }

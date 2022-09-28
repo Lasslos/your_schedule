@@ -7,6 +7,7 @@ import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/util/secure_storage_util.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({
@@ -30,10 +31,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   Future<void> login() async {
     try {
       await ref.read(userSessionProvider.notifier).createSession(
-          "Q1",
-          "!CjdQ1**",
-          "cjd-königswinter" //await secureStorage.read(key: usernameKey) ?? "",
-          //await secureStorage.read(key: passwordKey) ?? "",
+            await secureStorage.read(key: usernameKey) ?? "",
+            await secureStorage.read(key: passwordKey) ?? "",
+            await secureStorage.read(key: schoolKey) ?? "",
           );
     } catch (e) {
       setState(() {
@@ -41,6 +41,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       });
       getLogger().e(e);
       await Future.delayed(const Duration(seconds: 1));
+      // This can be ignored as we use the context given by the state, meaning we don't store it.
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (context) => const LoginScreen()));
       return;
@@ -71,12 +73,13 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         _showTryAgain = true;
       });
       getLogger().e(e);
-      rethrow;
     }
     setState(() {
       _message = "Done";
     });
     await Future.delayed(const Duration(seconds: 1));
+    // This can be ignored as we use the context given by the state, meaning we don't store it.
+    // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => const HomeScreen()));
   }

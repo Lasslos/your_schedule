@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 ///Entry in [PeriodSchedule] representing one period of time, in which a lesson (could) take place.
 @immutable
 class PeriodScheduleEntry {
-  ///What period of the day it is. First period is 0.
+  ///What period of the day it is. First period is 1.
   final int periodNumber;
   final String startTime;
   final String endTime;
