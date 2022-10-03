@@ -189,7 +189,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             textStyle:
                                 MaterialStateProperty.all(textTheme.labelLarge),
                           ),
-                          onPressed: _login,
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            _login();
+                          },
                           child: const Text("Log In"),
                         ),
                 ],
@@ -226,9 +229,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       loginAsync(username, password, school, domain),
       Future.delayed(const Duration(milliseconds: 300)),
     ]).then(
-      (value) => setState(() {
-        isLoading = false;
-      }),
+      (value) {
+        if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
+        }
+      },
     );
   }
 

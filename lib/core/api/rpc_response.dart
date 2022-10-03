@@ -100,7 +100,8 @@ class RPCResponse {
 
     //If there is no result and no error, return an empty response
     getLogger().w(
-      "Warning: Empty RPCResponse from request ${httpResponse?.request?.url ?? "null"}",
+      "Warning: Empty RPCResponse from request \n"
+      "${httpResponse?.request.toString()}",
     );
     return RPCResponse(
       appId,
