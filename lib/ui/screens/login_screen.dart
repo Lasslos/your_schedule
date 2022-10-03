@@ -86,7 +86,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   TextField(
                     autofocus: true,
                     autocorrect: false,
-                    autofillHints: const ["EF", "Q1", "Q2"],
+                    autofillHints: const [AutofillHints.username],
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.next,
                     controller: usernameFieldController,
@@ -106,6 +106,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     enableSuggestions: false,
                     obscureText: true,
                     keyboardType: TextInputType.visiblePassword,
+                    autofillHints: const [AutofillHints.password],
                     textInputAction: TextInputAction.next,
                     controller: passwordFieldController,
                     onEditingComplete: () {
