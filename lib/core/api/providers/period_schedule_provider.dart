@@ -24,10 +24,11 @@ class PeriodScheduleNotifier extends StateNotifier<PeriodSchedule> {
       throw ApiConnectionError("The user is not logged in!");
     }
     try {
-      http.Response response = await _ref
-          .read(userSessionProvider.notifier)
-          .queryURL("/WebUntis/api/rest/view/v1/timegrid",
-              needsAuthorization: true);
+      http.Response response =
+          await _ref.read(userSessionProvider.notifier).queryURL(
+                "/WebUntis/api/rest/view/v1/timegrid",
+                needsAuthorization: true,
+              );
       getLogger().i("Successfully fetched period schedule");
       state = PeriodSchedule.fromJSON(jsonDecode(response.body));
     } catch (e) {

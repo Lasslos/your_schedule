@@ -72,12 +72,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text("Login",
-                      style: textTheme.headline3
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    "Login",
+                    style: textTheme.headline3
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
-                  Text("Melde dich mit deinem Untis-Konto an",
-                      style: textTheme.labelMedium),
+                  Text(
+                    "Melde dich mit deinem Untis-Konto an",
+                    style: textTheme.labelMedium,
+                  ),
                   const SizedBox(height: 8),
                   TextField(
                     autofocus: true,
@@ -90,9 +94,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       FocusScope.of(context).requestFocus(focusNodes[0]);
                     },
                     decoration: const InputDecoration(
-                        labelText: "Benutzername",
-                        hintText: "Q1",
-                        prefixIcon: Icon(Icons.person)),
+                      labelText: "Benutzername",
+                      hintText: "Q1",
+                      prefixIcon: Icon(Icons.person),
+                    ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
@@ -156,9 +161,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(message,
-                      style:
-                          textTheme.labelMedium?.copyWith(color: Colors.red)),
+                  Text(
+                    message,
+                    style: textTheme.labelMedium?.copyWith(color: Colors.red),
+                  ),
                   const SizedBox(height: 8),
                   isLoading
                       ? const Padding(
@@ -174,15 +180,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           focusNode: focusNodes[3],
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                                theme.colorScheme.primary),
+                              theme.colorScheme.primary,
+                            ),
                             foregroundColor: MaterialStateProperty.all(
-                                theme.colorScheme.onPrimary),
+                              theme.colorScheme.onPrimary,
+                            ),
                             textStyle:
                                 MaterialStateProperty.all(textTheme.labelLarge),
                           ),
                           onPressed: _login,
                           child: const Text("Log In"),
-                        )
+                        ),
                 ],
               ),
             ),
@@ -216,13 +224,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     Future.wait([
       loginAsync(username, password, school, domain),
       Future.delayed(const Duration(milliseconds: 300)),
-    ]).then((value) => setState(() {
-          isLoading = false;
-        }));
+    ]).then(
+      (value) => setState(() {
+        isLoading = false;
+      }),
+    );
   }
 
   Future<void> loginAsync(
-      String username, String password, String school, String domain) async {
+    String username,
+    String password,
+    String school,
+    String domain,
+  ) async {
     try {
       await ref
           .read(userSessionProvider.notifier)
@@ -249,7 +263,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     // This can be ignored as we use the context given by the state, meaning we don't store it.
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
 
     ///Prevents the log in button being shown again before the page is replaced.
     await Future.delayed(const Duration(milliseconds: 500));
@@ -257,12 +273,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _openSchoolExplainingDialog() {
     _openExplainingDialog(
-        "Wie finde ich den exakten Namen meiner Schule?",
-        "Öffne die Website \nhttps://webuntis.com.\n"
-            "Suche deine Schule.\n"
-            "In dem Link, zu dem du weitergeleitet wurdest, steht \"school=\", "
-            "gefolgt von dem Namen, den du brauchst.\n"
-            "Es folgt ein #, welches nicht mehr Teil des Namens ist.");
+      "Wie finde ich den exakten Namen meiner Schule?",
+      "Öffne die Website \nhttps://webuntis.com.\n"
+          "Suche deine Schule.\n"
+          "In dem Link, zu dem du weitergeleitet wurdest, steht \"school=\", "
+          "gefolgt von dem Namen, den du brauchst.\n"
+          "Es folgt ein #, welches nicht mehr Teil des Namens ist.",
+    );
   }
 
   void _openDomainExplainingDialog() {
@@ -278,16 +295,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _openExplainingDialog(String title, String content) {
     showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text(title),
-              content: Text(content),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("Ok", textAlign: TextAlign.end),
-                ),
-              ],
-            ));
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Ok", textAlign: TextAlign.end),
+          ),
+        ],
+      ),
+    );
   }
 }

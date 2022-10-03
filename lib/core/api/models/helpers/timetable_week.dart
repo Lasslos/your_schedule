@@ -29,7 +29,8 @@ class TimeTableWeek {
         return TimeTableWeek(week, days);
       } else {
         throw Exception(
-            "Error while loading timetable: ${response.errorMessage} (${response.errorCode})");
+          "Error while loading timetable: ${response.errorMessage} (${response.errorCode})",
+        );
       }
     }
 
@@ -41,16 +42,20 @@ class TimeTableWeek {
             .normalized();
         days[entryDate] = days
             .putIfAbsent(
+              entryDate,
+              () => TimeTableDay(
                 entryDate,
-                () => TimeTableDay(
-                      entryDate,
-                      entryDate.difference(week.startDate).inDays,
-                    ))
-            .withPeriod(TimeTablePeriod.fromJSON(entry));
+                entryDate.difference(week.startDate).inDays,
+              ),
+            )
+            .withPeriod(
+              TimeTablePeriod.fromJSON(entry),
+            );
       }
     } catch (e) {
       debugPrint(
-          "Error while loading timetable. Response JSON might be malformed.");
+        "Error while loading timetable. Response JSON might be malformed.",
+      );
       rethrow;
     }
 
@@ -59,7 +64,9 @@ class TimeTableWeek {
     for (int i = 0; i < 7; i++) {
       DateTime date = week.startDate.add(Duration(days: i));
       days.putIfAbsent(
-          date, () => TimeTableDay(date, i, isHolidayOrWeekend: true));
+        date,
+        () => TimeTableDay(date, i, isHolidayOrWeekend: true),
+      );
     }
     return TimeTableWeek(week, days);
   }

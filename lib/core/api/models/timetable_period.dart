@@ -84,7 +84,10 @@ class TimeTablePeriod {
         json["kl"] != null && json["kl"].isNotEmpty
             ? TimeTablePeriodSchoolClassInformation.fromJSON(json["kl"][0])
             : const TimeTablePeriodSchoolClassInformation(
-                "unknown", "unknown", null);
+                "unknown",
+                "unknown",
+                null,
+              );
 
     TimeTablePeriodTeacherInformation teacher = json["te"] != null &&
             json["te"].isNotEmpty

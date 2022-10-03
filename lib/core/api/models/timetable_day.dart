@@ -15,7 +15,8 @@ class TimeTableDay {
 
   TimeTableDay withPeriod(TimeTablePeriod period) {
     return copyWith(
-        periods: {...periods}..putIfAbsent(period.start, () => []).add(period));
+      periods: {...periods}..putIfAbsent(period.start, () => []).add(period),
+    );
   }
 
   final Weekday weekday;
@@ -29,10 +30,12 @@ class TimeTableDay {
   ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
   final int dayNumber;
 
-  TimeTableDay(this.date, this.dayNumber,
-      {this.isHolidayOrWeekend = false,
-      Map<DateTime, List<TimeTablePeriod>> periods = const {}})
-      : weekday = Weekday.values[date.weekday - 1],
+  TimeTableDay(
+    this.date,
+    this.dayNumber, {
+    this.isHolidayOrWeekend = false,
+    Map<DateTime, List<TimeTablePeriod>> periods = const {},
+  })  : weekday = Weekday.values[date.weekday - 1],
         formattedDay = date.convertToUntisDate().substring(6),
         formattedMonth = date.convertToUntisDate().substring(4, 6),
         periods = Map.unmodifiable(periods);

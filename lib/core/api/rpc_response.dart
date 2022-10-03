@@ -29,11 +29,15 @@ class RPCResponse {
 
   bool get isError => isApiError || isHttpError;
 
-  const RPCResponse(this.appName, this.rpcVersion, this.payload,
-      [this.originalResponse,
-      this.httpStatusCode = 200,
-      this.errorMessage,
-      this.errorCode = 0]);
+  const RPCResponse(
+    this.appName,
+    this.rpcVersion,
+    this.payload, [
+    this.originalResponse,
+    this.httpStatusCode = 200,
+    this.errorMessage,
+    this.errorCode = 0,
+  ]);
 
   factory RPCResponse.fromResponseBody(String httpResponseBody) {
     return RPCResponse._combine(httpResponseBody, null);
@@ -42,16 +46,25 @@ class RPCResponse {
   factory RPCResponse.fromHttpResponse(http.Response httpResponse) {
     //Check status code
     if (httpResponse.statusCode != 200) {
-      return RPCResponse("unknown", "unknown", null, httpResponse,
-          httpResponse.statusCode, "", 0);
+      return RPCResponse(
+        "unknown",
+        "unknown",
+        null,
+        httpResponse,
+        httpResponse.statusCode,
+        "",
+        0,
+      );
     }
 
     return RPCResponse._combine(httpResponse.body, httpResponse);
   }
 
   ///[RPCResponse.fromResponseBody] and [RPCResponse.fromHttpResponse] both have a lot of logic in common, so this is a helper function to combine that logic
-  factory RPCResponse._combine(String httpResponseBody,
-      [http.Response? httpResponse]) {
+  factory RPCResponse._combine(
+    String httpResponseBody, [
+    http.Response? httpResponse,
+  ]) {
     Map<String, dynamic> json = {};
     try {
       json = jsonDecode(httpResponseBody);
@@ -72,15 +85,31 @@ class RPCResponse {
     var error = json['error'];
     if (error != null) {
       getLogger().w(
-          "Error in RPCResponse: $error from request ${httpResponse?.request?.url.toString()}");
-      return RPCResponse(appId, rpcVersion, null, httpResponse, 200,
-          json['error']['message'], json['error']['code']);
+        "Error in RPCResponse: $error from request ${httpResponse?.request?.url.toString()}",
+      );
+      return RPCResponse(
+        appId,
+        rpcVersion,
+        null,
+        httpResponse,
+        200,
+        json['error']['message'],
+        json['error']['code'],
+      );
     }
 
     //If there is no result and no error, return an empty response
     getLogger().w(
-        "Warning: Empty RPCResponse from request ${httpResponse?.request?.url ?? "null"}");
+      "Warning: Empty RPCResponse from request ${httpResponse?.request?.url ?? "null"}",
+    );
     return RPCResponse(
-        appId, rpcVersion, null, httpResponse, 200, "empty response", -1);
+      appId,
+      rpcVersion,
+      null,
+      httpResponse,
+      200,
+      "empty response",
+      -1,
+    );
   }
 }

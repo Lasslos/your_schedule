@@ -8,7 +8,10 @@ class TimeTablePeriodSchoolClassInformation {
   final int? identifier;
 
   const TimeTablePeriodSchoolClassInformation(
-      this.name, this.longName, this.identifier);
+    this.name,
+    this.longName,
+    this.identifier,
+  );
 
   TimeTablePeriodSchoolClassInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
@@ -26,7 +29,10 @@ class TimeTablePeriodTeacherInformation {
   final int? identifier;
 
   const TimeTablePeriodTeacherInformation(
-      this.name, this.longName, this.identifier);
+    this.name,
+    this.longName,
+    this.identifier,
+  );
 
   TimeTablePeriodTeacherInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
@@ -44,7 +50,10 @@ class TimeTablePeriodSubjectInformation {
   final int? identifier;
 
   const TimeTablePeriodSubjectInformation(
-      this.name, this.longName, this.identifier);
+    this.name,
+    this.longName,
+    this.identifier,
+  );
 
   TimeTablePeriodSubjectInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
@@ -62,7 +71,10 @@ class TimeTablePeriodRoomInformation {
   final int? identifier;
 
   const TimeTablePeriodRoomInformation(
-      this.name, this.longName, this.identifier);
+    this.name,
+    this.longName,
+    this.identifier,
+  );
 
   TimeTablePeriodRoomInformation.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),

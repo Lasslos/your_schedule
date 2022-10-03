@@ -40,18 +40,22 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           );
     } on MissingCredentialsException {
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => const LoginScreen(message: "")));
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(message: ""),
+        ),
+      );
       return;
     } catch (e, s) {
       getLogger().e("Error while creating session:", e, s);
       // This can be ignored as we use the context given by the state, meaning we don't store it.
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-              builder: (context) => LoginScreen(message: e.toString())));
+        context,
+        MaterialPageRoute(
+          builder: (context) => LoginScreen(message: e.toString()),
+        ),
+      );
       return;
     }
     setState(() {
@@ -88,7 +92,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     // This can be ignored as we use the context given by the state, meaning we don't store it.
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+    );
   }
 
   @override
@@ -100,15 +106,15 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           children: [
             const Spacer(),
             const SizedBox(
-                height: 200,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Placeholder(
-                    child: Center(
-                      child: Text("Logo"),
-                    ),
+              height: 200,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Placeholder(
+                  child: Center(
+                    child: Text("Logo"),
                   ),
-                )
+                ),
+              ),
             ),
             const Spacer(flex: 1),
             if (_showTryAgain)
@@ -120,8 +126,11 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
               ),
             if (!_showTryAgain) const CircularProgressIndicator(),
             const SizedBox(height: 25),
-            Text(_message, style: GoogleFonts.lato(fontSize: 16),
-                textAlign: TextAlign.center),
+            Text(
+              _message,
+              style: GoogleFonts.lato(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
             const Spacer(),
           ],
         ),

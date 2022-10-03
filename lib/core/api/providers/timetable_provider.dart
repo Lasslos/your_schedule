@@ -13,9 +13,10 @@ class TimeTable {
   final Map<Week, TimeTableWeek> weekData;
   final PeriodSchedule periodSchedule;
 
-  TimeTable(Map<Week, TimeTableWeek> weekData,
-      [this.periodSchedule = PeriodSchedule.periodScheduleFallback])
-      : weekData = Map.unmodifiable(weekData);
+  TimeTable(
+    Map<Week, TimeTableWeek> weekData, [
+    this.periodSchedule = PeriodSchedule.periodScheduleFallback,
+  ]) : weekData = Map.unmodifiable(weekData);
 
   TimeTable copyWith({
     Map<Week, TimeTableWeek>? weekData,
@@ -46,8 +47,11 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
     return _loadTimeTableWeek(week);
   }
 
-  Future<TimeTableWeek> _loadTimeTableWeek(Week week,
-      {int personID = -1, PersonType personType = PersonType.unknown}) async {
+  Future<TimeTableWeek> _loadTimeTableWeek(
+    Week week, {
+    int personID = -1,
+    PersonType personType = PersonType.unknown,
+  }) async {
     if (!_userSession.sessionIsValid) {
       throw Exception("Session is not valid");
     }

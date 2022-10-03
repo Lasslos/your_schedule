@@ -12,53 +12,55 @@ import 'package:your_schedule/util/secure_storage_util.dart';
 
 @immutable
 class UserSession {
-  const UserSession(
-      {this.school = "",
-      this.apiBaseURL = "herakles.webuntis.com",
-      this.appName = "",
-      this.sessionID = "",
-      this.loggedInPersonID = -1,
-      this.schoolClassID = -1,
-      this.loggedInPersonType = PersonType.unknown,
-      this.timeTablePersonID = -1,
-      this.timeTablePersonType = PersonType.unknown,
-      this.sessionIsValid = false,
-      this.username = "",
-      String password = "",
-      this.bearerToken = "",
-      this.profileData})
-      : _password = password;
+  const UserSession({
+    this.school = "",
+    this.apiBaseURL = "herakles.webuntis.com",
+    this.appName = "",
+    this.sessionID = "",
+    this.loggedInPersonID = -1,
+    this.schoolClassID = -1,
+    this.loggedInPersonType = PersonType.unknown,
+    this.timeTablePersonID = -1,
+    this.timeTablePersonType = PersonType.unknown,
+    this.sessionIsValid = false,
+    this.username = "",
+    String password = "",
+    this.bearerToken = "",
+    this.profileData,
+  }) : _password = password;
 
-  UserSession copyWith(
-      {String? appName,
-      String? sessionID,
-      int? loggedInPersonID,
-      int? schoolClassID,
-      PersonType? loggedInPersonType,
-      int? timeTablePersonID,
-      PersonType? timeTablePersonType,
-      String? school,
-      String? apiBaseURL,
-      bool? sessionIsValid,
-      String? username,
-      String? password,
-      String? bearerToken,
-      ProfileData? profileData}) {
+  UserSession copyWith({
+    String? appName,
+    String? sessionID,
+    int? loggedInPersonID,
+    int? schoolClassID,
+    PersonType? loggedInPersonType,
+    int? timeTablePersonID,
+    PersonType? timeTablePersonType,
+    String? school,
+    String? apiBaseURL,
+    bool? sessionIsValid,
+    String? username,
+    String? password,
+    String? bearerToken,
+    ProfileData? profileData,
+  }) {
     return UserSession(
-        appName: appName ?? this.appName,
-        sessionID: sessionID ?? this.sessionID,
-        loggedInPersonID: loggedInPersonID ?? this.loggedInPersonID,
-        schoolClassID: schoolClassID ?? this.schoolClassID,
-        loggedInPersonType: loggedInPersonType ?? this.loggedInPersonType,
-        timeTablePersonID: timeTablePersonID ?? this.timeTablePersonID,
-        timeTablePersonType: timeTablePersonType ?? this.timeTablePersonType,
-        school: school ?? this.school,
-        apiBaseURL: apiBaseURL ?? this.apiBaseURL,
-        sessionIsValid: sessionIsValid ?? this.sessionIsValid,
-        username: username ?? this.username,
-        password: password ?? _password,
-        bearerToken: bearerToken ?? this.bearerToken,
-        profileData: profileData ?? this.profileData);
+      appName: appName ?? this.appName,
+      sessionID: sessionID ?? this.sessionID,
+      loggedInPersonID: loggedInPersonID ?? this.loggedInPersonID,
+      schoolClassID: schoolClassID ?? this.schoolClassID,
+      loggedInPersonType: loggedInPersonType ?? this.loggedInPersonType,
+      timeTablePersonID: timeTablePersonID ?? this.timeTablePersonID,
+      timeTablePersonType: timeTablePersonType ?? this.timeTablePersonType,
+      school: school ?? this.school,
+      apiBaseURL: apiBaseURL ?? this.apiBaseURL,
+      sessionIsValid: sessionIsValid ?? this.sessionIsValid,
+      username: username ?? this.username,
+      password: password ?? _password,
+      bearerToken: bearerToken ?? this.bearerToken,
+      profileData: profileData ?? this.profileData,
+    );
   }
 
   final String appName;
@@ -102,42 +104,54 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
   UserSessionNotifier() : super(const UserSession());
 
   Future<void> createSession(
-      String username, String password, String school, String apiBaseURL,
-      [String token = ""]) async {
+    String username,
+    String password,
+    String school,
+    String apiBaseURL, [
+    String token = "",
+  ]) async {
     getLogger().i("Creating session for $username");
     if (state.sessionIsValid) {
       throw UserAlreadyLoggedInException(
-          "Der Benutzer ist bereits eingeloggt. Versuche eine neues User Objekt zu erstellen oder die Funktion 'logout()' vorher aufzurufen!");
+        "Der Benutzer ist bereits eingeloggt. Versuche eine neues User Objekt zu erstellen oder die Funktion 'logout()' vorher aufzurufen!",
+      );
     }
     if (username.isEmpty ||
         password.isEmpty ||
         school.isEmpty ||
         apiBaseURL.isEmpty) {
       throw MissingCredentialsException(
-          "Bitte gib einen Benutzernamen, ein Passwort, eine Schule und eine Domain an.");
+        "Bitte gib einen Benutzernamen, ein Passwort, eine Schule und eine Domain an.",
+      );
     }
     state = state.copyWith(school: school, apiBaseURL: apiBaseURL);
 
-    RPCResponse response = await queryRPC("authenticate",
-        {"user": username, "password": password, "client": state.appName});
+    RPCResponse response = await queryRPC(
+      "authenticate",
+      {"user": username, "password": password, "client": state.appName},
+    );
 
     if (response.isHttpError) {
       if (response.httpStatusCode == 501) {
         throw ApiConnectionError(
-            "${state.apiBaseURL} nicht verfügbar. Bitte versuche es später erneut.");
+          "${state.apiBaseURL} nicht verfügbar. Bitte versuche es später erneut.",
+        );
       } else {
         throw ApiConnectionError(
-            "Ein http Fehler ist aufgetreten: ${response.httpStatusCode}");
+          "Ein http Fehler ist aufgetreten: ${response.httpStatusCode}",
+        );
       }
     }
 
     if (response.isApiError) {
       if (response.errorCode == RPCResponse.rpcWrongCredentials) {
         throw WrongCredentialsException(
-            "Die eingegebenen Zugangsdaten sind falsch.");
+          "Die eingegebenen Zugangsdaten sind falsch.",
+        );
       } else {
         throw ApiConnectionError(
-            "Api Connection Error: ${response.errorMessage} (${response.errorCode})");
+          "Api Connection Error: ${response.errorMessage} (${response.errorCode})",
+        );
       }
     }
 
@@ -174,10 +188,12 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       if (json["state"] == "TOKEN_REQUIRED") {
         if (json["invalidToken"] == true) {
           throw InvalidSecurityToken(
-              "Zwei-Faktor Authentifizierung fehlgeschlagen. Bitte versuche es erneut");
+            "Zwei-Faktor Authentifizierung fehlgeschlagen. Bitte versuche es erneut",
+          );
         } else {
           throw SecurityTokenRequired(
-              "Dieses Profil ist mit Zwei-Faktor Authentifizierung versehen. Bitte gib deinen Zwei-Faktor Authentifizierungscode ein");
+            "Dieses Profil ist mit Zwei-Faktor Authentifizierung versehen. Bitte gib deinen Zwei-Faktor Authentifizierungscode ein",
+          );
         }
       }
     }
@@ -211,13 +227,18 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
 
   FutureOr<ProfileData> _getProfileData() async {
     http.Response response = await queryURL(
-        "/WebUntis/api/rest/view/v1/app/data",
-        needsAuthorization: true);
+      "/WebUntis/api/rest/view/v1/app/data",
+      needsAuthorization: true,
+    );
     return ProfileData.fromJSON(jsonDecode(response.body));
   }
 
-  Future<RPCResponse> queryRPC(String method, Map<String, dynamic> params,
-      {bool validateSession = true, String overwriteUrl = ""}) async {
+  Future<RPCResponse> queryRPC(
+    String method,
+    Map<String, dynamic> params, {
+    bool validateSession = true,
+    String overwriteUrl = "",
+  }) async {
     Map<String, dynamic> requestBody = {
       "id": state.appName,
       "method": method,
@@ -256,12 +277,16 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       );
     } else {
       throw Exception(
-          "Session validation failed. Please log out and try again.");
+        "Session validation failed. Please log out and try again.",
+      );
     }
   }
 
-  Future<http.Response> queryURL(String url,
-      {bool needsAuthorization = false, dynamic body}) async {
+  Future<http.Response> queryURL(
+    String url, {
+    bool needsAuthorization = false,
+    dynamic body,
+  }) async {
     if (needsAuthorization && !state.isAPIAuthorized) {
       getLogger().w("Failed to fetch bearer token. Retrying ...");
       await regenerateSessionBearerToken();
@@ -292,7 +317,11 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     state = state.copyWith(sessionIsValid: false);
     getLogger().v("Revalidation active session");
     await createSession(
-        state.username, state._password, state.school, state.apiBaseURL);
+      state.username,
+      state._password,
+      state.school,
+      state.apiBaseURL,
+    );
   }
 
   Future<void> regenerateSessionBearerToken() async {
@@ -305,7 +334,8 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       state = state.copyWith(bearerToken: response.body);
     } else {
       getLogger().w(
-          "Warning: Failed to fetch api token. Unable to call 'getNews()' and 'getProfileData()'");
+        "Warning: Failed to fetch api token. Unable to call 'getNews()' and 'getProfileData()'",
+      );
     }
   }
 }
