@@ -5,6 +5,7 @@ import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
+import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/ui/screens/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -32,17 +33,25 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   Future<void> login() async {
     try {
       await ref.read(userSessionProvider.notifier).createSession(
-        "", //await secureStorage.read(key: usernameKey) ?? "",
-        await secureStorage.read(key: passwordKey) ?? "",
-        await secureStorage.read(key: schoolKey) ?? "",
+            await secureStorage.read(key: usernameKey) ?? "",
+            await secureStorage.read(key: passwordKey) ?? "",
+            await secureStorage.read(key: schoolKey) ?? "",
+            await secureStorage.read(key: apiBaseURlKey) ?? "",
           );
-    } catch (e) {
-      getLogger().e(e);
+    } on MissingCredentialsException {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => const LoginScreen(message: "")));
+      return;
+    } catch (e, s) {
+      getLogger().e("Error while creating session:", e, s);
       // This can be ignored as we use the context given by the state, meaning we don't store it.
       // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(context,
+      Navigator.pushReplacement(
+          context,
           MaterialPageRoute(
-              builder: (context) => LoginScreen(message: _message)));
+              builder: (context) => LoginScreen(message: e.toString())));
       return;
     }
     setState(() {
@@ -50,12 +59,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     });
     try {
       await ref.read(periodScheduleProvider.notifier).loadPeriodSchedule();
-    } catch (e) {
+    } catch (e, s) {
       setState(() {
         _message = e.toString();
         _showTryAgain = true;
       });
-      getLogger().e(e);
+      getLogger().e("Error while fetching period schedule", e, s);
       return;
     }
     setState(() {
@@ -65,12 +74,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       await ref
           .read(timeTableProvider.notifier)
           .getTimeTableWeek(Week.relativeToCurrentWeek(0));
-    } catch (e) {
+    } catch (e, s) {
       setState(() {
         _message = e.toString();
         _showTryAgain = true;
       });
-      getLogger().e(e);
+      getLogger().e("Error while fetching timetable", e, s);
     }
     setState(() {
       _message = "Done";

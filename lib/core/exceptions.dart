@@ -5,7 +5,7 @@ class FailedToFetchUserdata implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -16,7 +16,7 @@ class UserAlreadyLoggedInException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -27,7 +27,7 @@ class WrongCredentialsException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -38,7 +38,7 @@ class MissingCredentialsException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -49,7 +49,7 @@ class ApiConnectionError implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -60,7 +60,7 @@ class FailedToFetchNewsException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -71,7 +71,7 @@ class InsufficientPermissionsException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -82,7 +82,7 @@ class UploadFileNotFoundException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -93,7 +93,7 @@ class UploadFileNotSpecifiedException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -104,7 +104,7 @@ class DownloadFileNotFoundException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -115,7 +115,7 @@ class NextBlockStartNotInRangeException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -126,7 +126,7 @@ class NextBlockEndNotInRangeException implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -137,7 +137,7 @@ class SecurityTokenRequired implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }
 
@@ -148,6 +148,6 @@ class InvalidSecurityToken implements Exception {
 
   @override
   String toString() {
-    return "$runtimeType: $cause";
+    return cause;
   }
 }

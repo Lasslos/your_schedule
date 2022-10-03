@@ -14,6 +14,7 @@ import 'package:your_schedule/util/secure_storage_util.dart';
 class UserSession {
   const UserSession(
       {this.school = "",
+      this.apiBaseURL = "herakles.webuntis.com",
       this.appName = "",
       this.sessionID = "",
       this.loggedInPersonID = -1,
@@ -37,6 +38,7 @@ class UserSession {
       int? timeTablePersonID,
       PersonType? timeTablePersonType,
       String? school,
+      String? apiBaseURL,
       bool? sessionIsValid,
       String? username,
       String? password,
@@ -51,6 +53,7 @@ class UserSession {
         timeTablePersonID: timeTablePersonID ?? this.timeTablePersonID,
         timeTablePersonType: timeTablePersonType ?? this.timeTablePersonType,
         school: school ?? this.school,
+        apiBaseURL: apiBaseURL ?? this.apiBaseURL,
         sessionIsValid: sessionIsValid ?? this.sessionIsValid,
         username: username ?? this.username,
         password: password ?? _password,
@@ -73,7 +76,7 @@ class UserSession {
   String get schoolBase64 => base64Encode(utf8.encode(school));
 
   ///Base url of all API calls. This might be different for different schools.
-  final String apiBaseURL = "https://herakles.webuntis.com";
+  final String apiBaseURL;
 
   ///JsonRPC endpoint.
   String get rpcURL => "$apiBaseURL/WebUntis/jsonrpc.do?school=$school";
@@ -98,18 +101,22 @@ class UserSession {
 class UserSessionNotifier extends StateNotifier<UserSession> {
   UserSessionNotifier() : super(const UserSession());
 
-  Future<void> createSession(String username, String password, String school,
+  Future<void> createSession(
+      String username, String password, String school, String apiBaseURL,
       [String token = ""]) async {
     getLogger().i("Creating session for $username");
-    state = state.copyWith(school: school);
     if (state.sessionIsValid) {
       throw UserAlreadyLoggedInException(
           "Der Benutzer ist bereits eingeloggt. Versuche eine neues User Objekt zu erstellen oder die Funktion 'logout()' vorher aufzurufen!");
     }
-    if (username.isEmpty || password.isEmpty || school.isEmpty) {
+    if (username.isEmpty ||
+        password.isEmpty ||
+        school.isEmpty ||
+        apiBaseURL.isEmpty) {
       throw MissingCredentialsException(
-          "Bitte gib einen Benutzernamen, ein Passwort und eine Schule an");
+          "Bitte gib einen Benutzernamen, ein Passwort, eine Schule und eine Domain an.");
     }
+    state = state.copyWith(school: school, apiBaseURL: apiBaseURL);
 
     RPCResponse response = await queryRPC("authenticate",
         {"user": username, "password": password, "client": state.appName});
@@ -130,7 +137,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
             "Die eingegebenen Zugangsdaten sind falsch.");
       } else {
         throw ApiConnectionError(
-            "Ein Fehler ist aufgetreten: ${response.errorMessage} (${response.errorCode})");
+            "Api Connection Error: ${response.errorMessage} (${response.errorCode})");
       }
     }
 
@@ -181,7 +188,8 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     secureStorage
       ..write(key: usernameKey, value: username)
       ..write(key: passwordKey, value: password)
-      ..write(key: schoolKey, value: school);
+      ..write(key: schoolKey, value: school)
+      ..write(key: apiBaseURlKey, value: apiBaseURL);
   }
 
   Future<RPCResponse> logout() async {
@@ -283,7 +291,8 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
   Future<void> _validateSession() async {
     state = state.copyWith(sessionIsValid: false);
     getLogger().v("Revalidation active session");
-    await createSession(state.username, state._password, state.school);
+    await createSession(
+        state.username, state._password, state.school, state.apiBaseURL);
   }
 
   Future<void> regenerateSessionBearerToken() async {

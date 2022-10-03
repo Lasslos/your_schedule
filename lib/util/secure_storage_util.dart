@@ -5,3 +5,4 @@ const secureStorage = FlutterSecureStorage();
 const usernameKey = "username";
 const passwordKey = "password";
 const schoolKey = "school";
+const apiBaseURlKey = "apiBaseURL";
