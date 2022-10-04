@@ -4,7 +4,7 @@ import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
-import 'package:your_schedule/ui/screens/home_screen.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/secure_storage_util.dart';
 

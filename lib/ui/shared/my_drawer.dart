@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/profile_data.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
-import 'package:your_schedule/ui/screens/filter_screen.dart';
-import 'package:your_schedule/ui/screens/home_screen.dart';
-import 'package:your_schedule/ui/screens/login_screen.dart';
-import 'package:your_schedule/ui/screens/settings_screen.dart';
+import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
+import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
+import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
 
 class MyDrawer extends ConsumerWidget {
   const MyDrawer({

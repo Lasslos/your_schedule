@@ -40,6 +40,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               onPressed: () {
                 animateToWeek(Week.now());
               },
+              tooltip: "Zur jetzigen Woche springen",
             ),
             IconButton(
               onPressed: () {
