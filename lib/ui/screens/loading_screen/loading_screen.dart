@@ -47,7 +47,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       );
       return;
     } catch (e, s) {
-      getLogger().e("Error while creating session:", e, s);
+      getLogger().e("Error while creating session", e, s);
       // This can be ignored as we use the context given by the state, meaning we don't store it.
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(

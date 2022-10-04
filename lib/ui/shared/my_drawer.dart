@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/profile_data.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
 
@@ -36,9 +35,6 @@ class MyDrawer extends ConsumerWidget {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              color: theme.primaryColor,
-            ),
             accountName: Text(username),
             accountEmail: Text(school),
             currentAccountPicture: avatar,
@@ -46,27 +42,32 @@ class MyDrawer extends ConsumerWidget {
           ListTile(
             title: const Text("Mein Stundenplan"),
             onTap: () {
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()));
+              Navigator.pop(context);
             },
           ),
           ListTile(
             title: const Text("Filter"),
             onTap: () {
+              Navigator.pop(context);
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const FilterScreen()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FilterScreen(),
+                ),
+              );
             },
           ),
           Expanded(child: Container()),
           ListTile(
             title: const Text("Einstellungen"),
             onTap: () {
+              Navigator.pop(context);
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsScreen()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
             },
           ),
           ListTile(
@@ -76,10 +77,13 @@ class MyDrawer extends ConsumerWidget {
             ),
             onTap: () {
               ref.read(userSessionProvider.notifier).logout();
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const LoginScreen(message: "")));
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(message: ""),
+                ),
+              );
             },
           ),
         ],
@@ -88,12 +92,11 @@ class MyDrawer extends ConsumerWidget {
   }
 
   CircleAvatar getProfileAvatar(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final imageURL = ref.watch(
-        userSessionProvider.select((value) => value.profileData?.imageURL));
+      userSessionProvider.select((value) => value.profileData?.imageURL),
+    );
 
     return CircleAvatar(
-      backgroundColor: theme.colorScheme.surfaceTint,
       backgroundImage: imageURL == null ? null : Image.network(imageURL).image,
       child: imageURL == null ? const Icon(Icons.person) : null,
     );

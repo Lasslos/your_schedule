@@ -249,8 +249,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref
           .read(userSessionProvider.notifier)
           .createSession(username, password, school, domain);
-    } catch (e) {
-      getLogger().e(e);
+    } catch (e, s) {
+      getLogger().e("Error while creating session", e, s);
 
       ///Don't setState as this will be called by [_login]
       message = e.toString();
@@ -259,13 +259,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       await ref.read(periodScheduleProvider.notifier).loadPeriodSchedule();
-    } catch (e) {
-      getLogger().e(e);
+    } catch (e, s) {
+      getLogger().e("Error while fetching period schedule", e, s);
     }
     try {
       await ref.read(timeTableProvider.notifier).getTimeTableWeek(Week.now());
-    } catch (e) {
-      getLogger().e(e);
+    } catch (e, s) {
+      getLogger().e("Error while fetching timetable", e, s);
     }
 
     // This can be ignored as we use the context given by the state, meaning we don't store it.

@@ -16,10 +16,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Dein Stundenplan',
       home: const LoadingScreen(),
-      theme: ThemeData.from(
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.lightBlue,
-        ),
+      theme: ThemeData(
+        primarySwatch: Colors.lightBlue,
+        brightness: Brightness.light,
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.lightBlue,
+        brightness: Brightness.dark,
         useMaterial3: true,
       ),
       themeMode: ThemeMode.dark,
