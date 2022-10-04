@@ -20,13 +20,8 @@ class _TimeTableViewState extends ConsumerState<TimeTableView> {
   Widget build(BuildContext context) {
     var viewMode = ref.watch(homeScreenViewModeProvider);
 
-    return RefreshIndicator(
-      onRefresh: onRefresh,
-      child: SingleChildScrollView(
-        child: PinchToZoom(
-          child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
-        ),
-      ),
+    return PinchToZoom(
+      child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
     );
   }
 
