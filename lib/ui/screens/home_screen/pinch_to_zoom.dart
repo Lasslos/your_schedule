@@ -9,18 +9,18 @@ class PinchToZoom extends StatelessWidget {
     this.minimumSize = 300,
     this.maximumSize = 1200,
     super.key,
-  })  : assert(
-          initialSize >= (minimumSize ?? initialSize),
-          'initialSize must be greater than minimumSize',
-        ),
-        assert(
-          initialSize <= (maximumSize ?? initialSize),
-          'initialSize must be less than maximumSize',
-        ),
-        assert(
-          (minimumSize ?? initialSize) <= (maximumSize ?? initialSize),
-          'minimumSize must be less than maximumSize',
-        );
+  }) : assert(
+        initialSize >= (minimumSize ?? initialSize),
+        'initialSize must be greater than minimumSize',
+      ),
+      assert(
+        initialSize <= (maximumSize ?? initialSize),
+        'initialSize must be less than maximumSize',
+      ),
+      assert(
+        (minimumSize ?? initialSize) <= (maximumSize ?? initialSize),
+        'minimumSize must be less than maximumSize',
+      );
 
   final double initialSize;
   final double? minimumSize;

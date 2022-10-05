@@ -15,6 +15,7 @@ dependencies:
   flutter_secure_storage: ^5.1.2
   shared_preferences: ^2.0.15
   google_fonts: ^3.0.1
+  linked_scroll_controller: ^0.2.0
 
 dev_dependencies:
   flutter_test:

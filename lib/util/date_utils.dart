@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 extension DateUtils on DateTime {
   String convertToUntisDate() {
     return (year >= 1000 ? year.toString() : "1970") +
@@ -31,4 +33,19 @@ extension DateUtils on DateTime {
 
 extension DateUtilsOnString on String {
   DateTime convertUntisDateToDateTime() => DateTime.parse(this);
+}
+
+extension TimeOfDayUtils on TimeOfDay {
+  Duration difference(TimeOfDay other) {
+    return Duration(
+      seconds: differenceToMidnight().inSeconds - other.differenceToMidnight().inSeconds,
+    );
+  }
+
+  Duration differenceToMidnight() {
+    return Duration(
+      hours: hour,
+      minutes: minute,
+    );
+  }
 }

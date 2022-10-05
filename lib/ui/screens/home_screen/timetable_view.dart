@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
-import 'package:your_schedule/ui/screens/home_screen/pinch_to_zoom.dart';
 import 'package:your_schedule/ui/screens/home_screen/two_dimensional_scroll_view.dart';
 
 class TimeTableView extends ConsumerStatefulWidget {
@@ -20,8 +19,14 @@ class _TimeTableViewState extends ConsumerState<TimeTableView> {
   Widget build(BuildContext context) {
     var viewMode = ref.watch(homeScreenViewModeProvider);
 
-    return PinchToZoom(
-      child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+    return TwoDimensionalScrollView.builder(
+      (context, index) => Center(
+        child: Text(
+          "Time Table View\n"
+          "View Mode: ${viewMode.readableName}\n"
+          "Week: ${Week.relativeToCurrentWeek(index).toString()}",
+        ),
+      ),
     );
   }
 
@@ -47,7 +52,7 @@ class WeekView extends ConsumerStatefulWidget {
 class _WeekViewState extends ConsumerState<WeekView> {
   @override
   Widget build(BuildContext context) {
-    return const TwoDimensionalScrollView();
+    return const Placeholder();
   }
 }
 
@@ -63,6 +68,6 @@ class DayView extends ConsumerStatefulWidget {
 class _DayViewState extends ConsumerState<DayView> {
   @override
   Widget build(BuildContext context) {
-    return const TwoDimensionalScrollView();
+    return const Placeholder();
   }
 }
