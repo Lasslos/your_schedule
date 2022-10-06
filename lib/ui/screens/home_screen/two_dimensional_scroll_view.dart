@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/pinch_to_zoom.dart';
@@ -22,26 +21,27 @@ class TwoDimensionalScrollView extends ConsumerStatefulWidget {
 }
 
 class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollView> {
-  late LinkedScrollControllerGroup _controllers;
-  late ScrollController _periodScheduleController;
-  late ScrollController _bodyController;
-
-  @override
-  void initState() {
-    super.initState();
-    _controllers = LinkedScrollControllerGroup();
-    _periodScheduleController = _controllers.addAndGet();
-    _bodyController = _controllers.addAndGet();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return PinchToZoom(
-      child: Row(
-        children: [
-          _buildPeriodScheduleWidget(context),
-          _buildBody(context),
-        ],
+    return PinchToZoom.builder(
+      builder: (context, height) => SingleChildScrollView(
+        ///TODO: If you are REALLY bored, consider adding infinite scroll back and forth
+        child: Row(
+          children: [
+            SizedBox(
+              height: height,
+              child: _buildPeriodScheduleWidget(context),
+            ),
+            const VerticalDivider(),
+            Expanded(
+              child: SizedBox(
+                height: height,
+                child: _buildBody(context),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -49,11 +49,7 @@ class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollV
   Widget _buildBody(BuildContext context) {
     return PageView.builder(
       scrollDirection: Axis.horizontal,
-      itemBuilder: (context, index) => SingleChildScrollView(
-        controller: _bodyController,
-        ///TODO: If you are REALLY bored, consider adding infinite scroll back and forth
-        child: widget.builder(context, index),
-      ),
+      itemBuilder: (context, index) => widget.builder(context, index),
     );
   }
 
@@ -72,12 +68,16 @@ class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollV
       var entry = periodSchedule[i];
       var difference = entry.startTime.difference(previousEntry.endTime).inMinutes;
 
-      if (difference > 0) {
-        children.add(
+      if (difference > 1) {
+        children.addAll([
           Spacer(
-            flex: difference,
+            flex: difference ~/ 2,
           ),
-        );
+          const Divider(),
+          Spacer(
+            flex: difference ~/ 2,
+          ),
+        ]);
       } else if (difference < 0) {
         getLogger().w("Difference between consecutive period schedule entries is smaller than 0");
       }
@@ -90,8 +90,8 @@ class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollV
       );
     }
 
-    return SingleChildScrollView(
-      controller: _periodScheduleController,
+    return SizedBox(
+      width: 75,
       child: Column(
         children: children,
       ),
@@ -109,31 +109,35 @@ class PeriodScheduleColumnElement extends StatelessWidget {
     var theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.all(4),
-      child: Card(
-        child: Column(
-          children: [
-            Row(
+      padding: const EdgeInsets.all(8),
+      child: Column(
+        children: [
+          Expanded(
+            child: Row(
               children: [
-                Text(entry.startTime.toString(), style: theme.textTheme.labelSmall,),
+                Text(entry.startTime.toMyString(), style: theme.textTheme.labelSmall,),
                 const Spacer(),
               ],
             ),
-            Row(
+          ),
+          Expanded(
+            child: Row(
               children: [
                 const Spacer(),
                 Text(entry.periodNumber.toString(), style: theme.textTheme.labelMedium,),
                 const Spacer(),
               ],
             ),
-            Row(
+          ),
+          Expanded(
+            child: Row(
               children: [
                 const Spacer(),
-                Text(entry.startTime.toString(), style: theme.textTheme.labelSmall,),
+                Text(entry.endTime.toMyString(), style: theme.textTheme.labelSmall,),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

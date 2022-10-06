@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 double? _onScaleStartSize;
 
 class PinchToZoom extends StatelessWidget {
-  PinchToZoom({
-    required this.child,
+  PinchToZoom.builder({
+    required this.builder,
     this.initialSize = 600,
     this.minimumSize = 300,
     this.maximumSize = 1200,
@@ -25,7 +25,7 @@ class PinchToZoom extends StatelessWidget {
   final double initialSize;
   final double? minimumSize;
   final double? maximumSize;
-  final Widget child;
+  final Widget Function(BuildContext context, double height) builder;
 
   final GlobalKey<_ChangeableHeightWidgetState> _key = GlobalKey();
 
@@ -52,7 +52,7 @@ class PinchToZoom extends StatelessWidget {
       child: _ChangeableHeightWidget(
         key: _key,
         initialHeight: initialSize,
-        child: child,
+        builder: builder,
       ),
     );
   }
@@ -61,12 +61,12 @@ class PinchToZoom extends StatelessWidget {
 class _ChangeableHeightWidget extends StatefulWidget {
   const _ChangeableHeightWidget({
     required this.initialHeight,
-    required this.child,
+    required this.builder,
     super.key,
   });
 
   final double initialHeight;
-  final Widget child;
+  final Widget Function(BuildContext context, double height) builder;
 
   @override
   State<_ChangeableHeightWidget> createState() =>
@@ -91,8 +91,5 @@ class _ChangeableHeightWidgetState extends State<_ChangeableHeightWidget> {
   }
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        height: _size,
-        child: widget.child,
-      );
+  Widget build(BuildContext context) => widget.builder(context, size);
 }

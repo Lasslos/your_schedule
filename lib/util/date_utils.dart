@@ -48,4 +48,6 @@ extension TimeOfDayUtils on TimeOfDay {
       minutes: minute,
     );
   }
+
+  String toMyString() => "$hour:$minute";
 }

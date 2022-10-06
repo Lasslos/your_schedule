@@ -16,7 +16,7 @@ class PeriodScheduleEntry {
   factory PeriodScheduleEntry.fromJson(Map<String, dynamic> json) {
     assert(json.isNotEmpty, "json must not be empty");
     assert(json['errorMessage'] == null, json['errorMessage']);
-    int periodNumber = json['unitOfDay'] - 1;
+    int periodNumber = json['unitOfDay'];
     String startTimeString = (json['startTime'] ?? "0000").toString().padLeft(4, '0');
     String endTimeString = (json['endTime'] ?? "0000").toString().padLeft(4, '0');
     TimeOfDay startTime = TimeOfDay(
@@ -67,42 +67,42 @@ class PeriodSchedule {
     -1,
     [
       PeriodScheduleEntry._(
-        0,
+        1,
         TimeOfDay(hour: 7, minute: 55),
         TimeOfDay(hour: 8, minute: 55),
       ),
       PeriodScheduleEntry._(
-        1,
+        2,
         TimeOfDay(hour: 9, minute: 10),
         TimeOfDay(hour: 10, minute: 10),
       ),
       PeriodScheduleEntry._(
-        2,
+        3,
         TimeOfDay(hour: 10, minute: 20),
         TimeOfDay(hour: 11, minute: 20),
       ),
       PeriodScheduleEntry._(
-        3,
+        4,
         TimeOfDay(hour: 11, minute: 45),
         TimeOfDay(hour: 12, minute: 45),
       ),
       PeriodScheduleEntry._(
-        4,
+        5,
         TimeOfDay(hour: 12, minute: 55),
         TimeOfDay(hour: 13, minute: 55),
       ),
       PeriodScheduleEntry._(
-        5,
+        6,
         TimeOfDay(hour: 13, minute: 55),
         TimeOfDay(hour: 14, minute: 25),
       ),
       PeriodScheduleEntry._(
-        6,
+        7,
         TimeOfDay(hour: 14, minute: 25),
         TimeOfDay(hour: 15, minute: 25),
       ),
       PeriodScheduleEntry._(
-        7,
+        8,
         TimeOfDay(hour: 15, minute: 35),
         TimeOfDay(hour: 16, minute: 35),
       ),
