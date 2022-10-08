@@ -6,6 +6,9 @@ import 'package:your_schedule/ui/screens/home_screen/pinch_to_zoom.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
+///TODO: Inspect performance and improve, especially caching with all of these builders
+///TODO: Add liquid pull to refresh
+///TODO: Separate [TwoDimensionalScrollView] and what belongs to this app itself
 
 class TwoDimensionalScrollView extends ConsumerStatefulWidget {
   const TwoDimensionalScrollView.builder(
