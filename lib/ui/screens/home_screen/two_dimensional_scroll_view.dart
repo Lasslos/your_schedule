@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
-import 'package:your_schedule/ui/screens/home_screen/pinch_to_zoom.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
@@ -13,7 +12,7 @@ import 'package:your_schedule/util/logger.dart';
 class TwoDimensionalScrollView extends ConsumerStatefulWidget {
   const TwoDimensionalScrollView.builder(
     this.builder, {
-      super.key,
+    super.key,
   });
 
   final Widget Function(BuildContext context, int index) builder;
@@ -23,28 +22,26 @@ class TwoDimensionalScrollView extends ConsumerStatefulWidget {
       _TwoDimensionalScrollViewState();
 }
 
-class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollView> {
-
+class _TwoDimensionalScrollViewState
+    extends ConsumerState<TwoDimensionalScrollView> {
   @override
   Widget build(BuildContext context) {
-    return PinchToZoom.builder(
-      builder: (context, height) => SingleChildScrollView(
-        ///TODO: If you are REALLY bored, consider adding infinite scroll back and forth
-        child: Row(
-          children: [
-            SizedBox(
-              height: height,
-              child: _buildPeriodScheduleWidget(context),
+    return SingleChildScrollView(
+      ///TODO: If you are REALLY bored, consider adding infinite scroll back and forth
+      child: Row(
+        children: [
+          SizedBox(
+            height: 1000,
+            child: _buildPeriodScheduleWidget(context),
+          ),
+          const VerticalDivider(),
+          Expanded(
+            child: SizedBox(
+              height: 1000,
+              child: _buildBody(context),
             ),
-            const VerticalDivider(),
-            Expanded(
-              child: SizedBox(
-                height: height,
-                child: _buildBody(context),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -69,7 +66,8 @@ class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollV
     for (int i = 1; i < periodSchedule.entries.length; i++) {
       var previousEntry = periodSchedule[i - 1];
       var entry = periodSchedule[i];
-      var difference = entry.startTime.difference(previousEntry.endTime).inMinutes;
+      var difference =
+          entry.startTime.difference(previousEntry.endTime).inMinutes;
 
       if (difference > 1) {
         children.addAll([
@@ -82,7 +80,9 @@ class _TwoDimensionalScrollViewState extends ConsumerState<TwoDimensionalScrollV
           ),
         ]);
       } else if (difference < 0) {
-        getLogger().w("Difference between consecutive period schedule entries is smaller than 0");
+        getLogger().w(
+          "Difference between consecutive period schedule entries is smaller than 0",
+        );
       }
 
       children.add(
@@ -118,7 +118,10 @@ class PeriodScheduleColumnElement extends StatelessWidget {
           Expanded(
             child: Row(
               children: [
-                Text(entry.startTime.toMyString(), style: theme.textTheme.labelSmall,),
+                Text(
+                  entry.startTime.toMyString(),
+                  style: theme.textTheme.labelSmall,
+                ),
                 const Spacer(),
               ],
             ),
@@ -127,7 +130,10 @@ class PeriodScheduleColumnElement extends StatelessWidget {
             child: Row(
               children: [
                 const Spacer(),
-                Text(entry.periodNumber.toString(), style: theme.textTheme.labelMedium,),
+                Text(
+                  entry.periodNumber.toString(),
+                  style: theme.textTheme.labelMedium,
+                ),
                 const Spacer(),
               ],
             ),
@@ -136,7 +142,10 @@ class PeriodScheduleColumnElement extends StatelessWidget {
             child: Row(
               children: [
                 const Spacer(),
-                Text(entry.endTime.toMyString(), style: theme.textTheme.labelSmall,),
+                Text(
+                  entry.endTime.toMyString(),
+                  style: theme.textTheme.labelSmall,
+                ),
               ],
             ),
           ),

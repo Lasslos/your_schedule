@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/ui/screens/home_screen/timetable_view.dart';
 import 'package:your_schedule/ui/shared/my_drawer.dart';
+import 'package:your_schedule/util/date_utils.dart';
 
 enum ViewMode {
   week("Wochenansicht", Icons.calendar_view_week),
@@ -62,3 +64,51 @@ class HomeScreen extends ConsumerWidget {
 
 final homeScreenDateProvider = StateProvider((ref) => DateTime.now());
 final homeScreenViewModeProvider = StateProvider((ref) => ViewMode.week);
+
+@immutable
+class HomePageTimes {
+  final TimeOfDay startOfDay;
+  final TimeOfDay endOfDay;
+
+  const HomePageTimes(this.startOfDay, this.endOfDay);
+
+  HomePageTimes copyWith({
+    TimeOfDay? startOfDay,
+    TimeOfDay? endOfDay,
+  }) {
+    return HomePageTimes(
+      startOfDay ?? this.startOfDay,
+      endOfDay ?? this.endOfDay,
+    );
+  }
+}
+
+class HomePageTimesNotifier extends StateNotifier<HomePageTimes> {
+  HomePageTimesNotifier()
+      : super(
+          HomePageTimes(
+            PeriodSchedule.periodScheduleFallback.entries.first.startTime,
+            PeriodSchedule.periodScheduleFallback.entries.first.endTime,
+          ),
+        );
+
+  set maybeNewStartOfDay(TimeOfDay newStartOfDay) {
+    ///We subtract the current time of day from the proposed time of day, and if this results in a negative number, we know that the proposed time of day is earlier than the current time of day.
+    ///In that case, make the proposed time of day the new end of day.
+    if (newStartOfDay.difference(state.startOfDay).isNegative) {
+      state = state.copyWith(startOfDay: newStartOfDay);
+    }
+  }
+
+  set maybeNewEndOfDay(TimeOfDay newEndOfDay) {
+    ///We subtract the current time of day from the proposed time of day, and if this results in a negative number, we know that the proposed time of day is later than the current time of day.
+    ///In that case, make the proposed time of day the new end of day.
+    if (newEndOfDay.difference(state.endOfDay).isNegative) {
+      state = state.copyWith(endOfDay: newEndOfDay);
+    }
+  }
+}
+
+final StateNotifierProvider<HomePageTimesNotifier, HomePageTimes>
+    homePageTimesProvider =
+    StateNotifierProvider((ref) => HomePageTimesNotifier());

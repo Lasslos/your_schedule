@@ -27,7 +27,9 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   @override
   void initState() {
     super.initState();
-    login();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      login();
+    });
   }
 
   Future<void> login() async {

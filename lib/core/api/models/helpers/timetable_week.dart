@@ -93,7 +93,8 @@ class Week {
             DateTime.now().startOfWeek().add(Duration(days: relative * 7)),
         endDate = DateTime.now().endOfWeek().add(Duration(days: relative * 7));
 
-  List<DateTime> get daysInWeek => [for (int i = 0; i < 7; i++) startDate.add(Duration(days: i))];
+  List<DateTime> get daysInWeek =>
+      [for (int i = 0; i < 7; i++) startDate.add(Duration(days: i))];
 
   @override
   int get hashCode => Object.hash(startDate, endDate);

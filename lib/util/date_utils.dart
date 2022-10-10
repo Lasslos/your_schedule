@@ -38,7 +38,8 @@ extension DateUtilsOnString on String {
 extension TimeOfDayUtils on TimeOfDay {
   Duration difference(TimeOfDay other) {
     return Duration(
-      seconds: differenceToMidnight().inSeconds - other.differenceToMidnight().inSeconds,
+      seconds: differenceToMidnight().inSeconds -
+          other.differenceToMidnight().inSeconds,
     );
   }
 

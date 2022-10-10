@@ -121,6 +121,36 @@ class TimeTablePeriod {
   }
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TimeTablePeriod &&
+          runtimeType == other.runtimeType &&
+          schoolClass == other.schoolClass &&
+          teacher == other.teacher &&
+          subject == other.subject &&
+          room == other.room &&
+          substText == other.substText &&
+          activityType == other.activityType &&
+          id == other.id &&
+          start == other.start &&
+          end == other.end &&
+          periodStatus == other.periodStatus;
+
+  @override
+  int get hashCode => Object.hash(
+        schoolClass,
+        teacher,
+        subject,
+        room,
+        substText,
+        activityType,
+        id,
+        start,
+        end,
+        periodStatus,
+      );
+
+  @override
   String toString() {
     return "${subject.name} (${teacher.name}) Code: ${periodStatus.name}";
   }

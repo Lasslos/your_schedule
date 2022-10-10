@@ -17,8 +17,10 @@ class PeriodScheduleEntry {
     assert(json.isNotEmpty, "json must not be empty");
     assert(json['errorMessage'] == null, json['errorMessage']);
     int periodNumber = json['unitOfDay'];
-    String startTimeString = (json['startTime'] ?? "0000").toString().padLeft(4, '0');
-    String endTimeString = (json['endTime'] ?? "0000").toString().padLeft(4, '0');
+    String startTimeString =
+        (json['startTime'] ?? "0000").toString().padLeft(4, '0');
+    String endTimeString =
+        (json['endTime'] ?? "0000").toString().padLeft(4, '0');
     TimeOfDay startTime = TimeOfDay(
       hour: int.parse(startTimeString.substring(0, 2)),
       minute: int.parse(startTimeString.substring(2, 4)),
@@ -53,10 +55,12 @@ class PeriodSchedule {
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
         schoolYearId = json['schoolyearId'],
-        entries = (json['units'] as List<dynamic>)
-            .map((e) => PeriodScheduleEntry.fromJson(e))
-            .toList()
-          ..sort((a, b) => a.periodNumber.compareTo(b.periodNumber));
+        entries = List.unmodifiable(
+          (json['units'] as List<dynamic>)
+              .map((e) => PeriodScheduleEntry.fromJson(e))
+              .toList()
+            ..sort((a, b) => a.periodNumber.compareTo(b.periodNumber)),
+        );
 
   PeriodScheduleEntry operator [](int periodNumber) {
     return entries[periodNumber];

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
+import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
+import 'package:your_schedule/ui/screens/home_screen/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/two_dimensional_scroll_view.dart';
 
 class TimeTableView extends ConsumerStatefulWidget {
@@ -20,13 +22,9 @@ class _TimeTableViewState extends ConsumerState<TimeTableView> {
     var viewMode = ref.watch(homeScreenViewModeProvider);
 
     return TwoDimensionalScrollView.builder(
-      (context, index) => Center(
-        child: Text(
-          "Time Table View\n"
-          "View Mode: ${viewMode.readableName}\n"
-          "Week: ${Week.relativeToCurrentWeek(index).toString()}",
-        ),
-      ),
+      (context, index) {
+        return viewMode == ViewMode.week ? const WeekView() : const DayView();
+      },
     );
   }
 
@@ -56,18 +54,21 @@ class _WeekViewState extends ConsumerState<WeekView> {
   }
 }
 
-class DayView extends ConsumerStatefulWidget {
+class DayView extends ConsumerWidget {
   const DayView({
     Key? key,
   }) : super(key: key);
 
   @override
-  ConsumerState createState() => _DayViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    TimeTable timetable = ref.watch(timeTableProvider);
+    List<TimeTablePeriod> periods = timetable
+        .weekData[Week.now()]!.days.entries.first.value.periods.values
+        .toList()
+        .reduce((value, element) => [...value, ...element]);
 
-class _DayViewState extends ConsumerState<DayView> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+    return PeriodLayout(
+      periods: periods,
+    );
   }
 }
