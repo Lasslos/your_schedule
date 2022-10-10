@@ -88,7 +88,7 @@ class HomePageTimesNotifier extends StateNotifier<HomePageTimes> {
       : super(
           HomePageTimes(
             PeriodSchedule.periodScheduleFallback.entries.first.startTime,
-            PeriodSchedule.periodScheduleFallback.entries.first.endTime,
+            PeriodSchedule.periodScheduleFallback.entries.last.endTime,
           ),
         );
 
@@ -103,7 +103,7 @@ class HomePageTimesNotifier extends StateNotifier<HomePageTimes> {
   set maybeNewEndOfDay(TimeOfDay newEndOfDay) {
     ///We subtract the current time of day from the proposed time of day, and if this results in a negative number, we know that the proposed time of day is later than the current time of day.
     ///In that case, make the proposed time of day the new end of day.
-    if (newEndOfDay.difference(state.endOfDay).isNegative) {
+    if (!newEndOfDay.difference(state.endOfDay).isNegative) {
       state = state.copyWith(endOfDay: newEndOfDay);
     }
   }

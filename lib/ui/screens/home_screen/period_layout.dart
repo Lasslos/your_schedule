@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
-import 'package:your_schedule/util/logger.dart';
 
 ///Warning: Spaghetti code. I've tried to explain it as good as possible.
 
@@ -18,7 +17,9 @@ class _PeriodLayoutList {
   _PeriodLayoutList._(this.partsMap);
 
   factory _PeriodLayoutList.fromPeriods(
-      List<TimeTablePeriod> periods, DateTime start) {
+    List<TimeTablePeriod> periods,
+    DateTime start,
+  ) {
     periods.sort((a, b) => a.start.compareTo(b.start));
     var result = <DateTime, List<TimeTablePeriod>>{start: []};
     var sortedListOfKeys = [start];
@@ -31,8 +32,10 @@ class _PeriodLayoutList {
         ///Also: Cannot use add because it would be the same list.
         var lastKeyBeforePeriodStart =
             sortedListOfKeys.reduce((value, element) {
-          assert(value.isBefore(period.start),
-              "The list of starts' smallest element is not before the period's start.");
+              assert(
+            value.isBefore(period.start),
+            "The list of starts' smallest element is not before the period's start.",
+          );
           if (!element.isBefore(period.start)) {
             return value;
           }
@@ -53,7 +56,9 @@ class _PeriodLayoutList {
       if (sortedListOfKeys.indexOf(period.start) + 1 >=
           sortedListOfKeys.length) {
         ///This means that the period is the last one.
-        ///We don't have to add anything.
+        ///We add an empty list to mark a change in classes
+        result[period.end] = [];
+        sortedListOfKeys.add(period.end);
         continue;
       }
       for (int i = sortedListOfKeys.indexOf(period.start) + 1; true; i++) {
@@ -65,7 +70,7 @@ class _PeriodLayoutList {
           break;
         } else if (nextBlockBeginning.isAfter(period.end)) {
           ///We have to add a new entry to the map.
-          result[period.end] = [...result[nextBlockBeginning]!, period];
+          result[period.end] = [...result[nextBlockBeginning]!];
           sortedListOfKeys.insert(i, period.end);
           break;
         }
@@ -83,8 +88,10 @@ class _PeriodLayoutList {
       if (!partsMap.containsKey(period.start)) {
         var lastKeyBeforePeriodStart =
             sortedListOfKeys.reduce((value, element) {
-          assert(value.isBefore(period.start),
-              "The list of starts' smallest element is not before the period's start.");
+              assert(
+            value.isBefore(period.start),
+            "The list of starts' smallest element is not before the period's start.",
+          );
           if (!element.isBefore(period.start)) {
             return value;
           }
@@ -111,7 +118,9 @@ class _PeriodLayoutList {
       if (sortedListOfKeys.indexOf(period.start) + 1 >=
           sortedListOfKeys.length) {
         ///This means that the period is the last one.
-        ///We don't have to add anything.
+        ///We add an empty list to mark a change in classes
+        partsMap[period.end] = [];
+        sortedListOfKeys.add(period.end);
         continue;
       }
       for (int i = sortedListOfKeys.indexOf(period.start) + 1; true; i++) {
@@ -123,7 +132,7 @@ class _PeriodLayoutList {
           break;
         } else if (nextBlockBeginning.isAfter(period.end)) {
           ///We have to add a new entry to the map.
-          partsMap[period.end] = [...partsMap[nextBlockBeginning]!, period];
+          partsMap[period.end] = [...partsMap[nextBlockBeginning]!];
           sortedListOfKeys.insert(i, period.end);
           break;
         }
@@ -235,7 +244,6 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
       regularPeriods,
       startOfDay,
     )..addAll(nonRegularPeriods);
-
     ///Create a list we can iterate through
     var partsListsEntries = periodLayoutList.partsMap.entries.toList();
     Map<int, int> indexToLength = {};
@@ -245,9 +253,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
     var temp = indexToLength.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    ///TODO: Here it goes wrong. find out why.
     var indexToLengthList = temp.map((e) => e.key).toList();
-    getLogger().d(indexToLengthList);
 
     Map<TimeTablePeriod, MapEntry<double, double>> periodToXAndWidth = {};
     outer:
@@ -332,9 +338,12 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
       var xAndWidth = periodToXAndWidth[period]!;
       var yAndHeight = periodToYAndHeight[period]!;
       layoutChild(
-          period,
-          BoxConstraints.tightFor(
-              width: xAndWidth.value, height: yAndHeight.value));
+        period,
+        BoxConstraints.tightFor(
+          width: xAndWidth.value,
+          height: yAndHeight.value,
+        ),
+      );
       positionChild(period, Offset(xAndWidth.key, yAndHeight.key));
     }
   }
