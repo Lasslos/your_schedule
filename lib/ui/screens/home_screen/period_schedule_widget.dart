@@ -5,40 +5,28 @@ import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
-///TODO: Inspect performance and improve, especially caching with all of these builders
-///TODO: Add liquid pull to refresh
-///TODO: Separate [TwoDimensionalScrollView] and what belongs to this app itself
-
-class TwoDimensionalScrollView extends ConsumerStatefulWidget {
-  const TwoDimensionalScrollView.builder(
-    this.builder, {
+class PeriodScheduleWidget extends ConsumerWidget {
+  const PeriodScheduleWidget({
+    required this.child,
     super.key,
   });
 
-  final Widget Function(BuildContext context, int index) builder;
+  final Widget child;
 
   @override
-  ConsumerState<TwoDimensionalScrollView> createState() =>
-      _TwoDimensionalScrollViewState();
-}
-
-class _TwoDimensionalScrollViewState
-    extends ConsumerState<TwoDimensionalScrollView> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
-      ///TODO: If you are REALLY bored, consider adding infinite scroll back and forth
       child: Row(
         children: [
           SizedBox(
             height: 1000,
-            child: _buildPeriodScheduleWidget(context),
+            child: _buildPeriodScheduleWidget(context, ref),
           ),
           const VerticalDivider(),
           Expanded(
             child: SizedBox(
               height: 1000,
-              child: _buildBody(context),
+              child: child,
             ),
           ),
         ],
@@ -46,14 +34,7 @@ class _TwoDimensionalScrollViewState
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    return PageView.builder(
-      scrollDirection: Axis.horizontal,
-      itemBuilder: (context, index) => widget.builder(context, index),
-    );
-  }
-
-  Widget _buildPeriodScheduleWidget(BuildContext context) {
+  Widget _buildPeriodScheduleWidget(BuildContext context, WidgetRef ref) {
     var periodSchedule = ref.watch(periodScheduleProvider);
 
     List<Widget> children = [

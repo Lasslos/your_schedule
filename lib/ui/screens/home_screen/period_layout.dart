@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 
 ///Warning: Spaghetti code. I've tried to explain it as good as possible.
 
@@ -161,17 +161,18 @@ class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
         .map((e) => e.end)
         .reduce((value, element) => value.isAfter(element) ? value : element);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(homePageTimesProvider.notifier)
-        ..maybeNewStartOfDay = TimeOfDay.fromDateTime(earliestStart)
-        ..maybeNewEndOfDay = TimeOfDay.fromDateTime(latestEnd);
+      ref.read(homeScreenStateProvider.notifier)
+        ..startOfDay = TimeOfDay.fromDateTime(earliestStart)
+        ..endOfDay = TimeOfDay.fromDateTime(latestEnd);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var homePageTimes = ref.watch(homePageTimesProvider);
-    var startOfDay = homePageTimes.startOfDay;
-    var endOfDay = homePageTimes.endOfDay;
+    var startOfDay =
+        ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
+    var endOfDay =
+        ref.watch(homeScreenStateProvider.select((value) => value.endOfDay));
     var startOfDayDateTime = DateTime(
       widget.periods.first.start.year,
       widget.periods.first.start.month,

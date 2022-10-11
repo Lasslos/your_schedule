@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/period_layout.dart';
-import 'package:your_schedule/ui/screens/home_screen/two_dimensional_scroll_view.dart';
+import 'package:your_schedule/ui/screens/home_screen/period_schedule_widget.dart';
 
 class TimeTableView extends ConsumerStatefulWidget {
   const TimeTableView({
@@ -19,12 +19,24 @@ class TimeTableView extends ConsumerStatefulWidget {
 class _TimeTableViewState extends ConsumerState<TimeTableView> {
   @override
   Widget build(BuildContext context) {
-    var viewMode = ref.watch(homeScreenViewModeProvider);
+    var viewMode =
+        ref.watch(homeScreenStateProvider.select((value) => value.viewMode));
 
-    return TwoDimensionalScrollView.builder(
-      (context, index) {
-        return viewMode == ViewMode.week ? const WeekView() : const DayView();
+    ref.listen(
+      homeScreenStateProvider.select((value) => value.currentDate),
+      (previous, next) {
+        ///TODO: Check whether there is a need to animate to that date
       },
+    );
+
+    return RefreshIndicator(
+      onRefresh: () {
+        ///TODO: Refresh timetable
+        return Future.delayed(const Duration(seconds: 1));
+      },
+      child: PeriodScheduleWidget(
+        child: viewMode == ViewMode.week ? const WeekView() : const DayView(),
+      ),
     );
   }
 
