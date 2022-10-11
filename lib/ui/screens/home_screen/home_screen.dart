@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
-import 'package:your_schedule/ui/screens/home_screen/timetable_view.dart';
+import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_view.dart';
 import 'package:your_schedule/ui/shared/my_drawer.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -19,13 +19,14 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {
-              animateToDay(DateTime.now(), ref);
+              ref.read(homeScreenStateProvider.notifier).currentDate =
+                  DateTime.now();
             },
             tooltip: "Zur jetzigen Woche springen",
           ),
           IconButton(
             onPressed: () {
-              switchView(ref);
+              ref.read(homeScreenStateProvider.notifier).switchView();
             },
             icon: Icon((-viewMode).icon),
             tooltip: "Zu ${(-viewMode).readableName} wechseln",
@@ -35,15 +36,5 @@ class HomeScreen extends ConsumerWidget {
       drawer: const MyDrawer(),
       body: const TimeTableView(),
     );
-  }
-
-  Future<void> animateToDay(DateTime date, WidgetRef ref) async {
-    ref.read(homeScreenStateProvider.notifier);
-  }
-
-  Future<void> switchView(WidgetRef ref) async {
-    ref.read(homeScreenStateProvider.notifier);
-
-    ///TOOD
   }
 }

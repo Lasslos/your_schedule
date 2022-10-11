@@ -32,7 +32,7 @@ class _PeriodLayoutList {
         ///Also: Cannot use add because it would be the same list.
         var lastKeyBeforePeriodStart =
             sortedListOfKeys.reduce((value, element) {
-              assert(
+          assert(
             value.isBefore(period.start),
             "The list of starts' smallest element is not before the period's start.",
           );
@@ -245,6 +245,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
       regularPeriods,
       startOfDay,
     )..addAll(nonRegularPeriods);
+
     ///Create a list we can iterate through
     var partsListsEntries = periodLayoutList.partsMap.entries.toList();
     Map<int, int> indexToLength = {};

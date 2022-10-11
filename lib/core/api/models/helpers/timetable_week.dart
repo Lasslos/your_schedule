@@ -82,11 +82,11 @@ class Week {
       7;
 
   ///Constructs a week object the given [momentInWeek] is in.
-  Week(DateTime momentInWeek)
+  Week.fromDateTime(DateTime momentInWeek)
       : startDate = momentInWeek.startOfWeek(),
         endDate = momentInWeek.endOfWeek();
 
-  Week.now() : this(DateTime.now());
+  Week.now() : this.fromDateTime(DateTime.now());
 
   Week.relativeToCurrentWeek(int relative)
       : startDate =

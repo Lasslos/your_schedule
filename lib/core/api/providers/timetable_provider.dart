@@ -35,23 +35,13 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
   final UserSession _userSession;
   final StateNotifierProviderRef<TimeTableNotifier, TimeTable> _ref;
 
-  void clearCache() {
-    state = state.copyWith(weekData: const {});
-  }
-
-  FutureOr<TimeTableWeek> getTimeTableWeek(Week week) {
-    if (state.weekData.containsKey(week)) {
-      return state.weekData[week]!;
-    }
-    getLogger().i("Fetching timetable for week $week");
-    return _loadTimeTableWeek(week);
-  }
-
-  Future<TimeTableWeek> _loadTimeTableWeek(
+  /// Only call this if the state for this week is null.
+  Future<void> fetchTimeTableWeek(
     Week week, {
     int personID = -1,
     PersonType personType = PersonType.unknown,
   }) async {
+    getLogger().i("Fetching timetable for week $week");
     if (!_userSession.sessionIsValid) {
       throw Exception("Session is not valid");
     }
@@ -66,14 +56,14 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
             "element": {
               "id": personID == -1
                   ? (_userSession.timeTablePersonID == -1
-                      ? _userSession.loggedInPersonID
-                      : _userSession.timeTablePersonID)
+                  ? _userSession.loggedInPersonID
+                  : _userSession.timeTablePersonID)
                   : personID,
               "type": (personType == PersonType.unknown
-                      ? (_userSession.timeTablePersonType == PersonType.unknown
-                          ? _userSession.loggedInPersonType.index
-                          : _userSession.timeTablePersonType.index)
-                      : personType.index) +
+                  ? (_userSession.timeTablePersonType == PersonType.unknown
+                  ? _userSession.loggedInPersonType.index
+                  : _userSession.timeTablePersonType.index)
+                  : personType.index) +
                   1,
             },
             "showLsText": true,
@@ -95,7 +85,11 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
     state = state.copyWith(
       weekData: Map.from(state.weekData)..[week] = timeTableWeek,
     );
-    return timeTableWeek;
+  }
+
+  Future<void> refresh([Week? week]) async {
+    week ??= Week.now();
+    await fetchTimeTableWeek(week);
   }
 }
 

@@ -263,7 +263,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       getLogger().e("Error while fetching period schedule", e, s);
     }
     try {
-      await ref.read(timeTableProvider.notifier).getTimeTableWeek(Week.now());
+      await ref.read(timeTableProvider.notifier).fetchTimeTableWeek(Week.now());
     } catch (e, s) {
       getLogger().e("Error while fetching timetable", e, s);
     }

@@ -79,7 +79,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     try {
       await ref
           .read(timeTableProvider.notifier)
-          .getTimeTableWeek(Week.relativeToCurrentWeek(0));
+          .fetchTimeTableWeek(Week.relativeToCurrentWeek(0));
     } catch (e, s) {
       setState(() {
         _message = e.toString();

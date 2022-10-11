@@ -18,9 +18,14 @@ class PeriodScheduleWidget extends ConsumerWidget {
     return SingleChildScrollView(
       child: Row(
         children: [
-          SizedBox(
-            height: 1000,
-            child: _buildPeriodScheduleWidget(context, ref),
+          Column(
+            children: [
+              const SizedBox(height: 42),
+              SizedBox(
+                height: 1000 - 42,
+                child: _buildPeriodScheduleWidget(context, ref),
+              ),
+            ],
           ),
           const VerticalDivider(),
           Expanded(

@@ -26,7 +26,11 @@ class HomeScreenState {
   final TimeOfDay endOfDay;
 
   const HomeScreenState(
-      this.currentDate, this.viewMode, this.startOfDay, this.endOfDay);
+    this.currentDate,
+    this.viewMode,
+    this.startOfDay,
+    this.endOfDay,
+  );
 
   HomeScreenState copyWith({
     DateTime? currentDate,
@@ -73,4 +77,5 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
 
 var homeScreenStateProvider =
     StateNotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
-        (ref) => HomeScreenStateNotifier());
+  (ref) => HomeScreenStateNotifier(),
+);
