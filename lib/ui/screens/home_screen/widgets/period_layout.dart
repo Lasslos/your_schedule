@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_widget.dart';
 import 'package:your_schedule/util/logger.dart';
 
 ///Warning: Spaghetti code. I've tried to explain it as good as possible.
@@ -203,8 +204,8 @@ class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
       ),
       children: widget.periods
           .map(
-            (e) => LayoutId(id: e, child: _TimeTablePeriodWidget(period: e)),
-      )
+            (e) => LayoutId(id: e, child: TimeTablePeriodWidget(period: e)),
+          )
           .toList(),
     );
   }
@@ -296,8 +297,10 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
 
           var lastInPeriodsXAndWidth = adjacentPeriodsXAndWidth.last;
           adjacentPeriodsXAndWidth
-            ..last = MapEntry(lastInPeriodsXAndWidth.key,
-                xAndWidth.key - lastInPeriodsXAndWidth.key)
+            ..last = MapEntry(
+              lastInPeriodsXAndWidth.key,
+              xAndWidth.key - lastInPeriodsXAndWidth.key,
+            )
             ..add(xAndWidth);
 
           adjacentPeriods.add([]);
@@ -373,20 +376,5 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
     return !listEquals(oldDelegate.periods, periods) &&
         oldDelegate.startOfDay != startOfDay &&
         oldDelegate.endOfDay != endOfDay;
-  }
-}
-
-class _TimeTablePeriodWidget extends StatelessWidget {
-  const _TimeTablePeriodWidget({required this.period, Key? key})
-      : super(key: key);
-
-  final TimeTablePeriod period;
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(4),
-      child: Placeholder(),
-    );
   }
 }

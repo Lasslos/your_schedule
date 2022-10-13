@@ -39,7 +39,8 @@ class TimeTableDay {
         formattedDay = date.convertToUntisDate().substring(6),
         formattedMonth = date.convertToUntisDate().substring(4, 6),
         periods = List.unmodifiable(
-            [...periods]..sort((a, b) => a.start.compareTo(b.start)));
+          [...periods]..sort((a, b) => a.start.compareTo(b.start)),
+        );
 
   TimeTableDay copyWith({
     DateTime? date,
