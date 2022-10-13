@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:your_schedule/util/logger.dart';
 
 ///Warning: Spaghetti code. I've tried to explain it as good as possible.
 
@@ -20,17 +21,17 @@ class _PeriodLayoutList {
     List<TimeTablePeriod> periods,
     DateTime start,
   ) {
-    periods.sort((a, b) => a.start.compareTo(b.start));
+    periods = [...periods]..sort((a, b) => a.start.compareTo(b.start));
     var result = <DateTime, List<TimeTablePeriod>>{start: []};
     var sortedListOfKeys = [start];
 
-    for (var period in periods) {
+    for (TimeTablePeriod period in periods) {
       if (!result.containsKey(period.start)) {
         ///This means that there is currently no period starting at this time.
         ///There might be a period going through this time though.
         ///So: We copy the last entry in result into the new starting time.
         ///Also: Cannot use add because it would be the same list.
-        var lastKeyBeforePeriodStart =
+        DateTime lastKeyBeforePeriodStart =
             sortedListOfKeys.reduce((value, element) {
           assert(
             value.isBefore(period.start),
@@ -53,7 +54,7 @@ class _PeriodLayoutList {
         result[period.start]!.add(period);
       }
 
-      if (sortedListOfKeys.indexOf(period.start) + 1 >=
+      if (sortedListOfKeys.indexOf(period.start) + 1 ==
           sortedListOfKeys.length) {
         ///This means that the period is the last one.
         ///We add an empty list to mark a change in classes
@@ -76,7 +77,6 @@ class _PeriodLayoutList {
         }
       }
     }
-
     return _PeriodLayoutList._(result);
   }
 
@@ -154,6 +154,9 @@ class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
   @override
   void initState() {
     super.initState();
+    if (widget.periods.isEmpty) {
+      return;
+    }
     var earliestStart = widget.periods
         .map((e) => e.start)
         .reduce((value, element) => value.isBefore(element) ? value : element);
@@ -169,6 +172,10 @@ class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.periods.isEmpty) {
+      return const SizedBox();
+    }
+
     var startOfDay =
         ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
     var endOfDay =
@@ -197,7 +204,7 @@ class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
       children: widget.periods
           .map(
             (e) => LayoutId(id: e, child: _TimeTablePeriodWidget(period: e)),
-          )
+      )
           .toList(),
     );
   }
@@ -213,7 +220,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
     required this.startOfDay,
     required this.endOfDay,
   }) : periods = List.unmodifiable(
-          periods..sort((a, b) => a.start.compareTo(b.start)),
+    [...periods]..sort((a, b) => a.start.compareTo(b.start)),
         );
 
   @override
@@ -274,6 +281,10 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
       ];
       for (TimeTablePeriod period in partsList) {
         if (periodToXAndWidth.containsKey(period)) {
+          ///This means that there is a determined period here.
+          ///So we need to do the following:
+          ///End the current list and start a new one, only with this period.
+          ///Then, add another empty list.
           var xAndWidth = periodToXAndWidth[period]!;
 
           if (adjacentPeriods.length == 1 && adjacentPeriods.first.isEmpty) {
@@ -282,18 +293,25 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
             adjacentPeriodsXAndWidth.clear();
           }
           adjacentPeriods.add([period]);
-          if (adjacentPeriodsXAndWidth.isNotEmpty) {
-            var last = adjacentPeriodsXAndWidth.last;
-            adjacentPeriodsXAndWidth.last =
-                MapEntry(last.key, xAndWidth.key - last.key);
-          }
-          adjacentPeriodsXAndWidth.add(xAndWidth);
+
+          var lastInPeriodsXAndWidth = adjacentPeriodsXAndWidth.last;
+          adjacentPeriodsXAndWidth
+            ..last = MapEntry(lastInPeriodsXAndWidth.key,
+                xAndWidth.key - lastInPeriodsXAndWidth.key)
+            ..add(xAndWidth);
+
+          adjacentPeriods.add([]);
+          adjacentPeriodsXAndWidth.add(
+            MapEntry(xAndWidth.key + xAndWidth.value, -1),
+          );
           continue;
         } else {
           adjacentPeriods.last.add(period);
         }
       }
-      if (adjacentPeriods.last.length != 1) {
+
+      ///Now we need to process the very last element if it doesnt have a width yet.
+      if (adjacentPeriodsXAndWidth.last.value == -1) {
         adjacentPeriodsXAndWidth.last = MapEntry(
           adjacentPeriodsXAndWidth.last.key,
           size.width - adjacentPeriodsXAndWidth.last.key,
@@ -305,9 +323,6 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
       for (int i = 0; i < adjacentPeriods.length; i++) {
         var adjacentPeriodsList = adjacentPeriods[i];
         var adjacentPeriodsXAndWidthEntry = adjacentPeriodsXAndWidth[i];
-        if (adjacentPeriodsList.length == 1) {
-          continue;
-        }
         var width =
             adjacentPeriodsXAndWidthEntry.value / adjacentPeriodsList.length;
         var x = adjacentPeriodsXAndWidthEntry.key;
@@ -337,6 +352,9 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
     ///DONE!
     ///Now lets position!
     for (TimeTablePeriod period in periods) {
+      if (!periodToXAndWidth.containsKey(period)) {
+        getLogger().d("Period not found in periodToXAndWidth: ${period.id}");
+      }
       var xAndWidth = periodToXAndWidth[period]!;
       var yAndHeight = periodToYAndHeight[period]!;
       layoutChild(

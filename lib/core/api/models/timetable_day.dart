@@ -11,11 +11,11 @@ class TimeTableDay {
   static const int minHoursPerDay = 8;
 
   ///Maps the start time to a TimeTablePeriod
-  final Map<DateTime, List<TimeTablePeriod>> periods;
+  final List<TimeTablePeriod> periods;
 
   TimeTableDay withPeriod(TimeTablePeriod period) {
     return copyWith(
-      periods: {...periods}..putIfAbsent(period.start, () => []).add(period),
+      periods: [...periods, period],
     );
   }
 
@@ -34,17 +34,18 @@ class TimeTableDay {
     this.date,
     this.dayNumber, {
     this.isHolidayOrWeekend = false,
-    Map<DateTime, List<TimeTablePeriod>> periods = const {},
+    List<TimeTablePeriod> periods = const [],
   })  : weekday = Weekday.values[date.weekday - 1],
         formattedDay = date.convertToUntisDate().substring(6),
         formattedMonth = date.convertToUntisDate().substring(4, 6),
-        periods = Map.unmodifiable(periods);
+        periods = List.unmodifiable(
+            [...periods]..sort((a, b) => a.start.compareTo(b.start)));
 
   TimeTableDay copyWith({
     DateTime? date,
     int? dayNumber,
     bool? isHolidayOrWeekend,
-    Map<DateTime, List<TimeTablePeriod>>? periods,
+    List<TimeTablePeriod>? periods,
   }) {
     return TimeTableDay(
       date ?? this.date,

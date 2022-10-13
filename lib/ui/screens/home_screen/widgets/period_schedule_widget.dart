@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
-class PeriodScheduleWidget extends ConsumerWidget {
+class PeriodScheduleWidget extends ConsumerStatefulWidget {
   const PeriodScheduleWidget({
     required this.child,
     super.key,
@@ -14,67 +15,112 @@ class PeriodScheduleWidget extends ConsumerWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PeriodScheduleWidget> createState() =>
+      _PeriodScheduleWidgetState();
+}
+
+class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      var periodSchedule = ref.read(periodScheduleProvider);
+      var startTime = ref.read(homeScreenStateProvider).startOfDay;
+      var endTime = ref.read(homeScreenStateProvider).endOfDay;
+
+      if (periodSchedule.entries.first.startTime != startTime) {
+        ref.read(homeScreenStateProvider.notifier).startOfDay =
+            periodSchedule.entries.first.startTime;
+      }
+      if (periodSchedule.entries.last.endTime != endTime) {
+        ref.read(homeScreenStateProvider.notifier).endOfDay =
+            periodSchedule.entries.last.endTime;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Row(
-        children: [
-          Column(
-            children: [
-              const SizedBox(height: 42),
-              SizedBox(
-                height: 1000 - 42,
-                child: _buildPeriodScheduleWidget(context, ref),
-              ),
-            ],
-          ),
-          const VerticalDivider(),
-          Expanded(
-            child: SizedBox(
-              height: 1000,
-              child: child,
+      child: SizedBox(
+        height: 1000,
+        child: Row(
+          children: [
+            Column(
+              children: [
+                const SizedBox(height: 42),
+                Expanded(
+                  child: _buildPeriodScheduleWidget(context),
+                ),
+              ],
             ),
-          ),
-        ],
+            const VerticalDivider(
+              width: 1,
+              thickness: 0.7,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: widget.child,
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPeriodScheduleWidget(BuildContext context, WidgetRef ref) {
+  Widget _buildPeriodScheduleWidget(BuildContext context) {
     var periodSchedule = ref.watch(periodScheduleProvider);
+    var startTime =
+        ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
+    var endTime =
+        ref.watch(homeScreenStateProvider.select((value) => value.endOfDay));
 
+    var firstDifference =
+        periodSchedule.entries.first.startTime.difference(startTime).inMinutes;
     List<Widget> children = [
-      Flexible(
-        flex: periodSchedule[0].length.inMinutes,
-        child: PeriodScheduleColumnElement(entry: periodSchedule[0]),
-      ),
+      if (firstDifference > 1)
+        Spacer(
+          flex: firstDifference,
+        ),
     ];
 
-    for (int i = 1; i < periodSchedule.entries.length; i++) {
-      var previousEntry = periodSchedule[i - 1];
-      var entry = periodSchedule[i];
-      var difference =
-          entry.startTime.difference(previousEntry.endTime).inMinutes;
+    int periodScheduleLength = periodSchedule.entries.length;
+    for (int i = 0; i < periodScheduleLength; i++) {
+      var entry = periodSchedule.entries[i];
+      TimeOfDay? nextStartTime = periodScheduleLength - 1 != i
+          ? periodSchedule.entries[i + 1].startTime
+          : null;
+      int? difference = nextStartTime?.difference(entry.endTime).inMinutes;
 
-      if (difference > 1) {
-        children.addAll([
-          Spacer(
-            flex: difference ~/ 2,
-          ),
-          const Divider(),
-          Spacer(
-            flex: difference ~/ 2,
-          ),
-        ]);
-      } else if (difference < 0) {
-        getLogger().w(
-          "Difference between consecutive period schedule entries is smaller than 0",
-        );
-      }
-
-      children.add(
+      children.addAll([
+        const Divider(thickness: 0.7),
         Flexible(
           flex: entry.length.inMinutes,
           child: PeriodScheduleColumnElement(entry: entry),
+        ),
+        const Divider(thickness: 0.7),
+      ]);
+
+      if (difference != null && difference > 1) {
+        children.addAll([
+          Spacer(
+            flex: difference,
+          ),
+        ]);
+      } else if (difference != null && difference < 0) {
+        getLogger().w(
+          "Difference between consecutive period schedule entries is smaller than 0"
+          " (difference: $difference, entry: $entry, nextStartTime: $nextStartTime)",
+        );
+      }
+    }
+
+    var lastDifference =
+        endTime.difference(periodSchedule.entries.last.endTime).inMinutes;
+    if (lastDifference > 1) {
+      children.add(
+        Spacer(
+          flex: lastDifference,
         ),
       );
     }

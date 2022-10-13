@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/models/timetable_period.dart';
+import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
@@ -57,10 +57,8 @@ class _WeekViewState extends ConsumerState<WeekView> {
     );
 
     TimeTable timetable = ref.watch(timeTableProvider);
-    List<TimeTablePeriod> periods = timetable
-        .weekData[Week.now()]!.days.entries.first.value.periods.values
-        .toList()
-        .reduce((value, element) => [...value, ...element]);
+    List<TimeTableDay> days =
+        timetable.weekData[Week.now()]!.days.values.toList();
 
     return PageView.builder(
       controller: _pageController,
@@ -87,26 +85,30 @@ class _WeekViewState extends ConsumerState<WeekView> {
           );
         }
 
-        return SizedBox(
-          height: 1000,
-          child: Column(
-            children: [
-              SizedBox(
-                height: 42,
-                child: Center(
-                  child: Text(
-                    currentWeek.toString(),
-                    textAlign: TextAlign.center,
+        return Column(
+          children: [
+            SizedBox(
+              height: 42,
+              child: Center(
+                child: Text(
+                  currentWeek.toString(),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            Expanded(
+              child: Row(
+                children: List.generate(
+                  5,
+                  (index) => Flexible(
+                    child: PeriodLayout(
+                      periods: days[index].periods,
+                    ),
                   ),
                 ),
               ),
-              Expanded(
-                child: PeriodLayout(
-                  periods: periods,
-                ),
-              ),
-            ],
-          ),
+            )
+          ],
         );
       },
     );

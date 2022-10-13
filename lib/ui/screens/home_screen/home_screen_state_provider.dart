@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 enum ViewMode {
@@ -52,9 +53,11 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
       : super(
           HomeScreenState(
             DateTime.now(),
-            ViewMode.week,
-            const TimeOfDay(hour: 8, minute: 0),
-            const TimeOfDay(hour: 16, minute: 0),
+            ViewMode.day,
+
+            ///TODO: Cache ViewMode
+            PeriodSchedule.periodScheduleFallback.entries.first.startTime,
+            PeriodSchedule.periodScheduleFallback.entries.last.endTime,
           ),
         );
 
