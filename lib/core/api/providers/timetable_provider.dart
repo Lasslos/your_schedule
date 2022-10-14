@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
+import 'package:your_schedule/core/api/models/timetable_day.dart';
+import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
+import 'package:your_schedule/filter/filter.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
@@ -97,3 +100,21 @@ final timeTableProvider =
     StateNotifierProvider<TimeTableNotifier, TimeTable>((ref) {
   return TimeTableNotifier(ref.watch(userSessionProvider), ref);
 });
+
+final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, DateTime>(
+    (ref, date) {
+      date = date.normalized();
+      TimeTable timeTable = ref.watch(timeTableProvider);
+      TimeTableWeek? timeTableWeek = timeTable.weekData[Week.fromDateTime(date)];
+      if (timeTableWeek == null) {
+        return null;
+      }
+      TimeTableDay day = timeTableWeek.days[date]!;
+
+      List<FilterItem> filterItems = ref.watch(filterItemsProvider);
+
+      return day.periods.where(
+        (period) => filterItems.any((element) => element.matches(period)),
+      ).toList();
+    }
+);

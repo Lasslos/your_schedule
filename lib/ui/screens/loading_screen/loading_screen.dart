@@ -6,6 +6,7 @@ import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/core/exceptions.dart';
+import 'package:your_schedule/filter/filter.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -33,6 +34,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   }
 
   Future<void> login() async {
+    ref.read(filterItemsProvider.notifier).initialize();
+
     try {
       await ref.read(userSessionProvider.notifier).createSession(
             await secureStorage.read(key: usernameKey) ?? "",

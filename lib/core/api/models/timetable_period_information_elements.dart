@@ -19,6 +19,26 @@ class TimeTablePeriodSchoolClassInformation {
         name = json['name'].toString(),
         longName = json['longname'],
         identifier = json['id'];
+
+  Map<String, dynamic> toJSON() {
+    return {
+      "name": name,
+      "longname": longName,
+      "id": identifier,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TimeTablePeriodSchoolClassInformation &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          longName == other.longName &&
+          identifier == other.identifier;
+
+  @override
+  int get hashCode => Object.hash(name, longName, identifier);
 }
 
 ///Information about the period's teacher.
@@ -40,6 +60,26 @@ class TimeTablePeriodTeacherInformation {
         name = json['name'].toString(),
         longName = json['longname'],
         identifier = json['id'];
+
+  Map<String, dynamic> toJSON() {
+    return {
+      "name": name,
+      "longname": longName,
+      "id": identifier,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is TimeTablePeriodSchoolClassInformation &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              longName == other.longName &&
+              identifier == other.identifier;
+
+  @override
+  int get hashCode => Object.hash(name, longName, identifier);
 }
 
 ///Information about the period's subject.
@@ -61,6 +101,26 @@ class TimeTablePeriodSubjectInformation {
         name = json['name'].toString(),
         longName = json['longname'],
         identifier = json['id'];
+
+  Map<String, dynamic> toJSON() {
+    return {
+      "name": name,
+      "longname": longName,
+      "id": identifier,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is TimeTablePeriodSchoolClassInformation &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              longName == other.longName &&
+              identifier == other.identifier;
+
+  @override
+  int get hashCode => Object.hash(name, longName, identifier);
 }
 
 ///Information about the period's room.
@@ -82,4 +142,24 @@ class TimeTablePeriodRoomInformation {
         name = json['name'].toString(),
         longName = json['longname'],
         identifier = json['id'];
+
+  Map<String, dynamic> toJSON() {
+    return {
+      "name": name,
+      "longname": longName,
+      "id": identifier,
+    };
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+          other is TimeTablePeriodSchoolClassInformation &&
+              runtimeType == other.runtimeType &&
+              name == other.name &&
+              longName == other.longName &&
+              identifier == other.identifier;
+
+  @override
+  int get hashCode => Object.hash(name, longName, identifier);
 }

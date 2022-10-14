@@ -79,17 +79,14 @@ class _Page extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     DateTime currentDate = DateTime.now().add(Duration(days: index));
     Week currentWeek = Week.fromDateTime(currentDate);
-    TimeTableWeek? timeTableWeek =
-        ref.watch(timeTableProvider).weekData[currentWeek];
-    if (timeTableWeek == null) {
+    List<TimeTablePeriod>? periods =
+        ref.watch(filteredTimeTablePeriodsFamily(currentDate));
+    if (periods == null) {
       ref.read(timeTableProvider.notifier).fetchTimeTableWeek(currentWeek);
       return const Center(
         child: CircularProgressIndicator(),
       );
     }
-
-    List<TimeTablePeriod> periods =
-        timeTableWeek.days[currentDate.normalized()]!.periods;
 
     String weekDay = intl.DateFormat.EEEE().format(currentDate);
     String date = intl.DateFormat.MMMd().format(currentDate);
