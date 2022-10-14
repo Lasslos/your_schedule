@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
@@ -56,10 +55,6 @@ class _WeekViewState extends ConsumerState<WeekView> {
       },
     );
 
-    TimeTable timetable = ref.watch(timeTableProvider);
-    List<TimeTableDay> days =
-        timetable.weekData[Week.now()]!.days.values.toList();
-
     return PageView.builder(
       controller: _pageController,
       onPageChanged: (index) {
@@ -73,44 +68,58 @@ class _WeekViewState extends ConsumerState<WeekView> {
         ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
       },
       itemBuilder: (BuildContext context, int index) {
-        DateTime currentDate =
-            DateTime.now().add(Duration(days: index * 7)).normalized();
-        Week currentWeek = Week.fromDateTime(currentDate);
-        TimeTableWeek? timeTableWeek =
-            ref.watch(timeTableProvider).weekData[currentWeek];
-        if (timeTableWeek == null) {
-          ref.read(timeTableProvider.notifier).fetchTimeTableWeek(currentWeek);
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
+        return _Page(index: index);
+      },
+    );
+  }
+}
 
-        return Column(
-          children: [
-            SizedBox(
-              height: 42,
-              child: Center(
-                child: Text(
-                  currentWeek.toString(),
-                  textAlign: TextAlign.center,
+class _Page extends ConsumerWidget {
+  final int index;
+
+  const _Page({
+    required this.index,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    DateTime currentDate =
+        DateTime.now().add(Duration(days: index * 7)).normalized();
+    Week currentWeek = Week.fromDateTime(currentDate);
+    TimeTableWeek? timeTableWeek =
+        ref.watch(timeTableProvider).weekData[currentWeek];
+    if (timeTableWeek == null) {
+      ref.read(timeTableProvider.notifier).fetchTimeTableWeek(currentWeek);
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    return Column(
+      children: [
+        SizedBox(
+          height: 42,
+          child: Center(
+            child: Text(
+              currentWeek.toString(),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Row(
+            children: List.generate(
+              5,
+              (index) => Flexible(
+                child: PeriodLayout(
+                  periods: timeTableWeek.days.values.toList()[index].periods,
                 ),
               ),
             ),
-            Expanded(
-              child: Row(
-                children: List.generate(
-                  5,
-                  (index) => Flexible(
-                    child: PeriodLayout(
-                      periods: days[index].periods,
-                    ),
-                  ),
-                ),
-              ),
-            )
-          ],
-        );
-      },
+          ),
+        )
+      ],
     );
   }
 }
