@@ -93,12 +93,19 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
       int? difference = nextStartTime?.difference(entry.endTime).inMinutes;
 
       children.addAll([
-        const Divider(thickness: 0.7),
+        if (children.isEmpty || children.last.runtimeType != Divider)
+          const Divider(
+            thickness: 0.7,
+            height: 1,
+          ),
         Flexible(
           flex: entry.length.inMinutes,
           child: PeriodScheduleColumnElement(entry: entry),
         ),
-        const Divider(thickness: 0.7),
+        const Divider(
+          thickness: 0.7,
+          height: 1,
+        ),
       ]);
 
       if (difference != null && difference > 1) {
