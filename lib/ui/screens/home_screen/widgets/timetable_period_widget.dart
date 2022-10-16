@@ -43,19 +43,15 @@ class TimeTablePeriodWidget extends StatelessWidget {
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
+                Flexible(child: Text(period.subject.name)),
                 Flexible(
-                  child: Text(useShortText
-                      ? period.subject.name
-                      : period.subject.longName),
-                ),
-                Flexible(
-                    child: Text(useShortText
+                  child: Text(
+                    useShortText
                         ? period.teacher.name
-                        : period.teacher.longName)),
-                Flexible(
-                    child: Text(useShortText
-                        ? period.room.name
-                        : period.room.longName)),
+                        : period.teacher.longName,
+                  ),
+                ),
+                Flexible(child: Text(period.room.name)),
                 if (period.activityType != null)
                   Flexible(child: Text(period.activityType!)),
                 if (period.substText != null)

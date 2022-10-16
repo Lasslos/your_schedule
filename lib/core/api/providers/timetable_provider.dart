@@ -6,6 +6,7 @@ import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
+import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/filter/filter.dart';
 import 'package:your_schedule/util/date_utils.dart';
@@ -104,17 +105,24 @@ final timeTableProvider =
 final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, DateTime>(
     (ref, date) {
       date = date.normalized();
-      TimeTable timeTable = ref.watch(timeTableProvider);
-      TimeTableWeek? timeTableWeek = timeTable.weekData[Week.fromDateTime(date)];
-      if (timeTableWeek == null) {
-        return null;
-      }
-      TimeTableDay day = timeTableWeek.days[date]!;
+  TimeTable timeTable = ref.watch(timeTableProvider);
+  List<TimeTablePeriodSubjectInformation> filterItems =
+      ref.watch(filterItemsProvider);
 
-      List<FilterItem> filterItems = ref.watch(filterItemsProvider);
+  TimeTableWeek? timeTableWeek = timeTable.weekData[Week.fromDateTime(date)];
+  if (timeTableWeek == null) {
+    return null;
+  }
+  TimeTableDay day = timeTableWeek.days[date]!;
 
-      return day.periods.where(
-        (period) => filterItems.any((element) => element.matches(period)),
-      ).toList();
-    }
+  getLogger().d("Rebuild Filtering periods for date $date");
+
+  return day.periods
+      .where(
+        (period) => !filterItems.any((element) => period.subject == element),
+      )
+      .toList();
+}
 );
+
+///TODO: Idk, but something went very terribly wrong here. I have absolutely no idea whats going on.
