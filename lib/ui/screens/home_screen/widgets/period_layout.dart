@@ -292,16 +292,18 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
             ///In this case there is a determined period at the beginning of the list.
             adjacentPeriods.clear();
             adjacentPeriodsXAndWidth.clear();
+            adjacentPeriods.add([period]);
+            adjacentPeriodsXAndWidth.add(xAndWidth);
+          } else {
+            adjacentPeriods.add([period]);
+            var lastInPeriodsXAndWidth = adjacentPeriodsXAndWidth.last;
+            adjacentPeriodsXAndWidth
+              ..last = MapEntry(
+                lastInPeriodsXAndWidth.key,
+                xAndWidth.key - lastInPeriodsXAndWidth.key,
+              )
+              ..add(xAndWidth);
           }
-          adjacentPeriods.add([period]);
-
-          var lastInPeriodsXAndWidth = adjacentPeriodsXAndWidth.last;
-          adjacentPeriodsXAndWidth
-            ..last = MapEntry(
-              lastInPeriodsXAndWidth.key,
-              xAndWidth.key - lastInPeriodsXAndWidth.key,
-            )
-            ..add(xAndWidth);
 
           adjacentPeriods.add([]);
           adjacentPeriodsXAndWidth.add(
