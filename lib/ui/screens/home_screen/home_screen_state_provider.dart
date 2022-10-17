@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
@@ -54,16 +55,31 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
           HomeScreenState(
             DateTime.now(),
             ViewMode.day,
-
-            ///TODO: Cache ViewMode
             PeriodSchedule.periodScheduleFallback.entries.first.startTime,
             PeriodSchedule.periodScheduleFallback.entries.last.endTime,
           ),
-        );
+        ) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    final prefs = await SharedPreferences.getInstance();
+    int viewModeInt = prefs.getInt("viewMode") ?? 1;
+    ViewMode viewMode = ViewMode.values[viewModeInt];
+    state = state.copyWith(viewMode: viewMode);
+  }
+
+  Future<void> _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt("viewMode", state.viewMode.index);
+  }
 
   set currentDate(DateTime date) => state = state.copyWith(currentDate: date);
 
-  void switchView() => state = state.copyWith(viewMode: -state.viewMode);
+  void switchView() {
+    state = state.copyWith(viewMode: -state.viewMode);
+    _save();
+  }
 
   set startOfDay(TimeOfDay newStartOfDay) {
     if (newStartOfDay.difference(state.startOfDay).isNegative) {

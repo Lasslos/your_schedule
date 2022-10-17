@@ -1,16 +1,14 @@
-# your_schedule
+# your_schedule - Stundenplan
 
 Filter your Untis Schedule by classes you have chosen.
 
-## Getting Started
+### How it works
 
-This project is a starting point for a Flutter application.
+I reverse-engineered the Untis-Mobile App and created a Flutter App that does the same thing,
+with an important addition: It asks you what classes you are signed up for, and filters the
+timetable accordingly.
 
-A few resources to get you started if this is your first Flutter project:
+### Pull requests and Issues
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+are welcome, if your school also uses Untis but does not filter the classes for their students,
+this app should work for you too. If it doesn't, file an issue!

@@ -18,11 +18,9 @@ class TimeTablePeriodWidget extends StatelessWidget {
         break;
       case PeriodStatus.irregular:
         color = Colors.orange;
-        // TODO: Handle this case.
         break;
       case PeriodStatus.cancelled:
         color = Colors.red;
-        // TODO: Handle this case.
         break;
       case PeriodStatus.empty:
         color = Colors.grey;

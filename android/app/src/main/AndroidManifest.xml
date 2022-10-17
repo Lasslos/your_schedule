@@ -2,9 +2,9 @@
     package="com.example.your_schedule">
     <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="your_schedule"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+           android:label="Stundenplan"
+           android:name="${applicationName}"
+           android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:exported="true"

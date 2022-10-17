@@ -7,6 +7,7 @@ import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/filter/filter.dart';
+import 'package:your_schedule/ui/screens/filter_screen/filter_setup_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -95,6 +96,14 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     });
     await Future.delayed(const Duration(milliseconds: 500));
     // This can be ignored as we use the context given by the state, meaning we don't store it.
+    if (ref.read(filterItemsProvider).isEmpty) {
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const FilterSetupScreen()),
+      );
+      return;
+    }
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
@@ -110,15 +119,11 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Spacer(),
-            const SizedBox(
+            SizedBox(
               height: 200,
               child: AspectRatio(
                 aspectRatio: 1,
-                child: Placeholder(
-                  child: Center(
-                    child: Text("Logo"),
-                  ),
-                ),
+                child: Image.asset("assets/school_blue.png"),
               ),
             ),
             const Spacer(flex: 1),

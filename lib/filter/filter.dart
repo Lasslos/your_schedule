@@ -29,16 +29,27 @@ class FilterItemsNotifier
     state = List.unmodifiable(items);
   }
 
+  Future<void> save() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      "filterItems",
+      state.map((e) => jsonEncode(e.toJSON())).toList(),
+    );
+  }
+
   void addItem(TimeTablePeriodSubjectInformation item) {
     state = List.unmodifiable([...state, item]);
+    save();
   }
 
   void removeItem(TimeTablePeriodSubjectInformation item) {
     state = List.unmodifiable([...state]..remove(item));
+    save();
   }
 
   void clear() {
     state = List.unmodifiable([]);
+    save();
   }
 }
 

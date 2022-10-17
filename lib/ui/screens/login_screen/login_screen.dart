@@ -4,6 +4,8 @@ import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
+import 'package:your_schedule/filter/filter.dart';
+import 'package:your_schedule/ui/screens/filter_screen/filter_setup_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/secure_storage_util.dart';
@@ -34,9 +36,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await secureStorage.read(key: usernameKey) ?? "";
     passwordFieldController.text =
         await secureStorage.read(key: passwordKey) ?? "";
-    schoolFieldController.text = await secureStorage.read(key: schoolKey) ?? "";
-    domainFieldController.text =
-        await secureStorage.read(key: apiBaseURlKey) ?? "";
+    schoolFieldController.text =
+        await secureStorage.read(key: schoolKey) ?? "cjd-königswinter";
+    domainFieldController.text = await secureStorage.read(key: apiBaseURlKey) ??
+        "https://herakles.webuntis.com";
   }
 
   @override
@@ -269,6 +272,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     // This can be ignored as we use the context given by the state, meaning we don't store it.
+    if (ref.read(filterItemsProvider).isEmpty) {
+      // ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const FilterSetupScreen()),
+      );
+      return;
+    }
+
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,

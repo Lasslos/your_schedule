@@ -83,8 +83,6 @@ class FilterScreen extends ConsumerWidget {
         fullscreenDialog: true,
       ),
     );
-
-    ///TODO: Push a Page with all the possibleFilters and if selected added to the filter list
   }
 }
 
@@ -94,15 +92,15 @@ class FilterAddPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<TimeTablePeriodSubjectInformation> currentFilters =
-    ref.read(filterItemsProvider);
+        ref.watch(filterItemsProvider);
     List<TimeTablePeriod> possibleFilters = ref
-        .read(timeTableProvider)
+        .watch(timeTableProvider)
         .weekData
         .values
         .fold<List<TimeTablePeriod>>(
-      [],
+          [],
           (previous, element) => previous
-        ..addAll(
+            ..addAll(
               element.days.values.fold<List<TimeTablePeriod>>(
                 [],
                 (previousValue, element) =>
@@ -173,6 +171,7 @@ class FilterGridTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridTile(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [

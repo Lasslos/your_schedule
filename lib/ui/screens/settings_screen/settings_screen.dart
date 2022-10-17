@@ -8,5 +8,11 @@ class SettingsScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text("Settings"),
         ),
+        body: const Center(
+          child: Text(
+            "Hier gibt es noch nichts.\nSuchst du eine Einstellung?\nSchreib mir, damit ich das implementieren kann!",
+            textAlign: TextAlign.center,
+          ),
+        ),
       );
 }
