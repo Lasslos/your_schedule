@@ -30,7 +30,6 @@ class FilterItemsNotifier
   }
 
   void addItem(TimeTablePeriodSubjectInformation item) {
-    getLogger().d("Setting new State");
     state = List.unmodifiable([...state, item]);
   }
 

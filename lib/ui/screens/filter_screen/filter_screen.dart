@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
@@ -52,11 +54,19 @@ class FilterScreen extends ConsumerWidget {
       body: ListView(
         children: List.generate(
           filters.length,
-          (index) => Padding(
+              (index) => Padding(
             padding: const EdgeInsets.all(4),
             child: Card(
               child: ListTile(
                 title: Text(filters[index].longName),
+                trailing: IconButton(
+                  onPressed: () {
+                    ref
+                        .read(filterItemsProvider.notifier)
+                        .removeItem(filters[index]);
+                  },
+                  icon: const Icon(Icons.delete),
+                ),
               ),
             ),
           ),
@@ -84,15 +94,15 @@ class FilterAddPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     List<TimeTablePeriodSubjectInformation> currentFilters =
-        ref.read(filterItemsProvider);
+    ref.read(filterItemsProvider);
     List<TimeTablePeriod> possibleFilters = ref
         .read(timeTableProvider)
         .weekData
         .values
         .fold<List<TimeTablePeriod>>(
-          [],
+      [],
           (previous, element) => previous
-            ..addAll(
+        ..addAll(
               element.days.values.fold<List<TimeTablePeriod>>(
                 [],
                 (previousValue, element) =>
@@ -106,17 +116,14 @@ class FilterAddPage extends ConsumerWidget {
         )
         .toList();
 
-    ///I have not yet figured out why the fuck .toSet().toList() is not removing the duplicates. So I am doing it manually.
-    List<String> possibleFilterNames = [];
-    for (int i = 0; i < possibleFilters.length; i++) {
-      TimeTablePeriod period = possibleFilters[i];
-      if (!possibleFilterNames.contains(period.subject.longName)) {
-        possibleFilterNames.add(period.subject.longName);
-      } else {
-        possibleFilters.remove(period);
-        i--;
-      }
-    }
+    possibleFilters = (HashSet<TimeTablePeriod>(
+      equals: (a, b) => a.subject == b.subject,
+      hashCode: (e) => e.subject.hashCode,
+    )..addAll(possibleFilters))
+        .toList()
+      ..sort(
+        (a, b) => a.subject.name.compareTo(b.subject.name),
+      );
 
     return Scaffold(
       appBar: AppBar(
@@ -128,22 +135,22 @@ class FilterAddPage extends ConsumerWidget {
           possibleFilters.length,
           (index) => Padding(
             padding: const EdgeInsets.all(4),
-            child: Card(
-              child: InkWell(
-                onTap: () {
-                  ref
-                      .read(filterItemsProvider.notifier)
-                      .addItem(possibleFilters[index].subject);
-                  Navigator.pop(context);
-                },
-                child: FilterGridTile(
-                  subject: possibleFilters[index].subject,
-                  teacher: possibleFilters[index].teacher,
-                  room: possibleFilters[index].room,
+                child: Card(
+                  child: InkWell(
+                    onTap: () {
+                      ref
+                          .read(filterItemsProvider.notifier)
+                          .addItem(possibleFilters[index].subject);
+                      Navigator.pop(context);
+                    },
+                    child: FilterGridTile(
+                      subject: possibleFilters[index].subject,
+                      teacher: possibleFilters[index].teacher,
+                      room: possibleFilters[index].room,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
         ),
       ),
     );
@@ -151,11 +158,12 @@ class FilterAddPage extends ConsumerWidget {
 }
 
 class FilterGridTile extends StatelessWidget {
-  const FilterGridTile(
-      {required this.subject,
-      required this.teacher,
-      required this.room,
-      super.key});
+  const FilterGridTile({
+    required this.subject,
+    required this.teacher,
+    required this.room,
+    super.key,
+  });
 
   final TimeTablePeriodSubjectInformation subject;
   final TimeTablePeriodTeacherInformation teacher;

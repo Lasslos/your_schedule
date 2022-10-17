@@ -113,8 +113,8 @@ class TimeTablePeriodSubjectInformation {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is TimeTablePeriodSchoolClassInformation &&
-              runtimeType == other.runtimeType &&
+          other is TimeTablePeriodSubjectInformation &&
+          runtimeType == other.runtimeType &&
               name == other.name &&
               longName == other.longName &&
               identifier == other.identifier;

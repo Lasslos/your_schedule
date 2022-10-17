@@ -115,8 +115,6 @@ final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, D
   }
   TimeTableDay day = timeTableWeek.days[date]!;
 
-  getLogger().d("Rebuild Filtering periods for date $date");
-
   return day.periods
       .where(
         (period) => !filterItems.any((element) => period.subject == element),
@@ -124,5 +122,3 @@ final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, D
       .toList();
 }
 );
-
-///TODO: Idk, but something went very terribly wrong here. I have absolutely no idea whats going on.
