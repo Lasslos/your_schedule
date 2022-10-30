@@ -43,7 +43,7 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: SizedBox(
-        height: 1000,
+        height: 750,
         child: Row(
           children: [
             Column(
@@ -133,7 +133,7 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
     }
 
     return SizedBox(
-      width: 75,
+      width: 64,
       child: Column(
         children: children,
       ),

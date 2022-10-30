@@ -117,12 +117,22 @@ class _Page extends ConsumerWidget {
         Expanded(
           child: Row(
             children: List.generate(
-              5,
-                  (index) => Flexible(
-                child: PeriodLayout(
-                  periods: days[index]!,
-                ),
-              ),
+              9,
+              (index) {
+                if (index % 2 == 1) {
+                  //Separator
+                  return const SizedBox(
+                    width: 2,
+                  );
+                }
+                return Flexible(
+                  fit: FlexFit.tight,
+                  child: PeriodLayout(
+                    fontSize: 12,
+                    periods: days[index ~/ 2]!,
+                  ),
+                );
+              },
             ),
           ),
         )

@@ -144,8 +144,13 @@ class _PeriodLayoutList {
 
 class PeriodLayout extends ConsumerStatefulWidget {
   final List<TimeTablePeriod> periods;
+  final double fontSize;
 
-  const PeriodLayout({required this.periods, super.key});
+  const PeriodLayout({
+    required this.periods,
+    required this.fontSize,
+    super.key,
+  });
 
   @override
   ConsumerState<PeriodLayout> createState() => _PeriodLayoutState();
@@ -204,7 +209,13 @@ class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
       ),
       children: widget.periods
           .map(
-            (e) => LayoutId(id: e, child: TimeTablePeriodWidget(period: e)),
+            (e) => LayoutId(
+              id: e,
+              child: TimeTablePeriodWidget(
+                period: e,
+                fontSize: widget.fontSize,
+              ),
+            ),
           )
           .toList(),
     );

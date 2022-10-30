@@ -104,6 +104,7 @@ class _Page extends ConsumerWidget {
         ),
         Expanded(
           child: PeriodLayout(
+            fontSize: 12,
             periods: periods,
           ),
         ),

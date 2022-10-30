@@ -4,9 +4,11 @@ import 'package:your_schedule/core/api/models/timetable_period.dart';
 class TimeTablePeriodWidget extends StatelessWidget {
   const TimeTablePeriodWidget({
     required this.period,
+    required this.fontSize,
     super.key,
   });
 
+  final double fontSize;
   final TimeTablePeriod period;
 
   @override
@@ -31,33 +33,44 @@ class TimeTablePeriodWidget extends StatelessWidget {
     }
 
     return Card(
+      margin: const EdgeInsets.all(2),
       color: color,
-      child: Padding(
-        padding: const EdgeInsets.all(6),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            bool useShortText = constraints.maxWidth < 100;
+      clipBehavior: Clip.hardEdge,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          bool useShortText = constraints.maxWidth < 100;
 
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Flexible(child: Text(period.subject.name)),
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Flexible(
+                child: Text(
+                  period.subject.name,
+                  style: TextStyle(fontSize: fontSize),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  useShortText ? period.teacher.name : period.teacher.longName,
+                  style: TextStyle(fontSize: fontSize),
+                ),
+              ),
+              Flexible(
+                child: Text(
+                  period.room.name,
+                  style: TextStyle(fontSize: fontSize),
+                ),
+              ),
+              /*if (period.activityType != null)
                 Flexible(
                   child: Text(
-                    useShortText
-                        ? period.teacher.name
-                        : period.teacher.longName,
+                    period.activityType!,
+                    style: TextStyle(fontSize: fontSize),
                   ),
-                ),
-                Flexible(child: Text(period.room.name)),
-                if (period.activityType != null)
-                  Flexible(child: Text(period.activityType!)),
-                if (period.substText != null)
-                  Flexible(child: Text(period.substText!)),
-              ],
-            );
-          },
-        ),
+                ),*/
+            ],
+          );
+        },
       ),
     );
   }
