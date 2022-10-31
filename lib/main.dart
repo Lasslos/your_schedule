@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Dein Stundenplan',
+      title: 'Stundenplan',
       home: const LoadingScreen(),
       theme: ThemeData(
         primarySwatch: Colors.lightBlue,
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
     );
   }
 }
