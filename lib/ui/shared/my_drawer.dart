@@ -14,7 +14,7 @@ class MyDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    CircleAvatar avatar = getProfileAvatar(context, ref);
+    Widget avatar = getProfileAvatar(context, ref);
     String username =
         ref.watch(userSessionProvider.select((value) => value.username));
     String school =
@@ -40,7 +40,7 @@ class MyDrawer extends ConsumerWidget {
             currentAccountPicture: avatar,
           ),
           ListTile(
-            title: const Text("Mein Stundenplan"),
+            title: const Text("Stundenplan"),
             onTap: () {
               Navigator.pop(context);
             },
@@ -91,14 +91,11 @@ class MyDrawer extends ConsumerWidget {
     );
   }
 
-  CircleAvatar getProfileAvatar(BuildContext context, WidgetRef ref) {
-    final imageURL = ref.watch(
-      userSessionProvider.select((value) => value.profileData?.imageURL),
-    );
-
+  Widget getProfileAvatar(BuildContext context, WidgetRef ref) {
+    //Might add Profile Picture Support later
     return CircleAvatar(
-      backgroundImage: imageURL == null ? null : Image.network(imageURL).image,
-      child: imageURL == null ? const Icon(Icons.person) : null,
+      backgroundColor: Colors.lightBlue[300],
+      child: const Icon(Icons.person, color: Colors.white),
     );
   }
 }

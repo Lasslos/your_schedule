@@ -2,12 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
 import 'package:your_schedule/util/logger.dart';
 
 class FilterItemsNotifier
-    extends StateNotifier<List<TimeTablePeriodSubjectInformation>> {
-  FilterItemsNotifier() : super([]);
+    extends StateNotifier<Set<TimeTablePeriodSubjectInformation>> {
+  FilterItemsNotifier() : super(<TimeTablePeriodSubjectInformation>{});
 
   Future<void> initialize() async {
     final prefs = await SharedPreferences.getInstance();
@@ -26,7 +27,7 @@ class FilterItemsNotifier
       getLogger().w("JSON Parsing of FilterItems failed!", e, s);
       return;
     }
-    state = List.unmodifiable(items);
+    state = Set.unmodifiable(items);
   }
 
   Future<void> save() async {
@@ -38,22 +39,27 @@ class FilterItemsNotifier
   }
 
   void addItem(TimeTablePeriodSubjectInformation item) {
-    state = List.unmodifiable([...state, item]);
+    state = Set.unmodifiable([...state, item]);
     save();
   }
 
   void removeItem(TimeTablePeriodSubjectInformation item) {
-    state = List.unmodifiable([...state]..remove(item));
+    state = Set.unmodifiable([...state]..remove(item));
     save();
   }
 
-  void clear() {
-    state = List.unmodifiable([]);
+  void filterEverything(List<TimeTableWeek> weeks) {
+    state = Set.unmodifiable(
+      weeks
+          .expand((e) => e.days.values)
+          .expand((e) => e.periods)
+          .map((e) => e.subject),
+    );
     save();
   }
 }
 
 final filterItemsProvider = StateNotifierProvider<FilterItemsNotifier,
-    List<TimeTablePeriodSubjectInformation>>(
+    Set<TimeTablePeriodSubjectInformation>>(
   (ref) => FilterItemsNotifier(),
 );

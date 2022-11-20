@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
 
 void main() {
+  Intl.defaultLocale = 'de_DE';
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -26,7 +28,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
     );
   }
 }

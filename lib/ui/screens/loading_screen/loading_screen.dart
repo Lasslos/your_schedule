@@ -7,7 +7,7 @@ import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/filter/filter.dart';
-import 'package:your_schedule/ui/screens/filter_screen/filter_setup_screen.dart';
+import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -97,10 +97,17 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     await Future.delayed(const Duration(milliseconds: 500));
     // This can be ignored as we use the context given by the state, meaning we don't store it.
     if (ref.read(filterItemsProvider).isEmpty) {
+      ref.read(filterItemsProvider.notifier).filterEverything(
+          ref.read(timeTableProvider).weekData.values.toList());
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const FilterSetupScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const FilterScreen()),
       );
       return;
     }

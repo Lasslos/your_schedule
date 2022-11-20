@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
@@ -107,11 +108,67 @@ class _Page extends ConsumerWidget {
       children: [
         SizedBox(
           height: 42,
-          child: Center(
-            child: Text(
-              currentWeek.toString(),
-              textAlign: TextAlign.center,
-            ),
+          child: Row(
+            children: [
+              for (var i = 0; i < 5; i++)
+                Flexible(
+                  child: InkWell(
+                    onTap: () {
+                      var possibleNewDate =
+                          currentWeek.startDate.add(Duration(days: i));
+                      if (possibleNewDate
+                          .isBefore(DateTime.now().normalized())) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Das liegt in der Vergangenheit!',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: Colors.white,
+                                  ),
+                            ),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                            action: SnackBarAction(
+                              label: 'OK',
+                              textColor: Colors.white,
+                              onPressed: () {
+                                ScaffoldMessenger.of(context)
+                                    .hideCurrentSnackBar();
+                              },
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      ref.read(homeScreenStateProvider.notifier)
+                        ..currentDate =
+                            currentWeek.startDate.add(Duration(days: i))
+                        ..switchView();
+                    },
+                    child: Center(
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: DateFormat('E\n').format(
+                            currentWeek.startDate.add(Duration(days: i)),
+                          ),
+                          style: Theme.of(context).textTheme.bodyText1,
+                          children: [
+                            TextSpan(
+                              text: DateFormat("d. MMM.").format(
+                                  currentWeek.startDate.add(Duration(days: i))),
+                              style: Theme.of(context).textTheme.caption,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
         Expanded(

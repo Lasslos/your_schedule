@@ -4,7 +4,7 @@ description: Filter your Untis Schedule by classes you have chosen.
 version: 1.0.2
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
+  sdk: ">=2.18.4 <3.0.0"
 
 dependencies:
   flutter:

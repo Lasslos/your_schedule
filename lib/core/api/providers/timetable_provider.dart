@@ -102,11 +102,10 @@ final timeTableProvider =
   return TimeTableNotifier(ref.watch(userSessionProvider), ref);
 });
 
-final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, DateTime>(
-    (ref, date) {
-      date = date.normalized();
+final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, DateTime>((ref, date) {
+  date = date.normalized();
   TimeTable timeTable = ref.watch(timeTableProvider);
-  List<TimeTablePeriodSubjectInformation> filterItems =
+  Set<TimeTablePeriodSubjectInformation> filterItems =
       ref.watch(filterItemsProvider);
 
   TimeTableWeek? timeTableWeek = timeTable.weekData[Week.fromDateTime(date)];
@@ -117,8 +116,7 @@ final filteredTimeTablePeriodsFamily = Provider.family<List<TimeTablePeriod>?, D
 
   return day.periods
       .where(
-        (period) => !filterItems.any((element) => period.subject == element),
+        (period) => !filterItems.contains(period.subject),
       )
       .toList();
-}
-);
+});
