@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
 
 void main() {
-  Intl.defaultLocale = 'de_DE';
+  Intl.defaultLocale = 'de';
+  initializeDateFormatting('de_DE', null);
   runApp(const ProviderScope(child: MyApp()));
 }
 
