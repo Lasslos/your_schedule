@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' as intl;
+import 'package:intl/intl.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
@@ -49,8 +49,8 @@ class _DayViewState extends ConsumerState<DayView> {
         if (currentDate != next) {
           _pageController.animateToPage(
             next.normalized().difference(DateTime.now().normalized()).inDays,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.bounceInOut,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
           );
         }
       },
@@ -88,17 +88,23 @@ class _Page extends ConsumerWidget {
       );
     }
 
-    String weekDay = intl.DateFormat.EEEE().format(currentDate);
-    String date = intl.DateFormat.MMMd().format(currentDate);
-
     return Column(
       children: [
         SizedBox(
           height: 42,
           child: Center(
-            child: Text(
-              "$weekDay\n$date",
+            child: RichText(
               textAlign: TextAlign.center,
+              text: TextSpan(
+                text: DateFormat('EEEE\n').format(currentDate),
+                style: Theme.of(context).textTheme.bodyText1,
+                children: [
+                  TextSpan(
+                    text: DateFormat("d. MMMM").format(currentDate),
+                    style: Theme.of(context).textTheme.caption,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

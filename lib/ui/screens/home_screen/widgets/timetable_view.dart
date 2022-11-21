@@ -26,7 +26,10 @@ class _TimeTableViewState extends ConsumerState<TimeTableView> {
         return ref.read(timeTableProvider.notifier).refresh();
       },
       child: PeriodScheduleWidget(
-        child: viewMode == ViewMode.week ? const WeekView() : const DayView(),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+        ),
       ),
     );
   }

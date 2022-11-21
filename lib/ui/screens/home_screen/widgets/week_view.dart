@@ -50,8 +50,8 @@ class _WeekViewState extends ConsumerState<WeekView> {
           _pageController.animateToPage(
             next.normalized().difference(DateTime.now().normalized()).inDays ~/
                 7,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.bounceInOut,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
           );
         }
       },

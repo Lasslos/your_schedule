@@ -27,12 +27,12 @@ class HomeScreenState {
   final TimeOfDay startOfDay;
   final TimeOfDay endOfDay;
 
-  const HomeScreenState(
-    this.currentDate,
+  HomeScreenState(
+    DateTime currentDate,
     this.viewMode,
     this.startOfDay,
     this.endOfDay,
-  );
+  ) : currentDate = currentDate.normalized();
 
   HomeScreenState copyWith({
     DateTime? currentDate,

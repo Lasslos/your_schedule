@@ -219,21 +219,21 @@ class Selectable extends StatelessWidget {
   final bool selected;
   final Widget child;
 
-  const Selectable(
-      {required this.onChanged,
-      required this.selected,
-      required this.child,
-      Key? key})
-      : super(key: key);
+  const Selectable({
+    required this.onChanged,
+    required this.selected,
+    required this.child,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: () {
         onChanged(!selected);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 150),
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: selected
@@ -244,7 +244,7 @@ class Selectable extends StatelessWidget {
         child: Stack(
           children: [
             AnimatedScale(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 150),
               curve: Curves.easeInOut,
               scale: selected ? 0.75 : 1,
               child: child,
@@ -254,7 +254,7 @@ class Selectable extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(4),
                 child: AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 150),
                   crossFadeState: selected
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
@@ -314,18 +314,24 @@ class FilterGridTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(subject.name,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.fade,
-                  maxLines: 1),
-              Text(teacher.name,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.fade,
-                  maxLines: 1),
-              Text(room.name,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.fade,
-                  maxLines: 1),
+              Text(
+                subject.name,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.fade,
+                maxLines: 1,
+              ),
+              Text(
+                teacher.name,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.fade,
+                maxLines: 1,
+              ),
+              Text(
+                room.name,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.fade,
+                maxLines: 1,
+              ),
             ],
           ),
         ),

@@ -55,9 +55,9 @@ android {
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
         minSdkVersion 18
         targetSdkVersion flutter.targetSdkVersion
-        //TODO: Change versionCode and versionName if there isQ1     a new version
-        versionCode 111
-        versionName "v1.1.1"
+        //TODO: Change versionCode and versionName if there is a new version
+        versionCode 112
+        versionName "v1.1.2"
     }
 
     signingConfigs {

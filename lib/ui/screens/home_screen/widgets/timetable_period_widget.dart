@@ -46,7 +46,7 @@ class TimeTablePeriodWidget extends StatelessWidget {
               Flexible(
                 child: Text(
                   period.subject.name,
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                   maxLines: 1,
                   overflow: TextOverflow.fade,
                 ),
@@ -54,7 +54,7 @@ class TimeTablePeriodWidget extends StatelessWidget {
               Flexible(
                 child: Text(
                   useShortText ? period.teacher.name : period.teacher.longName,
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                   maxLines: 1,
                   overflow: TextOverflow.fade,
                 ),
@@ -62,7 +62,7 @@ class TimeTablePeriodWidget extends StatelessWidget {
               Flexible(
                 child: Text(
                   period.room.name,
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                   maxLines: 1,
                   overflow: TextOverflow.fade,
                 ),
