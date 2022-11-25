@@ -6,6 +6,7 @@ import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
+import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 class DayView extends ConsumerStatefulWidget {
@@ -48,7 +49,7 @@ class _DayViewState extends ConsumerState<DayView> {
       (previous, next) {
         if (currentDate != next) {
           _pageController.animateToPage(
-            next.normalized().difference(DateTime.now().normalized()).inDays,
+            next.difference(currentDate).inDays,
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
           );
@@ -60,7 +61,9 @@ class _DayViewState extends ConsumerState<DayView> {
       controller: _pageController,
       onPageChanged: (index) {
         currentDate = DateTime.now().add(Duration(days: index));
-        ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
+        if (currentDate != ref.read(homeScreenStateProvider).currentDate) {
+          ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
+        }
       },
       itemBuilder: (BuildContext context, int index) => _Page(index: index),
     );
@@ -92,26 +95,36 @@ class _Page extends ConsumerWidget {
       children: [
         SizedBox(
           height: 42,
-          child: Center(
-            child: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                text: DateFormat('EEEE\n').format(currentDate),
-                style: Theme.of(context).textTheme.bodyText1,
-                children: [
-                  TextSpan(
-                    text: DateFormat("d. MMMM").format(currentDate),
-                    style: Theme.of(context).textTheme.caption,
-                  ),
-                ],
+          child: InkWell(
+            onTap: () {
+              ref.read(homeScreenStateProvider.notifier).switchView();
+            },
+            child: Center(
+              child: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  text: DateFormat('EEEE\n').format(currentDate),
+                  style: Theme.of(context).textTheme.bodyText1,
+                  children: [
+                    TextSpan(
+                      text: DateFormat("d. MMMM").format(currentDate),
+                      style: Theme.of(context).textTheme.caption,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
         Expanded(
-          child: PeriodLayout(
-            fontSize: 12,
-            periods: periods,
+          child: Stack(
+            children: [
+              PeriodLayout(
+                fontSize: 12,
+                periods: periods,
+              ),
+              if (index == 0) const TimeIndicator(),
+            ],
           ),
         ),
       ],

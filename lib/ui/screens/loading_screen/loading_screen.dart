@@ -98,7 +98,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     // This can be ignored as we use the context given by the state, meaning we don't store it.
     if (ref.read(filterItemsProvider).isEmpty) {
       ref.read(filterItemsProvider.notifier).filterEverything(
-          ref.read(timeTableProvider).weekData.values.toList());
+            ref.read(timeTableProvider).weekData.values.toList(),
+          );
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,

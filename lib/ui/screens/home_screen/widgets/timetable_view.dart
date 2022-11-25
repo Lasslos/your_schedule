@@ -6,18 +6,13 @@ import 'package:your_schedule/ui/screens/home_screen/widgets/day_view.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_schedule_widget.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/week_view.dart';
 
-class TimeTableView extends ConsumerStatefulWidget {
+class TimeTableView extends ConsumerWidget {
   const TimeTableView({
     Key? key,
   }) : super(key: key);
 
   @override
-  ConsumerState createState() => _TimeTableViewState();
-}
-
-class _TimeTableViewState extends ConsumerState<TimeTableView> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var viewMode =
         ref.watch(homeScreenStateProvider.select((value) => value.viewMode));
 

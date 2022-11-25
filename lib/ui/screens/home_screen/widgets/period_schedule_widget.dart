@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
-import 'package:your_schedule/ui/screens/home_screen/widgets/timed_refresh.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
@@ -43,8 +41,6 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final homeScreenState = ref.watch(homeScreenStateProvider);
-
     return SingleChildScrollView(
       child: SizedBox(
         height: 750,
@@ -63,80 +59,7 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
               thickness: 0.7,
             ),
             const SizedBox(width: 4),
-            Expanded(
-              child: Stack(
-                children: [
-                  widget.child,
-                  TimedRefresh(
-                    interval: const Duration(seconds: 30),
-                    builder: (time, context) {
-                      if ((homeScreenState.currentDate !=
-                                  DateTime.now().normalized() &&
-                              homeScreenState.viewMode == ViewMode.day) ||
-                          (Week.fromDateTime(homeScreenState.currentDate) !=
-                                  Week.now()) &&
-                              homeScreenState.viewMode == ViewMode.week) {
-                        return const SizedBox.shrink();
-                      }
-
-                      TimeOfDay startTime = homeScreenState.startOfDay;
-                      TimeOfDay endTime = homeScreenState.endOfDay;
-                      TimeOfDay now = TimeOfDay.fromDateTime(time);
-
-                      if (now.difference(startTime) < Duration.zero ||
-                          now.difference(endTime) > Duration.zero) {
-                        return const SizedBox.shrink();
-                      }
-
-                      double relativePosition =
-                          now.difference(startTime).inMinutes /
-                              endTime.difference(startTime).inMinutes;
-                      return LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Column(
-                            children: [
-                              Spacer(
-                                  flex:
-                                      (relativePosition * constraints.maxHeight)
-                                          .floor()),
-                              Row(
-                                children: [
-                                  Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).brightness ==
-                                              Brightness.light
-                                          ? Colors.black
-                                          : Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(
-                                      height: 1,
-                                      color: Theme.of(context).brightness ==
-                                              Brightness.light
-                                          ? Colors.black
-                                          : Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Spacer(
-                                  flex: (constraints.maxHeight -
-                                          (relativePosition *
-                                              constraints.maxHeight))
-                                      .floor()),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            Expanded(child: widget.child),
             const SizedBox(width: 4),
           ],
         ),

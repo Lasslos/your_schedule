@@ -6,6 +6,7 @@ import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
+import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 class WeekView extends ConsumerStatefulWidget {
@@ -46,10 +47,11 @@ class _WeekViewState extends ConsumerState<WeekView> {
     ref.listen<DateTime>(
       homeScreenStateProvider.select((value) => value.currentDate),
       (previous, next) {
-        if (currentDate != next) {
+        var normalizedCurrentDate = Week.fromDateTime(currentDate).startDate;
+        var normalizedNext = Week.fromDateTime(next).startDate;
+        if (normalizedCurrentDate != normalizedNext) {
           _pageController.animateToPage(
-            next.normalized().difference(DateTime.now().normalized()).inDays ~/
-                7,
+            Week.now().startDate.difference(normalizedNext).inDays ~/ 7,
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
           );
@@ -116,8 +118,9 @@ class _Page extends ConsumerWidget {
                     onTap: () {
                       var possibleNewDate =
                           currentWeek.startDate.add(Duration(days: i));
-                      if (possibleNewDate
-                          .isBefore(DateTime.now().normalized())) {
+                      if (possibleNewDate.isBefore(
+                        DateTime.now().normalized(),
+                      )) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -144,8 +147,7 @@ class _Page extends ConsumerWidget {
                         return;
                       }
                       ref.read(homeScreenStateProvider.notifier)
-                        ..currentDate =
-                            currentWeek.startDate.add(Duration(days: i))
+                        ..currentDate = possibleNewDate
                         ..switchView();
                     },
                     child: Center(
@@ -159,7 +161,8 @@ class _Page extends ConsumerWidget {
                           children: [
                             TextSpan(
                               text: DateFormat("d. MMM").format(
-                                  currentWeek.startDate.add(Duration(days: i))),
+                                currentWeek.startDate.add(Duration(days: i)),
+                              ),
                               style: Theme.of(context).textTheme.caption,
                             ),
                           ],
@@ -172,25 +175,30 @@ class _Page extends ConsumerWidget {
           ),
         ),
         Expanded(
-          child: Row(
-            children: List.generate(
-              9,
-              (index) {
-                if (index % 2 == 1) {
-                  //Separator
-                  return const SizedBox(
-                    width: 2,
-                  );
-                }
-                return Flexible(
-                  fit: FlexFit.tight,
-                  child: PeriodLayout(
-                    fontSize: 12,
-                    periods: days[index ~/ 2]!,
-                  ),
-                );
-              },
-            ),
+          child: Stack(
+            children: [
+              Row(
+                children: List.generate(
+                  9,
+                  (index) {
+                    if (index % 2 == 1) {
+                      //Separator
+                      return const SizedBox(
+                        width: 2,
+                      );
+                    }
+                    return Flexible(
+                      fit: FlexFit.tight,
+                      child: PeriodLayout(
+                        fontSize: 12,
+                        periods: days[index ~/ 2]!,
+                      ),
+                    );
+                  },
+                ),
+              ),
+              if (index == 0) const TimeIndicator(),
+            ],
           ),
         )
       ],
