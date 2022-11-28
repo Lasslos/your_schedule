@@ -1,16 +1,21 @@
-import 'package:json_rpc_2/json_rpc_2.dart';
-import 'package:your_schedule/core/request_params/request_param.dart';
+import 'dart:io';
 
-Future<void> test() async {
-  var server = Server();
+import 'package:your_schedule/core/request_params/params.dart';
+
+Future<HttpResponse> request() async {
+
 }
 
 class UntisRequestData {
   String id;
   String jsonrpc;
   String method;
-  List<RequestParam> params;
+  List<BaseParams> params;
 
-  UntisRequestData(this.method, this.params,
-      {this.id = "-1", this.jsonrpc = "2.0"});
+  UntisRequestData(this.method,
+      this.params,
+      {
+        this.id = "-1",
+        this.jsonrpc = "2.0",
+      });
 }

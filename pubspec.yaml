@@ -18,7 +18,6 @@ dependencies:
   intl: ^0.17.0
   linked_scroll_controller: ^0.2.0
   flutter_native_splash: ^2.2.11
-  json_rpc_2: ^3.0.2
 
 dev_dependencies:
   flutter_test:
