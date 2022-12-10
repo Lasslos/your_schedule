@@ -120,6 +120,10 @@ class TimeTablePeriod {
     return "$startAsString - $endAsString";
   }
 
+  bool collidesWith(TimeTablePeriod other) {
+    return start.isBefore(other.end) && end.isAfter(other.start);
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

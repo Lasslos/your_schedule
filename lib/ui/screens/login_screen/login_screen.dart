@@ -254,6 +254,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .createSession(username, password, school, domain);
     } catch (e, s) {
       getLogger().e("Error while creating session", e, s);
+      debugPrintStack(stackTrace: s);
 
       ///Don't setState as this will be called by [_login]
       message = e.toString();
