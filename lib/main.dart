@@ -22,12 +22,12 @@ void main() async {
       ? ThemeMode.dark
       : darkMode != null
           ? ThemeMode.light
-          : null;
+          : ThemeMode.system;
   runApp(ProviderScope(child: MyApp(initialThemeMode: theme)));
 }
 
 class MyApp extends ConsumerStatefulWidget {
-  final ThemeMode? initialThemeMode;
+  final ThemeMode initialThemeMode;
 
   const MyApp({required this.initialThemeMode, Key? key}) : super(key: key);
 
@@ -59,7 +59,7 @@ class _MyAppState extends ConsumerState<MyApp> {
         brightness: Brightness.dark,
         useMaterial3: true,
       ),
-      themeMode: theme ?? ThemeMode.system,
+      themeMode: theme,
     );
   }
 }
