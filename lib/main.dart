@@ -7,12 +7,11 @@ import 'package:your_schedule/settings/theme/theme_provider.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
 
 void main() async {
-  runApp(
+  /*runApp(
     MaterialApp(
       home: const TempWidget(),
     ),
-  );
-  return;
+  );*/
 
   Intl.defaultLocale = 'de';
   initializeDateFormatting('de_DE', null);
