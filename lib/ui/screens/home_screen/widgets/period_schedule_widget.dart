@@ -132,7 +132,7 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
     }
 
     return SizedBox(
-      width: 64,
+      width: 42,
       child: Column(
         children: children,
       ),
@@ -155,10 +155,13 @@ class PeriodScheduleColumnElement extends StatelessWidget {
         children: [
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   entry.startTime.toMyString(),
-                  style: theme.textTheme.labelSmall,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontSize: 8,
+                  ),
                 ),
                 const Spacer(),
               ],
@@ -170,7 +173,9 @@ class PeriodScheduleColumnElement extends StatelessWidget {
                 const Spacer(),
                 Text(
                   entry.periodNumber.toString(),
-                  style: theme.textTheme.labelMedium,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Spacer(),
               ],
@@ -178,11 +183,14 @@ class PeriodScheduleColumnElement extends StatelessWidget {
           ),
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 const Spacer(),
                 Text(
                   entry.endTime.toMyString(),
-                  style: theme.textTheme.labelSmall,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontSize: 8,
+                  ),
                 ),
               ],
             ),

@@ -18,6 +18,10 @@ class PeriodScheduleNotifier extends StateNotifier<PeriodSchedule> {
     state = periodSchedule;
   }
 
+  Future<void> refresh() {
+    return loadPeriodSchedule();
+  }
+
   Future<void> loadPeriodSchedule() async {
     getLogger().i("Fetching period schedule");
     if (!_userSession.isAPIAuthorized) {

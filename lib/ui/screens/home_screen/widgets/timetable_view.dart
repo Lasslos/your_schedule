@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/day_view.dart';
@@ -17,8 +18,9 @@ class TimeTableView extends ConsumerWidget {
         ref.watch(homeScreenStateProvider.select((value) => value.viewMode));
 
     return RefreshIndicator(
-      onRefresh: () {
-        return ref.read(timeTableProvider.notifier).refresh();
+      onRefresh: () async {
+        await ref.read(timeTableProvider.notifier).refresh();
+        await ref.read(periodScheduleProvider.notifier).refresh();
       },
       child: PeriodScheduleWidget(
         child: AnimatedSwitcher(

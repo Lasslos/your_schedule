@@ -8,13 +8,13 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
         appBar: AppBar(
-          title: const Text("Settings"),
+          title: const Text("Einstellungen"),
         ),
         body: ListView(
           children: [
             Padding(
-              padding:
-                  const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+              padding: const EdgeInsets.only(
+                  top: 16.0, left: 16.0, right: 16.0, bottom: 8.0),
               child: Text(
                 "General",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -25,13 +25,57 @@ class SettingsScreen extends ConsumerWidget {
                     ),
               ),
             ),
-            SwitchListTile(
-              title: const Text("Dark Mode"),
-              value: Theme.of(context).brightness == Brightness.dark,
-              onChanged: (bool value) {
-                ref.read(themeProvider.notifier).setTheme(
-                      value ? ThemeMode.dark : ThemeMode.light,
-                    );
+            ListTile(
+              title: const Text("Design"),
+              subtitle: Text(() {
+                switch (ref.watch(themeProvider)) {
+                  case ThemeMode.system:
+                    return "Systemvorgabe";
+                  case ThemeMode.light:
+                    return "Hell";
+                  case ThemeMode.dark:
+                    return "Dunkel";
+                }
+              }()),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Design"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RadioListTile<ThemeMode>(
+                          title: const Text("Hell"),
+                          value: ThemeMode.light,
+                          groupValue: ref.watch(themeProvider),
+                          onChanged: (value) {
+                            ref.read(themeProvider.notifier).setTheme(value!);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: const Text("Dunkel"),
+                          value: ThemeMode.dark,
+                          groupValue: ref.watch(themeProvider),
+                          onChanged: (value) {
+                            ref.read(themeProvider.notifier).setTheme(value!);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        RadioListTile<ThemeMode>(
+                          title: const Text("Systemvorgabe"),
+                          value: ThemeMode.system,
+                          groupValue: ref.watch(themeProvider),
+                          onChanged: (value) {
+                            ref.read(themeProvider.notifier).setTheme(value!);
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               },
             ),
           ],

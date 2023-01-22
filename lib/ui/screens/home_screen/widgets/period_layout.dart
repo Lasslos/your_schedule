@@ -19,7 +19,8 @@ import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_wi
 //the parts of the grid that are independent of each other.
 //This simplifies the code and makes it easier to understand without removing any functionality.
 Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
-    List<TimeTablePeriod> periods) sync* {
+  List<TimeTablePeriod> periods,
+) sync* {
   /// The grid is a list of columns, each of which is a list of "rows" which are actually just periods.
   List<List<TimeTablePeriod>> grid = [];
   DateTime? lastEndTime;

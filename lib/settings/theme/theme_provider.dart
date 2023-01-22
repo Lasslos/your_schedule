@@ -18,5 +18,6 @@ class ThemeProvider extends StateNotifier<ThemeMode> {
         prefs.remove('darkMode');
       });
     }
+    state = theme;
   }
 }

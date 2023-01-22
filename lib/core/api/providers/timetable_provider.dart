@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
@@ -15,20 +14,15 @@ import 'package:your_schedule/util/logger.dart';
 @immutable
 class TimeTable {
   final Map<Week, TimeTableWeek> weekData;
-  final PeriodSchedule periodSchedule;
 
-  TimeTable(
-    Map<Week, TimeTableWeek> weekData, [
-    this.periodSchedule = PeriodSchedule.periodScheduleFallback,
-  ]) : weekData = Map.unmodifiable(weekData);
+  TimeTable(Map<Week, TimeTableWeek> weekData)
+      : weekData = Map.unmodifiable(weekData);
 
   TimeTable copyWith({
     Map<Week, TimeTableWeek>? weekData,
-    PeriodSchedule? periodSchedule,
   }) {
     return TimeTable(
       weekData ?? this.weekData,
-      periodSchedule ?? this.periodSchedule,
     );
   }
 }
@@ -96,6 +90,7 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
   }
 
   Future<void> refresh([Week? week]) async {
+    state = TimeTable(const {});
     week ??= Week.now();
     await fetchTimeTableWeek(week);
   }
