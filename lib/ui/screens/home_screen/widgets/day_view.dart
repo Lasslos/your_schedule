@@ -85,18 +85,18 @@ class _Page extends ConsumerWidget {
     List<TimeTablePeriod>? periods =
         ref.watch(filteredTimeTablePeriodsFamily(currentDate));
     if (periods == null) {
-      return FutureBuilder(
-        future: ref
-            .read(timeTableProvider.notifier)
-            .fetchTimeTableWeek(currentWeek),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
-          return const CircularProgressIndicator();
-        },
+      return Center(
+        child: FutureBuilder(
+          future: ref
+              .read(timeTableProvider.notifier)
+              .fetchTimeTableWeek(currentWeek),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            }
+            return const CircularProgressIndicator();
+          },
+        ),
       );
     }
 

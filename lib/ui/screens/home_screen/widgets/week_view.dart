@@ -100,18 +100,18 @@ class _Page extends ConsumerWidget {
       ),
     );
     if (days.any((element) => element == null)) {
-      return FutureBuilder(
-        future: ref
-            .read(timeTableProvider.notifier)
-            .fetchTimeTableWeek(currentWeek),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
-          return const CircularProgressIndicator();
-        },
+      return Center(
+        child: FutureBuilder(
+          future: ref
+              .read(timeTableProvider.notifier)
+              .fetchTimeTableWeek(currentWeek),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            }
+            return const CircularProgressIndicator();
+          },
+        ),
       );
     }
 

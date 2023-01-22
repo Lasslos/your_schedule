@@ -81,7 +81,7 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
     );
     if (!mounted) {
       getLogger().w("Notifier is not mounted, aborting");
-      return;
+      throw Exception("Notifier is not mounted, aborting");
     }
     getLogger().i("Successfully fetched timetable for week $week");
     state = state.copyWith(

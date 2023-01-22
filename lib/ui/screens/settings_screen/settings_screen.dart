@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:your_schedule/settings/custom_subject_color/custom_subject_color_provider.dart';
 import 'package:your_schedule/settings/theme/theme_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -78,6 +79,37 @@ class SettingsScreen extends ConsumerWidget {
                 );
               },
             ),
+            ListTile(
+              title: const Text("Farben zurücksetzen"),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Farben zurücksetzen"),
+                    content: const Text(
+                      "Möchtest du wirklich alle Farben der Fächer zurücksetzen?",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Abbrechen"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          ref
+                              .read(customSubjectColorProvider.notifier)
+                              .resetColors();
+                        },
+                        child: const Text("Zurücksetzen"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            )
           ],
         ),
       );

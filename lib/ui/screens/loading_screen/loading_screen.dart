@@ -7,6 +7,7 @@ import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/filter/filter.dart';
+import 'package:your_schedule/settings/custom_subject_color/custom_subject_color_provider.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
@@ -36,6 +37,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
   Future<void> login() async {
     ref.read(filterItemsProvider.notifier).initialize();
+    ref.read(customSubjectColorProvider.notifier).initialize();
 
     try {
       await ref.read(userSessionProvider.notifier).createSession(
@@ -53,7 +55,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       );
       return;
     } catch (e, s) {
-      rethrow;
       getLogger().e("Error while creating session", e, s);
       // This can be ignored as we use the context given by the state, meaning we don't store it.
       // ignore: use_build_context_synchronously

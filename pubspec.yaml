@@ -1,7 +1,7 @@
 name: your_schedule
 description: Filter your Untis Schedule by classes you have chosen.
 
-version: 1.2.5
+version: 1.2.7
 
 environment:
   sdk: ">=2.18.4 <3.0.0"
@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   http: ^0.13.5
   logger: ^1.1.0
+  flutter_material_color_picker: ^1.1.0+2
   flutter_riverpod: ^2.0.0-dev.9
   flutter_secure_storage: ^5.1.2
   shared_preferences: ^2.0.15
