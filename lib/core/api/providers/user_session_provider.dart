@@ -93,7 +93,10 @@ class UserSession {
   final ProfileData? profileData;
 
   bool get isLoggedIn =>
-      sessionIsValid && sessionID.isNotEmpty && loggedInPersonID != -1;
+      sessionIsValid &&
+      isAPIAuthorized &&
+      sessionID.isNotEmpty &&
+      loggedInPersonID != -1;
 
   bool get isRPCAuthorized => sessionID.isNotEmpty && loggedInPersonID != -1;
 
@@ -171,32 +174,6 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       password: password,
       school: school,
     );
-
-    ///Check if two-factor authentication is enabled
-    http.Response twoFactor = await queryURL(
-      "/WebUntis/j_spring_security_check",
-      needsAuthorization: true,
-      body: {
-        "j_username": username,
-        "j_password": password,
-        "school": state.schoolBase64,
-        "token": token,
-      },
-    );
-    if (twoFactor.body.isNotEmpty) {
-      Map<String, dynamic> json = jsonDecode(twoFactor.body);
-      if (json["state"] == "TOKEN_REQUIRED") {
-        if (json["invalidToken"] == true) {
-          throw InvalidSecurityToken(
-            "Zwei-Faktor Authentifizierung fehlgeschlagen. Bitte versuche es erneut",
-          );
-        } else {
-          throw SecurityTokenRequired(
-            "Dieses Profil ist mit Zwei-Faktor Authentifizierung versehen. Bitte gib deinen Zwei-Faktor Authentifizierungscode ein",
-          );
-        }
-      }
-    }
 
     await regenerateSessionBearerToken();
     state = state.copyWith(profileData: await _getProfileData());

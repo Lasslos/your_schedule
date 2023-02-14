@@ -21,8 +21,10 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     CustomSubjectColor statusColor;
     switch (period.periodStatus) {
       case PeriodStatus.regular:
-        statusColor = ref.watch(customSubjectColorProvider
-                .select((value) => value[period.subject])) ??
+        statusColor = ref.watch(
+              customSubjectColorProvider
+                  .select((value) => value[period.subject]),
+            ) ??
             CustomSubjectColor.regularColor;
         break;
       case PeriodStatus.irregular:
@@ -58,7 +60,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                   child: Text(
                     period.subject.name,
                     style: TextStyle(
-                        fontSize: fontSize, color: statusColor.textColor),
+                      fontSize: fontSize,
+                      color: statusColor.textColor,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.visible,
                   ),
@@ -69,7 +73,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                         ? period.teacher.name
                         : period.teacher.longName,
                     style: TextStyle(
-                        fontSize: fontSize, color: statusColor.textColor),
+                      fontSize: fontSize,
+                      color: statusColor.textColor,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.visible,
                   ),
@@ -78,7 +84,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                   child: Text(
                     period.room.name,
                     style: TextStyle(
-                        fontSize: fontSize, color: statusColor.textColor),
+                      fontSize: fontSize,
+                      color: statusColor.textColor,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.visible,
                   ),
@@ -92,7 +100,10 @@ class TimeTablePeriodWidget extends ConsumerWidget {
   }
 
   void onTap(
-      BuildContext context, WidgetRef ref, CustomSubjectColor statusColor) {
+    BuildContext context,
+    WidgetRef ref,
+    CustomSubjectColor statusColor,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PeriodDetailsView(
@@ -118,13 +129,15 @@ class PeriodDetailsView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    CustomSubjectColor customSubjectColor = ref.watch(customSubjectColorProvider
-            .select((value) => value[period.subject])) ??
+    CustomSubjectColor customSubjectColor = ref.watch(
+          customSubjectColorProvider.select((value) => value[period.subject]),
+        ) ??
         CustomSubjectColor.regularColor;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: statusColor?.color ?? customSubjectColor.color,
+        surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -132,149 +145,154 @@ class PeriodDetailsView extends ConsumerWidget {
           },
           color: statusColor?.textColor ?? customSubjectColor.textColor,
         ),
-        title: Text("Stundendetails",
-            style: TextStyle(
-                color: statusColor?.textColor ?? customSubjectColor.textColor)),
+        title: Text(
+          "Stundendetails",
+          style: TextStyle(
+            color: statusColor?.textColor ?? customSubjectColor.textColor,
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: ListView(
-          children: [
-            SizedBox(
-              height: 150,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(
-                    Icons.book_outlined,
-                    size: 50,
+      body: ListView(
+        children: [
+          const SizedBox(
+            height: 8,
+          ),
+          SizedBox(
+            height: 150,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Icon(
+                  Icons.book_outlined,
+                  size: 50,
+                  color: customSubjectColor.color,
+                ),
+                ListTile(
+                  title: Text(
+                    period.subject.longName,
+                    style: const TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                  subtitle: Text(
+                    "${intl.DateFormat("dd. MMM HH:mm").format(period.start)}-${intl.DateFormat("HH:mm").format(period.end)}",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(
+            thickness: 1,
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text("Lehrer"),
+            subtitle: Text(
+              period.teacher.longName,
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.location_on_outlined),
+            title: const Text("Raum"),
+            subtitle: Text(period.room.name),
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text("Status"),
+            subtitle: Text(period.periodStatus.readableName),
+          ),
+          ListTile(
+            enableFeedback: true,
+            leading: const Icon(Icons.school_outlined),
+            title: const Text("Klasse"),
+            subtitle: Text(
+              "${period.schoolClass.name} - ${period.schoolClass.longName}",
+            ),
+          ),
+          if (period.substText != null)
+            ListTile(
+              leading: const Icon(Icons.text_snippet_outlined),
+              title: const Text("Vertretungstext"),
+              subtitle: Text(period.substText!),
+            ),
+          if (period.activityType != null)
+            ListTile(
+              leading: const Icon(Icons.backup_table),
+              title: const Text("Aktivitätstyp"),
+              subtitle: Text(period.activityType!),
+            ),
+          const Divider(
+            thickness: 1,
+          ),
+          //create two list tiles, one shall add the period to the filterd ones that means hide it, the other one shall change its color
+          ListTile(
+            leading: SizedBox(
+              width: 24,
+              height: 24,
+              child: Center(
+                child: Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
                     color: customSubjectColor.color,
-                  ),
-                  ListTile(
-                    title: Text(
-                      period.subject.longName,
-                      style: const TextStyle(fontSize: 20),
-                      textAlign: TextAlign.center,
-                    ),
-                    subtitle: Text(
-                      "${intl.DateFormat("dd. MMM HH:mm").format(period.start)}-${intl.DateFormat("HH:mm").format(period.end)}",
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(
-              thickness: 1,
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_outline),
-              title: const Text("Lehrer"),
-              subtitle: Text(
-                period.teacher.longName,
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.location_on_outlined),
-              title: const Text("Raum"),
-              subtitle: Text(period.room.name),
-            ),
-            ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text("Status"),
-              subtitle: Text(period.periodStatus.readableName),
-            ),
-            ListTile(
-              enableFeedback: true,
-              leading: const Icon(Icons.school_outlined),
-              title: const Text("Klasse"),
-              subtitle: Text(
-                "${period.schoolClass.name} - ${period.schoolClass.longName}",
-              ),
-            ),
-            if (period.substText != null)
-              ListTile(
-                leading: const Icon(Icons.text_snippet_outlined),
-                title: const Text("Vertretungstext"),
-                subtitle: Text(period.substText!),
-              ),
-            if (period.activityType != null)
-              ListTile(
-                leading: const Icon(Icons.backup_table),
-                title: const Text("Aktivitätstyp"),
-                subtitle: Text(period.activityType!),
-              ),
-            const Divider(
-              thickness: 1,
-            ),
-            //create two list tiles, one shall add the period to the filterd ones that means hide it, the other one shall change its color
-            ListTile(
-              leading: SizedBox(
-                width: 24,
-                height: 24,
-                child: Center(
-                  child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: customSubjectColor.color,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                 ),
               ),
-              title: const Text("Farbe ändern"),
-              onTap: () {
-                //show a color picker
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text("Farbe ändern"),
-                    content: MaterialColorPicker(
-                      onColorChange: (color) {
-                        Color textColor = color.computeLuminance() > 0.5
-                            ? Colors.black
-                            : Colors.white;
+            ),
+            title: const Text("Farbe ändern"),
+            onTap: () {
+              //show a color picker
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Farbe ändern"),
+                  content: MaterialColorPicker(
+                    onColorChange: (color) {
+                      Color textColor = color.computeLuminance() > 0.5
+                          ? Colors.black
+                          : Colors.white;
+                      ref
+                          .read(customSubjectColorProvider.notifier)
+                          .addColor(period.subject, color, textColor);
+                    },
+                    selectedColor: customSubjectColor.color,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
                         ref
                             .read(customSubjectColorProvider.notifier)
-                            .addColor(period.subject, color, textColor);
+                            .removeColor(period.subject);
+                        Navigator.of(context).pop();
                       },
-                      selectedColor: customSubjectColor.color,
+                      child: const Text("Zurücksetzen"),
                     ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          ref
-                              .read(customSubjectColorProvider.notifier)
-                              .removeColor(period.subject);
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("Zurücksetzen"),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text("Ok"),
-                      )
-                    ],
-                  ),
-                );
-              },
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Ok"),
+                    )
+                  ],
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.visibility_off, color: Colors.red),
+            title: const Text(
+              "Kurs ausblenden",
+              style: TextStyle(color: Colors.red),
             ),
-            ListTile(
-              leading: const Icon(Icons.visibility_off, color: Colors.red),
-              title: const Text("Kurs ausblenden",
-                  style: TextStyle(color: Colors.red)),
-              onTap: () {
-                ref.read(filterItemsProvider.notifier).addItem(period.subject);
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
+            onTap: () {
+              ref.read(filterItemsProvider.notifier).addItem(period.subject);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
       ),
     );
   }

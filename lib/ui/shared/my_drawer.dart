@@ -38,6 +38,9 @@ class MyDrawer extends ConsumerWidget {
             accountName: Text(username),
             accountEmail: Text(school),
             currentAccountPicture: avatar,
+            decoration: BoxDecoration(
+              color: Colors.lightBlue[500],
+            ),
           ),
           ListTile(
             title: const Text("Stundenplan"),
@@ -73,7 +76,7 @@ class MyDrawer extends ConsumerWidget {
           ListTile(
             title: Text(
               "Logout",
-              style: TextStyle(color: theme.errorColor),
+              style: TextStyle(color: theme.colorScheme.error),
             ),
             onTap: () {
               ref.read(userSessionProvider.notifier).logout();
