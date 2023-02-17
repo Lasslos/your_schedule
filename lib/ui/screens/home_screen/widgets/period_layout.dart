@@ -34,7 +34,7 @@ Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
   /// We go through each period in order of start time.
   for (TimeTablePeriod period in periods) {
     if (lastEndTime != null && period.start.isAfter(lastEndTime)) {
-      /// In this case, all the following periods are independent of the previous ones.
+      /// In this case, all the following periods' start times are after the previous end times and are therefore independent.
       /// We yield the grid and start a new one.
       yield grid;
       grid = [];
@@ -154,6 +154,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
               endOfDay.minute -
               startOfDay.hour * 60 -
               startOfDay.minute);
+
       for (int i = 0; i < gridPart.length; i++) {
         List<TimeTablePeriod> column = gridPart[i];
         for (TimeTablePeriod period in column) {
@@ -186,7 +187,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
           layoutChild(
             period,
             BoxConstraints(
-              minWidth: columnWidth,
+              minWidth: columnWidth * possibleWidthExpansion(period, i),
               maxWidth: columnWidth * possibleWidthExpansion(period, i),
               minHeight: dateTimeToYOffset(period.end) -
                   dateTimeToYOffset(period.start),

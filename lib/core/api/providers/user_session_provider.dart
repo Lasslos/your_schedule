@@ -106,13 +106,8 @@ class UserSession {
 class UserSessionNotifier extends StateNotifier<UserSession> {
   UserSessionNotifier() : super(const UserSession());
 
-  Future<void> createSession(
-    String username,
-    String password,
-    String school,
-    String apiBaseURL, [
-    String token = "",
-  ]) async {
+  Future<void> createSession(String username, String password, String school,
+      String apiBaseURL) async {
     getLogger().i("Creating session for $username");
     if (state.sessionIsValid) {
       throw UserAlreadyLoggedInException(
@@ -141,7 +136,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
         );
       } else {
         throw ApiConnectionError(
-          "Ein http Fehler ist aufgetreten: ${response.httpStatusCode}",
+          "Ein Http-Fehler ist aufgetreten: ${response.httpStatusCode}",
         );
       }
     }
@@ -240,6 +235,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       return response;
     }
 
+    //Falls die Session nicht mehr gültig ist, versuche sie zu validieren und erneut abzusenden
     await _validateSession();
     if (state.sessionIsValid) {
       return RPCResponse.fromHttpResponse(
@@ -311,7 +307,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       state = state.copyWith(bearerToken: response.body);
     } else {
       getLogger().w(
-        "Warning: Failed to fetch api token. Unable to call 'getNews()' and 'getProfileData()'",
+        "Warning: Failed to fetch api token. Unable to call 'getProfileData()'",
       );
     }
   }

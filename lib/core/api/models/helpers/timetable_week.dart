@@ -3,12 +3,12 @@ import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
 import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/logger.dart';
 
 @immutable
 class TimeTableWeek {
   final Week week;
   final Map<DateTime, TimeTableDay> days;
-  final int maxDayLength = TimeTableDay.minHoursPerDay;
 
   bool get isEmpty => days.isEmpty;
 
@@ -20,7 +20,7 @@ class TimeTableWeek {
 
     if (response.isError) {
       if (response.errorCode == -7004) {
-        //"no allowed date"
+        //"no allowed date" - Das bedeutet, dass der Stundenplan noch nicht verfügbar ist
         //create empty table
         for (int i = 0; i < 7; i++) {
           DateTime day = week.startDate.add(Duration(days: i));
@@ -53,7 +53,7 @@ class TimeTableWeek {
             );
       }
     } catch (e) {
-      debugPrint(
+      getLogger().w(
         "Error while loading timetable. Response JSON might be malformed.",
       );
       rethrow;

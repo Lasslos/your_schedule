@@ -79,6 +79,10 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
         },
       ),
     );
+    // Check if the notifier is still mounted
+    // If not, that means for some reason the Widget that requested this data was disposed
+    // This can happen if the user navigates away from the page before the data is fetched
+    // In that case, we don't want to update the state, because that would cause an error
     if (!mounted) {
       getLogger().w("Notifier is not mounted, aborting");
       throw Exception("Notifier is not mounted, aborting");

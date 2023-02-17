@@ -6,10 +6,6 @@ import 'package:your_schedule/util/weekday.dart';
 @immutable
 class TimeTableDay {
   final DateTime date;
-
-  /// How many hours minimum should be displayed per day, if there are no lessons
-  static const int minHoursPerDay = 8;
-
   ///Maps the start time to a TimeTablePeriod
   final List<TimeTablePeriod> periods;
 
