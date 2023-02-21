@@ -13,12 +13,13 @@ enum ViewMode {
 
   const ViewMode(this.readableName, this.icon);
 
-  ///Get the opposite view mode
+  ///Der gegenteilige ViewMode
   ViewMode operator -() {
     return ViewMode.values[(index - 1).abs()];
   }
 }
 
+//Hier wird gespeichert, welche Ansicht gerade angezeigt wird und welcher Tag ausgewählt ist.
 @immutable
 class HomeScreenState {
   final DateTime currentDate;

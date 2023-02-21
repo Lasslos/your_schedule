@@ -7,8 +7,8 @@ class ProfileData {
   final String? schoolLongName;
   final int? schoolId;
 
-  ///Constructs a [ProfileData] from a [Map] with the keys `user-person-displayName`, `user-person-imageUrl`, `tenant-displayName` and `tenant-id` (lowercase).
-  ///This is unsafe if the map does not contain these keys.
+  ///Konstruiert einen [ProfileData] aus einer [Map] mit den Schlüsseln `user-person-displayName`, `user-person-imageUrl`, `tenant-displayName` und `tenant-id`.
+  ///Dies ist unsicher, wenn die Map diese Schlüssel nicht enthält.
   ProfileData.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),

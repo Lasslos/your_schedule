@@ -9,10 +9,10 @@ import 'package:your_schedule/util/logger.dart';
 class RPCResponse {
   static const rpcWrongCredentials = -8504;
 
-  ///The app's name, as specified in the request.
+  ///Name der App
   final String appName;
 
-  ///Usually 2.0
+  ///Normalerweise 2.0
   final String rpcVersion;
 
   final int httpStatusCode;
@@ -44,7 +44,7 @@ class RPCResponse {
   }
 
   factory RPCResponse.fromHttpResponse(http.Response httpResponse) {
-    //Check status code
+    //Status Code prüfen
     if (httpResponse.statusCode != 200) {
       return RPCResponse(
         "unknown",
@@ -60,7 +60,7 @@ class RPCResponse {
     return RPCResponse._combine(httpResponse.body, httpResponse);
   }
 
-  ///[RPCResponse.fromResponseBody] and [RPCResponse.fromHttpResponse] both have a lot of logic in common, so this is a helper function to combine that logic
+  ///[RPCResponse.fromResponseBody] und [RPCResponse.fromHttpResponse] sind beide ähnlich, diese Methode vereint sie.
   factory RPCResponse._combine(
     String httpResponseBody, [
     http.Response? httpResponse,
@@ -71,17 +71,17 @@ class RPCResponse {
     } catch (e) {
       log("Warning: Error while decoding JSON: $e");
     }
-    //Read standard information
+    //Standardwerte lesen
     String appId = json['id'];
     String rpcVersion = json['jsonrpc'];
 
-    //Read data
+    //Daten lesen
     var result = json['result'];
     if (result != null) {
       return RPCResponse(appId, rpcVersion, result, httpResponse, 200, null, 0);
     }
 
-    //If there is no result, try to read an error
+    //Wenn es keine Daten gibt, prüfen, ob es einen Fehler gibt
     var error = json['error'];
     if (error != null) {
       getLogger().w(
@@ -98,7 +98,7 @@ class RPCResponse {
       );
     }
 
-    //If there is no result and no error, return an empty response
+    //Wenn es keine Daten und keine Fehler gibt, leere Antwort
     getLogger().w(
       "Warning: Empty RPCResponse from request \n"
       "${httpResponse?.request.toString()}",

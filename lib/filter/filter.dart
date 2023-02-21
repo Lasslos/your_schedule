@@ -10,7 +10,9 @@ class FilterItemsNotifier
     extends StateNotifier<Set<TimeTablePeriodSubjectInformation>> {
   FilterItemsNotifier() : super(<TimeTablePeriodSubjectInformation>{});
 
+  //Hier wird versucht, die gespeicherten FilterItems aus dem Handy zu laden.
   Future<void> initialize() async {
+    //Hier werden die FilterItems gespeichert.
     final prefs = await SharedPreferences.getInstance();
     List<String>? filterItemsAsString = prefs.getStringList("filterItems");
     if (filterItemsAsString == null) {
@@ -18,6 +20,7 @@ class FilterItemsNotifier
     }
     late List<TimeTablePeriodSubjectInformation> items;
     try {
+      //Jedes FilterItem wird in ein TimeTablePeriodSubjectInformation Objekt umgewandelt.
       items = filterItemsAsString
           .map(
             (e) => TimeTablePeriodSubjectInformation.fromJSON(jsonDecode(e)),
@@ -30,6 +33,7 @@ class FilterItemsNotifier
     state = Set.unmodifiable(items);
   }
 
+  //Hier werden die FilterItems gespeichert.
   Future<void> save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
@@ -48,6 +52,7 @@ class FilterItemsNotifier
     save();
   }
 
+  //Mit dieser Methode werden alle Stunden herausgefiltert, welcer in der Liste von TimeTableWeeks sind.
   void filterEverything(List<TimeTableWeek> weeks) {
     state = Set.unmodifiable(
       weeks

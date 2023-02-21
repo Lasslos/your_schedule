@@ -35,6 +35,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     });
   }
 
+  //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
     ref.read(filterItemsProvider.notifier).initialize();
     ref.read(customSubjectColorProvider.notifier).initialize();
@@ -56,7 +57,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       return;
     } catch (e, s) {
       getLogger().e("Error while creating session", e, s);
-      // This can be ignored as we use the context given by the state, meaning we don't store it.
+      // Weil wir den BuildContext nicht speichern, ist die Nutzung hier kein Problem
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
@@ -97,7 +98,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       _message = "Done";
     });
     await Future.delayed(const Duration(milliseconds: 500));
-    // This can be ignored as we use the context given by the state, meaning we don't store it.
     if (ref.read(filterItemsProvider).isEmpty) {
       ref.read(filterItemsProvider.notifier).filterEverything(
             ref.read(timeTableProvider).weekData.values.toList(),

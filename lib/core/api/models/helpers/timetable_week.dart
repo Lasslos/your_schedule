@@ -21,7 +21,7 @@ class TimeTableWeek {
     if (response.isError) {
       if (response.errorCode == -7004) {
         //"no allowed date" - Das bedeutet, dass der Stundenplan noch nicht verfügbar ist
-        //create empty table
+        //Wir füllen die Woche mit leeren Tagen
         for (int i = 0; i < 7; i++) {
           DateTime day = week.startDate.add(Duration(days: i));
           days[day] = TimeTableDay(day, i);
@@ -34,7 +34,7 @@ class TimeTableWeek {
       }
     }
 
-    ///Go through entries and put them into the days
+    ///Gehe durch alle Einträge und füge sie den Tagen hinzu
     try {
       for (Map<String, dynamic> entry in response.payload) {
         DateTime entryDate = (entry['date']!.toString())
@@ -59,8 +59,7 @@ class TimeTableWeek {
       rethrow;
     }
 
-    ///Now go through all the days in the list and fill in those with no lessons
-    ///Calculate the max day length and set the isEmpty flag
+    ///Füge leere Tage hinzu, falls es keine Einträge für einen Tag gibt
     for (int i = 0; i < 7; i++) {
       DateTime date = week.startDate.add(Duration(days: i));
       days.putIfAbsent(
@@ -81,7 +80,7 @@ class Week {
       startDate.startOfWeek().difference(DateTime.now().startOfWeek()).inDays ~/
       7;
 
-  ///Constructs a week object the given [momentInWeek] is in.
+  ///Erstellt ein Wochenobjekt, das die Woche enthält, in der das übergebene Datum liegt
   Week.fromDateTime(DateTime momentInWeek)
       : startDate = momentInWeek.startOfWeek(),
         endDate = momentInWeek.endOfWeek();

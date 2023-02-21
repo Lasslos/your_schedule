@@ -95,57 +95,9 @@ class MyDrawer extends ConsumerWidget {
   }
 
   Widget getProfileAvatar(BuildContext context, WidgetRef ref) {
-    //Might add Profile Picture Support later
     return CircleAvatar(
       backgroundColor: Colors.lightBlue[300],
       child: const Icon(Icons.person, color: Colors.white),
     );
   }
-}
-
-class MyDrawerOld extends StatelessWidget {
-  const MyDrawerOld({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => Drawer(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              buildHeader(context),
-              buildMenuItems(context),
-            ],
-          ),
-        ),
-      );
-
-  Widget buildHeader(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Container(),
-    );
-  }
-
-  Widget buildMenuItems(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Wrap(
-          runSpacing: 16,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-      );
 }

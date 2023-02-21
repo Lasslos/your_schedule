@@ -32,7 +32,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
   void rebuildGridElements() {
     final filters = ref.read(filterItemsProvider);
-    //Get all periods
+    //Alle Stunden laden
     List<TimeTablePeriod> allPeriods =
         ref.read(timeTableProvider).weekData.values.fold<List<TimeTablePeriod>>(
       [],
@@ -45,7 +45,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         ),
     );
 
-    //Remove all duplicates by putting them into a HashSet and then converting it back to a list
+    //Alle Doppelungen entfernen, indem man die Liste in ein Set umwandelt
     allPeriods = (HashSet<TimeTablePeriod>(
       equals: (a, b) => a.subject == b.subject,
       hashCode: (e) => e.subject.hashCode,
@@ -138,12 +138,13 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                     child: TextField(
                       onChanged: (value) {
                         setState(() {
-                          //Only rebuilt if there was a change other than adding another character
-                          //Otherwise there are no elements remove that must be added by calling rebuildGridElements
+                          // Nur neu bauen, wenn der Suchbegriff nicht mit dem alten Suchbegriff beginnt
+                          // Sonst müssen keine Elemente entfernt werden, die durch rebuildGridElements hinzugefügt werden
                           if (!value.startsWith(searchQuery)) {
                             rebuildGridElements();
                           }
                           searchQuery = value;
+                          //Alle Stunden finden, die den Suchbegriff enthalten
                           gridElements = gridElements
                               .where(
                                 (element) =>

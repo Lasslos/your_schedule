@@ -6,7 +6,7 @@ import 'package:your_schedule/util/weekday.dart';
 @immutable
 class TimeTableDay {
   final DateTime date;
-  ///Maps the start time to a TimeTablePeriod
+  //Die Liste der Stunden, sortiert nach Startzeit
   final List<TimeTablePeriod> periods;
 
   TimeTableDay withPeriod(TimeTablePeriod period) {
@@ -23,7 +23,7 @@ class TimeTableDay {
 
   final bool isHolidayOrWeekend;
 
-  ///What day in the week it is. Monday is 0, Tuesday is 1, etc.
+  ///Der Tag in der Woche, beginnend mit 1
   final int dayNumber;
 
   TimeTableDay(

@@ -77,7 +77,7 @@ class UserSession {
 
   String get schoolBase64 => base64Encode(utf8.encode(school));
 
-  ///Base url of all API calls. This might be different for different schools.
+  ///Base URL für WebUntis. Diese kann je nach Schule unterschiedlich sein.
   final String apiBaseURL;
 
   ///JsonRPC endpoint.
@@ -88,7 +88,7 @@ class UserSession {
   final String username;
   final String _password;
 
-  ///TOKEN for API
+  ///TOKEN für API
   final String bearerToken;
   final ProfileData? profileData;
 
@@ -124,10 +124,14 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     }
     state = state.copyWith(school: school, apiBaseURL: apiBaseURL);
 
+    //Hier wird der login versucht
+
     RPCResponse response = await queryRPC(
       "authenticate",
       {"user": username, "password": password, "client": state.appName},
     );
+
+    //Hier wird geprüft ob der Login erfolgreich war
 
     if (response.isHttpError) {
       if (response.httpStatusCode == 501) {
@@ -152,7 +156,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
         );
       }
     }
-
+    //Hier werden die Daten im State gespeichert
     state = state.copyWith(
       sessionID: response.payload["sessionId"],
       loggedInPersonID: response.payload["personId"],
@@ -170,9 +174,12 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       school: school,
     );
 
+    //Hier wird der Bearer Token generiert
     await regenerateSessionBearerToken();
+    //Hier werden die Profile Daten geladen
     state = state.copyWith(profileData: await _getProfileData());
     getLogger().i("Successfully created session!");
+    //Hier werden die Daten in den SecureStorage geschrieben
     secureStorage
       ..write(key: usernameKey, value: username)
       ..write(key: passwordKey, value: password)

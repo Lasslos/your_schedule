@@ -5,23 +5,29 @@ import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_widget.dart';
 
-/// A widget that displays all the periods of a day.
-/// The algorithm works as follows:
+/// Ein Widget, das die Stunden in einer Tagesansicht anzeigt.
+/// Der Algorithmus ist wie folgt:
 
-/// 1. The layout is an unlimited grid
-/// 2. Each event is one cell wide, and the height and vertical position is fixed based on starting and ending times.
-/// 3. Try to place each event in a column as far left as possible, without it intersecting any earlier event in that column.
-/// 4. Then, when each connected group of events is placed, their actual widths will be 1/n of the maximum number of columns used by the group.
-/// This is calculated in order of size if the group to make sure the largest group is always 1/n of the maximum number of columns used.
-/// 5. Then, any event that can have more space is expanded to fill the space.
+// 1. Das Layout ist ein unbegrenztes Raster.
+// 2. Die Stunden können in Stundenblöcke unterteilt werden. Diese Blöcke starten im-
+// mer genau dann, wenn die Startzeit der nächsten Stunde nach der Endzeit der vor-
+// herigen Stunde liegt. Dann sind sie in der Anzeige völlig unabhängig.
+// 3. Jede Stunde ist eine Spalte breit, die vertikale Position ist durch die Start- und End-
+// zeiten bestimmt.
+// 4. Platziere jede Stunde so weit links wie möglich, ohne dabei eine andere Stunde zu
+// überschneiden.
+// 5. Wenn alle Stunden platziert sind, berechne für jeden Stundenblock die tatsächliche
+// Breite der Stunden, indem man den Platz durch die Anzahl der Spalten teilt.
+// 6. Fülle die leeren Lücken im Raster auf, indem die anliegenden Stunden nach rechts
+// erweitert werden.
 
-//This returns the periods as a grid. It is implemented as a stream to be able tp separately yield
-//the parts of the grid that are independent of each other.
-//This simplifies the code and makes it easier to understand without removing any functionality.
+// Das hier gibt die Stunden als Raster zurück. Es ist als Stream implementiert, um die Teile des
+// Rasters zu separieren, die voneinander unabhängig sind.
+// Das vereinfacht den Code und macht ihn ohne Funktionseinbußen verständlicher.
 Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
   List<TimeTablePeriod> periods,
 ) sync* {
-  /// The grid is a list of columns, each of which is a list of "rows" which are actually just periods.
+  // Das Raster ist eine Liste von Spalten, jede Spalte ist eine Liste von "Zeilen", die eigentlich nur Stunden sind.
   List<List<TimeTablePeriod>> grid = [];
   DateTime? lastEndTime;
 
@@ -31,18 +37,18 @@ Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
         : a.end.compareTo(b.end),
   );
 
-  /// We go through each period in order of start time.
+  // Wir gehen jede Stunde in der Reihenfolge ihrer Startzeit durch.
   for (TimeTablePeriod period in periods) {
     if (lastEndTime != null && period.start.isAfter(lastEndTime)) {
-      /// In this case, all the following periods' start times are after the previous end times and are therefore independent.
-      /// We yield the grid and start a new one.
+      // In diesem Fall sind alle folgenden Stunden nach der letzten Endzeit und sind daher unabhängig.
+      // Wir geben das Raster zurück und beginnen ein neues.
       yield grid;
       grid = [];
       lastEndTime = null;
     }
 
-    /// We try to place the period in the first column where the last element doesn't intersect with this period.
-    /// We just have to check the last as the periods are sorted by start time.
+    // Wir versuchen, den Punkt in die erste Spalte zu setzen, in der das letzte Element nicht mit diesem Punkt überschneidet.
+    // Wir müssen nur das letzte überprüfen, da die Perioden nach der Startzeit sortiert sind.
     bool placed = false;
     for (var column in grid) {
       if (!column.last.collidesWith(period)) {
@@ -52,7 +58,7 @@ Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
       }
     }
     if (!placed) {
-      /// If we couldn't place it in any column, we create a new one.
+      /// Wenn wir keine freie Spalte gefunden haben, fügen wir eine neue Spalte hinzu.
       grid.add([period]);
     }
     if (lastEndTime == null || period.end.isAfter(lastEndTime)) {
@@ -140,7 +146,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
   void performLayout(Size size) {
     for (List<List<TimeTablePeriod>> gridPart
         in periodsToTimeTableGrid(periods)) {
-      /// We first calculate the offset of each child.
+      /// Als erstes berechnen wir den Offset für jede Stunde.
       double columnWidth = size.width / gridPart.length;
 
       /// height * (start - startOfDay) / (endOfDay - startOfDay) = yOffset
@@ -168,8 +174,8 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
         }
       }
 
-      /// This calculates how many columns the period can expand into.
-      /// 1 means it can't expand, 2 means it can expand into the next column, etc.
+      /// Das berechnet, wie viele Spalten die Periode expandieren kann.
+      /// 1 bedeutet, dass sie sich nicht ausdehnen kann, 2 bedeutet, dass sie sich in die nächste Spalte ausdehnen kann usw.
       int possibleWidthExpansion(TimeTablePeriod period, int column) {
         int expansion = 1;
         for (int i = column + 1; i < gridPart.length; i++) {

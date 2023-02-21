@@ -27,6 +27,8 @@ class PeriodScheduleNotifier extends StateNotifier<PeriodSchedule> {
     if (!_userSession.isAPIAuthorized) {
       throw ApiConnectionError("The user is not logged in!");
     }
+
+    // Hier wird das Stundenraster von der API abgerufen
     try {
       http.Response response =
           await _ref.read(userSessionProvider.notifier).queryURL(

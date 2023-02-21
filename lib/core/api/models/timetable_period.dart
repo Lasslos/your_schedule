@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
 
-///Stores information about the status of a period.
+///Speichert Informationen über den Status eine Stunde.
 enum PeriodStatus {
   regular("Regulär"),
   irregular("Vertretung"),
@@ -36,10 +36,9 @@ class TimeTablePeriod {
   final TimeTablePeriodSubjectInformation subject;
   final TimeTablePeriodRoomInformation room;
 
-  ///If the status of this period is irregular, this will contain the replacement for the lesson.
   bool get isIrregular => periodStatus == PeriodStatus.irregular;
 
-  ///Information that the teacher might have added to the period. Important if the period is irregular.
+  ///Informationen, die der Lehrer zu der Stunde hinzugefügt hat. Wichtig, wenn die Stunde unregelmäßig ist.
   final String? substText;
   final String? activityType;
   final int id;

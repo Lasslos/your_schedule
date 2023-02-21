@@ -207,8 +207,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  ///TODO: Add school search. These help messages are great, but everyone is gonna hate them.
-
   void _login() {
     setState(() {
       isLoading = true;
@@ -226,8 +224,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    ///Adding a virtual delay if an error message comes faster than 300ms.
-    ///This prevents the loading animation snapping in and out of existence.
+    ///Hier fügen wir ein Delay hinzu, damit die Animation nicht so schnell ein- und ausgeht.
+    ///Das verhindert, dass die Ladeanimation schnell angezeigt wird und dann wieder verschwindet.
     Future.wait([
       loginAsync(username, password, school, domain),
       Future.delayed(const Duration(milliseconds: 300)),
@@ -256,7 +254,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       getLogger().e("Error while creating session", e, s);
       debugPrintStack(stackTrace: s);
 
-      ///Don't setState as this will be called by [_login]
+      ///Kein setState, weil die Methode login() dies bereits tut.
       message = e.toString();
       return;
     }
@@ -272,7 +270,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       getLogger().e("Error while fetching timetable", e, s);
     }
 
-    // This can be ignored as we use the context given by the state, meaning we don't store it.
     if (ref.read(filterItemsProvider).isEmpty) {
       ref.read(filterItemsProvider.notifier).filterEverything(
             ref.read(timeTableProvider).weekData.values.toList(),
@@ -296,7 +293,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
 
-    ///Prevents the log in button being shown again before the page is replaced.
+    ///Das hier ist wichtig, weil der login button zurückkommt, sobalt die Methode fertig ist. Er darf aber erst zurückkommen, wenn die Animation zum anderen Screen fertig ist.
     await Future.delayed(const Duration(milliseconds: 500));
   }
 

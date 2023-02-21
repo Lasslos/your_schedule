@@ -30,7 +30,7 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
-  ///TODO: Caching if no internet connection
+  ///TODO: Daten speichern, wenn kein Internet zur Verfügung steht
   @override
   void initState() {
     super.initState();
@@ -42,6 +42,7 @@ class _MyAppState extends ConsumerState<MyApp> {
     var theme = ref.watch(themeProvider);
     return MaterialApp(
       title: 'Stundenplan',
+      //Erster Screen: LoadingScreen
       home: const LoadingScreen(),
       theme: ThemeData(
         colorSchemeSeed: Colors.lightBlue,

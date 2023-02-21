@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
-///Entry in [PeriodSchedule] representing one period of time, in which a lesson (could) take place.
+///Eintrag in [PeriodSchedule], der einen Zeitraum repräsentiert, in dem eine Schulstunde stattfindet.
 @immutable
 class PeriodScheduleEntry {
-  ///What period of the day it is. First period is 1.
+  ///Die Nummer der Schulstunde, beginnend bei 1.
   final int periodNumber;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
 
   const PeriodScheduleEntry._(this.periodNumber, this.startTime, this.endTime);
 
-  ///Constructs a [PeriodScheduleEntry] from a [Map] with the keys `unitOfDay`, `startTime` and `endTime`.
-  ///This is unsafe if the map does not contain these keys.
+  ///Konstruiert einen [PeriodScheduleEntry] aus einer [Map] mit den Schlüsseln `unitOfDay`, `startTime` und `endTime`.
+  ///Dies ist unsicher, wenn die Map diese Schlüssel nicht enthält.
   factory PeriodScheduleEntry.fromJson(Map<String, dynamic> json) {
     assert(json.isNotEmpty, "json must not be empty");
     assert(json['errorMessage'] == null, json['errorMessage']);
@@ -35,7 +35,7 @@ class PeriodScheduleEntry {
   Duration get length => endTime.difference(startTime);
 }
 
-///A [PeriodSchedule] is a list of [PeriodScheduleEntry]s. This represents the schedule of a day.
+///Ein [PeriodSchedule] ist eine Liste von [PeriodScheduleEntry]s. Dies stellt den Stundenplan eines Tages dar.
 @immutable
 class PeriodSchedule {
   final int schoolYearId;
@@ -49,8 +49,8 @@ class PeriodSchedule {
 
   const PeriodSchedule._(this.schoolYearId, this.entries);
 
-  ///Constructs a [PeriodSchedule] from a [Map] with the keys `schoolyearId` and `units`.
-  ///This is unsafe if the map does not contain these keys.
+  ///Konstruiert einen [PeriodSchedule] aus einer [Map] mit den Schlüsseln `schoolyearId` und `units`.
+  ///Dies ist unsicher, wenn die Map diese Schlüssel nicht enthält.
   PeriodSchedule.fromJSON(Map<String, dynamic> json)
       : assert(json.isNotEmpty, "json must not be empty"),
         assert(json['errorMessage'] == null, json['errorMessage']),
@@ -66,7 +66,7 @@ class PeriodSchedule {
     return entries[periodNumber];
   }
 
-  //Fallback to default values.
+  //Daten, falls der Stundenplan nicht geladen werden konnte
   static const PeriodSchedule periodScheduleFallback = PeriodSchedule._(
     -1,
     [

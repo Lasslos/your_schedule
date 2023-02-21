@@ -62,10 +62,9 @@ class CustomSubjectColorProvider extends StateNotifier<
     Map<TimeTablePeriodSubjectInformation, CustomSubjectColor>> {
   CustomSubjectColorProvider() : super({});
 
-  //Write an initialize method that loads the colors from SharedPreferences
-  //Write a save method that saves the colors to SharedPreferences
-
+  //Hier wird versucht, die gespeicherten CustomSubjectColorItems aus dem Handy zu laden.
   Future<void> initialize() async {
+    //Hier werden die CustomSubjectColorItems gespeichert.
     final prefs = await SharedPreferences.getInstance();
     List<String>? customSubjectColorsAsString =
         prefs.getStringList("customSubjectColors");
@@ -83,10 +82,12 @@ class CustomSubjectColorProvider extends StateNotifier<
       getLogger().w("JSON Parsing of CustomSubjectColors failed!", e, s);
       return;
     }
+    //Hier wird der state auf die CustomSubjectColorItems gesetzt.
     state = Map.unmodifiable(
         Map.fromEntries(items.map((e) => MapEntry(e.subject, e))));
   }
 
+  //Hier werden die CustomSubjectColorItems gespeichert.
   Future<void> save() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(

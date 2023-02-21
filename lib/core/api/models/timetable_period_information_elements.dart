@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-///Information about the period's school class.
+///Informationen über die Schulklasse, die in der Stunde unterrichtet wird.
 @immutable
 class TimeTablePeriodSchoolClassInformation {
   final String name;
@@ -41,7 +41,7 @@ class TimeTablePeriodSchoolClassInformation {
   int get hashCode => Object.hash(name, longName, identifier);
 }
 
-///Information about the period's teacher.
+///Informationen über den Lehrer, der in der Stunde unterrichtet.
 @immutable
 class TimeTablePeriodTeacherInformation {
   final String name;
@@ -82,7 +82,7 @@ class TimeTablePeriodTeacherInformation {
   int get hashCode => Object.hash(name, longName, identifier);
 }
 
-///Information about the period's subject.
+///Informationen über das Fach, das in der Stunde unterrichtet wird.
 @immutable
 class TimeTablePeriodSubjectInformation {
   final String name;
@@ -123,7 +123,7 @@ class TimeTablePeriodSubjectInformation {
   int get hashCode => Object.hash(name, longName, identifier);
 }
 
-///Information about the period's room.
+///Informationen über den Raum, in dem die Stunde stattfindet.
 @immutable
 class TimeTablePeriodRoomInformation {
   final String name;

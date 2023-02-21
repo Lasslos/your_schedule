@@ -226,7 +226,6 @@ class PeriodDetailsView extends ConsumerWidget {
           const Divider(
             thickness: 1,
           ),
-          //create two list tiles, one shall add the period to the filterd ones that means hide it, the other one shall change its color
           ListTile(
             leading: SizedBox(
               width: 24,
@@ -244,7 +243,7 @@ class PeriodDetailsView extends ConsumerWidget {
             ),
             title: const Text("Farbe ändern"),
             onTap: () {
-              //show a color picker
+              //einen color picker anzeigen
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(

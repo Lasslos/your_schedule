@@ -33,7 +33,7 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
   final UserSession _userSession;
   final StateNotifierProviderRef<TimeTableNotifier, TimeTable> _ref;
 
-  /// Only call this if the state for this week is null.
+  /// Nur aufrufen, wenn die Woche noch nicht geladen wurde
   Future<void> fetchTimeTableWeek(
     Week week, {
     int personID = -1,
@@ -43,6 +43,8 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
     if (!_userSession.sessionIsValid) {
       throw Exception("Session is not valid");
     }
+
+    // Hier werden die Stundenpläne von der API abgerufen
     var timeTableWeek = TimeTableWeek.fromRPCResponse(
       week,
       await _ref.read(userSessionProvider.notifier).queryRPC(
@@ -79,10 +81,10 @@ class TimeTableNotifier extends StateNotifier<TimeTable> {
         },
       ),
     );
-    // Check if the notifier is still mounted
-    // If not, that means for some reason the Widget that requested this data was disposed
-    // This can happen if the user navigates away from the page before the data is fetched
-    // In that case, we don't want to update the state, because that would cause an error
+    // Prüfen, ob der Notifier noch gemounted ist
+    // Wenn nicht, dann wurde der Widget, der diese Daten angefordert hat, disposed
+    // Das kann passieren, wenn der Nutzer die Seite verlässt, bevor die Daten geladen wurden
+    // In dem Fall wollen wir den State nicht updaten, weil das zu einem Fehler führen würde
     if (!mounted) {
       getLogger().w("Notifier is not mounted, aborting");
       throw Exception("Notifier is not mounted, aborting");
