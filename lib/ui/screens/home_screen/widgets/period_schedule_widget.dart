@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/logger.dart';
 
@@ -56,19 +55,39 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
       },
       loading: () => const SizedBox.shrink(),
       data: (periodSchedule) {
-        var startTime = ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
-        var endTime = ref.watch(homeScreenStateProvider.select((value) => value.endOfDay));
+            late TimeOfDay startTime;
+            late TimeOfDay endTime;
 
-        var firstDifference = startTime.difference(startTime).inMinutes;
-        List<Widget> children = [
-          if (firstDifference > 1)
-            Spacer(
-              flex: firstDifference,
-            ),
-        ];
+            ref.watch(periodScheduleProvider).when(
+              data: (state) {
+                startTime = state.entries.first.startTime;
+                endTime = state.entries.last.endTime;
+              },
+              loading: () {
+                startTime = PeriodSchedule
+                    .periodScheduleFallback.entries.first.startTime;
+                endTime =
+                    PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+              },
+              error: (error, stackTrace) {
+                startTime = PeriodSchedule
+                    .periodScheduleFallback.entries.first.startTime;
+                endTime =
+                    PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+                Sentry.captureException(error, stackTrace: stackTrace);
+              },
+            );
 
-        int periodScheduleLength = periodSchedule.entries.length;
-        for (int i = 0; i < periodScheduleLength; i++) {
+            var firstDifference = startTime.difference(startTime).inMinutes;
+            List<Widget> children = [
+              if (firstDifference > 1)
+                Spacer(
+                  flex: firstDifference,
+                ),
+            ];
+
+            int periodScheduleLength = periodSchedule.entries.length;
+            for (int i = 0; i < periodScheduleLength; i++) {
           var entry = periodSchedule.entries[i];
           TimeOfDay? nextStartTime = periodScheduleLength - 1 != i
               ? periodSchedule.entries[i + 1].startTime

@@ -35,6 +35,13 @@ class _WeekViewState extends ConsumerState<WeekView> {
     currentDate = ref.read(homeScreenStateProvider).currentDate;
     var index = currentDate.difference(Week.now().startDate).inDays ~/ 7;
     _pageController = PageController(initialPage: index);
+
+    //Pre-load next and previous week
+    ref
+      ..read(timeTableProvider(
+          Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
+      ..read(timeTableProvider(
+          Week.fromDateTime(currentDate.subtract(const Duration(days: 7)))));
   }
 
   @override
@@ -57,6 +64,13 @@ class _WeekViewState extends ConsumerState<WeekView> {
             curve: Curves.easeInOut,
           );
         }
+
+        //Pre-load next and previous week
+        ref
+          ..read(timeTableProvider(
+              Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
+          ..read(timeTableProvider(Week.fromDateTime(
+              currentDate.subtract(const Duration(days: 7)))));
       },
     );
 
@@ -96,19 +110,22 @@ class _Page extends ConsumerWidget {
     String? error;
 
     for (var i = 0; i < 5; i++) {
-      ref.watch(
-        filteredTimeTablePeriodsProvider(
-          currentWeek.startDate.add(Duration(days: index)),
-        ),
-      ).when(
-        data: (data) {
-          days.add(data);
-        },
-        loading: () => [],
-        error: (error, stack) {
-          Sentry.captureException(error, stackTrace: stack);
-          error = error.toString();
-        },
+      days.add(
+        ref
+            .watch(
+              filteredTimeTablePeriodsProvider(
+                currentWeek.startDate.add(Duration(days: i)),
+              ),
+            )
+            .when(
+              data: (data) => data,
+              loading: () => [],
+              error: (error, stack) {
+                Sentry.captureException(error, stackTrace: stack);
+                error = error.toString();
+                return [];
+              },
+            ),
       );
     }
 

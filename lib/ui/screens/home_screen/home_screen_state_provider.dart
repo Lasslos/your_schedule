@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_schedule/core/api/models/period_schedule.dart';
-import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 enum ViewMode {
@@ -27,39 +24,28 @@ class HomeScreenState {
   final DateTime currentDate;
   final ViewMode viewMode;
 
-  final TimeOfDay startOfDay;
-  final TimeOfDay endOfDay;
-
   HomeScreenState(
     DateTime currentDate,
     this.viewMode,
-    this.startOfDay,
-    this.endOfDay,
   ) : currentDate = currentDate.normalized();
 
   HomeScreenState copyWith({
     DateTime? currentDate,
     ViewMode? viewMode,
-    TimeOfDay? startOfDay,
-    TimeOfDay? endOfDay,
   }) {
     return HomeScreenState(
       currentDate ?? this.currentDate,
       viewMode ?? this.viewMode,
-      startOfDay ?? this.startOfDay,
-      endOfDay ?? this.endOfDay,
     );
   }
 }
 
 class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
-  HomeScreenStateNotifier(TimeOfDay startOfDay, TimeOfDay endOfDay)
+  HomeScreenStateNotifier()
       : super(
           HomeScreenState(
             DateTime.now(),
             ViewMode.day,
-            startOfDay,
-            endOfDay,
           ),
         ) {
     _init();
@@ -83,39 +69,8 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
     state = state.copyWith(viewMode: -state.viewMode);
     _save();
   }
-
-  set startOfDay(TimeOfDay newStartOfDay) {
-    if (newStartOfDay.difference(state.startOfDay).isNegative) {
-      state = state.copyWith(startOfDay: newStartOfDay);
-    }
-  }
-
-  set endOfDay(TimeOfDay newEndOfDay) {
-    if (!newEndOfDay.difference(state.endOfDay).isNegative) {
-      state = state.copyWith(endOfDay: newEndOfDay);
-    }
-  }
 }
 
 var homeScreenStateProvider = StateNotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
-  (ref) {
-    TimeOfDay startOfDay = PeriodSchedule.periodScheduleFallback.entries.first.startTime;
-    TimeOfDay endOfDay = PeriodSchedule.periodScheduleFallback.entries.last.endTime;
-
-    ref.watch(periodScheduleProvider).when(
-      data: (periodSchedule) {
-        startOfDay = periodSchedule.entries.first.startTime;
-        endOfDay = periodSchedule.entries.last.endTime;
-      },
-      error: (error, stackTrace) {
-        Sentry.captureException(error, stackTrace: stackTrace);
-      },
-      loading: () {},
-    );
-
-    return HomeScreenStateNotifier(
-      startOfDay,
-      endOfDay,
-    );
-  }
+      (ref) => HomeScreenStateNotifier(),
 );

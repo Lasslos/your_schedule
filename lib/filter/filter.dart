@@ -52,7 +52,7 @@ class FilterItemsNotifier
     save();
   }
 
-  //Mit dieser Methode werden alle Stunden herausgefiltert, welcer in der Liste von TimeTableWeeks sind.
+  //Mit dieser Methode werden alle Stunden herausgefiltert, welcher in der Liste von TimeTableWeeks sind.
   void filterEverything(List<TimeTablePeriod> periods) {
     state = Set.unmodifiable(
       periods.map((e) => e.subject),

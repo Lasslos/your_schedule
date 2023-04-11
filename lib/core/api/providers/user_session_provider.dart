@@ -44,7 +44,6 @@ class UserSession {
     profileData = const ProfileData.empty();
 
   UserSession copyWith({
-    String? appName,
     String? sessionID,
     int? loggedInPersonID,
     int? schoolClassID,
@@ -76,7 +75,7 @@ class UserSession {
     );
   }
 
-  final String appName = "Stundenplan";
+  final String appName = "stundenplan";
 
   final String sessionID;
   final int loggedInPersonID;
@@ -191,16 +190,17 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       username: username,
       password: password,
       school: school,
+      apiBaseURL: apiBaseURL,
+      sessionIsValid: true,
     );
 
     await regenerateSessionBearerToken();
     state = state.copyWith(profileData: await _getProfileData(), sessionIsValid: true);
-    getLogger().i("Successfully created session!");
     secureStorage
       ..write(key: usernameKey, value: username)
       ..write(key: passwordKey, value: password)
-      ..write(key: schoolKey, value: school)
-      ..write(key: apiBaseURlKey, value: apiBaseURL);
+      ..write(key: schoolKey, value: school)..write(
+        key: apiBaseURlKey, value: apiBaseURL);
   }
 
   Future<RPCResponse> logout() async {
@@ -208,6 +208,40 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     RPCResponse response = await queryRPC("logout", {}, validateSession: false);
     state = state = const UserSession.empty();
     return response;
+  }
+
+  Future<void> regenerateSessionBearerToken() async {
+    getLogger().d("Regenerating bearer token ...");
+    http.Response response = await queryURL(
+      "/WebUntis/api/token/new",
+      needsAuthorization: false,
+    );
+    if (response.statusCode == 200) {
+      state = state.copyWith(bearerToken: response.body);
+    } else {
+      getLogger().w(
+        "Warning: Failed to fetch api token. Unable to call 'getProfileData()'",
+      );
+    }
+  }
+
+  String _buildAuthCookie() {
+    if (!state.sessionIsValid) {
+      return "";
+    }
+    return "JSESSIONID=${state.sessionID}; schoolname=${state.schoolBase64
+        .replaceAll("=", "%3D")}";
+  }
+
+  Future<void> _validateSession() async {
+    state = state.copyWith(sessionIsValid: false);
+    getLogger().v("Revalidation active session");
+    await createSession(
+      state.username,
+      state.password,
+      state.school,
+      state.apiBaseURL,
+    );
   }
 
   FutureOr<ProfileData> _getProfileData() async {
@@ -288,39 +322,6 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
           .get(Uri.parse(state.apiBaseURL + url), headers: headers);
     } else {
       return http.Client().post(Uri.parse(state.apiBaseURL + url), body: body);
-    }
-  }
-
-  String _buildAuthCookie() {
-    if (!state.sessionIsValid) {
-      return "";
-    }
-    return "JSESSIONID=${state.sessionID}; schoolname=${state.schoolBase64.replaceAll("=", "%3D")}";
-  }
-
-  Future<void> _validateSession() async {
-    state = state.copyWith(sessionIsValid: false);
-    getLogger().v("Revalidation active session");
-    await createSession(
-      state.username,
-      state.password,
-      state.school,
-      state.apiBaseURL,
-    );
-  }
-
-  Future<void> regenerateSessionBearerToken() async {
-    getLogger().d("Regenerating bearer token ...");
-    http.Response response = await queryURL(
-      "/WebUntis/api/token/new",
-      needsAuthorization: false,
-    );
-    if (response.statusCode == 200) {
-      state = state.copyWith(bearerToken: response.body);
-    } else {
-      getLogger().w(
-        "Warning: Failed to fetch api token. Unable to call 'getProfileData()'",
-      );
     }
   }
 }

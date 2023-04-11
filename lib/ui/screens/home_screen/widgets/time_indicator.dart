@@ -2,41 +2,65 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/api/models/period_schedule.dart';
+import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 class TimeIndicator extends ConsumerWidget {
   const TimeIndicator({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var homeScreenState = ref.watch(homeScreenStateProvider);
+  Widget build(BuildContext context, WidgetRef ref) => TimedRefresh(
+        interval: const Duration(seconds: 30),
+        builder: (time, context) {
+          late TimeOfDay startTime;
+          late TimeOfDay endTime;
+          ref.watch(periodScheduleProvider).when(
+            data: (state) {
+              startTime = state.entries.first.startTime;
+              endTime = state.entries.last.endTime;
+            },
+            loading: () {
+              startTime =
+                  PeriodSchedule.periodScheduleFallback.entries.first.startTime;
+              endTime =
+                  PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+            },
+            error: (error, stackTrace) {
+              startTime =
+                  PeriodSchedule.periodScheduleFallback.entries.first.startTime;
+              endTime =
+                  PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+              Sentry.captureException(error, stackTrace: stackTrace);
+            },
+          );
 
-    return TimedRefresh(
-      interval: const Duration(seconds: 30),
-      builder: (time, context) {
-        TimeOfDay startTime = homeScreenState.startOfDay;
-        TimeOfDay endTime = homeScreenState.endOfDay;
-        TimeOfDay now = TimeOfDay.fromDateTime(time);
+          TimeOfDay now = TimeOfDay.fromDateTime(time);
 
-        if (now.difference(startTime) < Duration.zero ||
-            now.difference(endTime) > Duration.zero) {
-          return const SizedBox.shrink();
-        }
+          if (now.difference(startTime) < Duration.zero ||
+              now.difference(endTime) > Duration.zero) {
+            return const SizedBox.shrink();
+          }
 
-        double relativePosition = now.difference(startTime).inMinutes /
-            endTime.difference(startTime).inMinutes;
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            return Column(
-              children: [
-                Spacer(
-                  flex: (relativePosition * constraints.maxHeight).floor(),
-                ),
-                Row(
-                  children: [
-                    Container(
-                      width: 12,
+          double relativePosition = now.difference(startTime).inMinutes /
+              endTime.difference(startTime).inMinutes;
+          if (relativePosition < 0) {
+            relativePosition = 0;
+          } else if (relativePosition > 1) {
+            relativePosition = 1;
+          }
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                children: [
+                  Spacer(
+                    flex: (relativePosition * constraints.maxHeight).floor(),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: 12,
                       height: 12,
                       decoration: BoxDecoration(
                         color: Theme.of(context).brightness == Brightness.light
@@ -66,7 +90,6 @@ class TimeIndicator extends ConsumerWidget {
         );
       },
     );
-  }
 }
 
 class TimedRefresh extends StatefulWidget {

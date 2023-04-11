@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_widget.dart';
 
 /// Ein Widget, das die Stunden in einer Tagesansicht anzeigt.
@@ -10,8 +12,8 @@ import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_wi
 
 // 1. Das Layout ist ein unbegrenztes Raster.
 // 2. Die Stunden können in Stundenblöcke unterteilt werden. Diese Blöcke starten im-
-// mer genau dann, wenn die Startzeit der nächsten Stunde nach der Endzeit der vor-
-// herigen Stunde liegt. Dann sind sie in der Anzeige völlig unabhängig.
+// mer genau dann, wenn die Startzeit der nächsten Stunde nach der Endzeit der vorherigen
+// Stunde liegt. Dann sind sie in der Anzeige völlig unabhängig.
 // 3. Jede Stunde ist eine Spalte breit, die vertikale Position ist durch die Start- und End-
 // zeiten bestimmt.
 // 4. Platziere jede Stunde so weit links wie möglich, ohne dabei eine andere Stunde zu
@@ -70,7 +72,7 @@ Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
   }
 }
 
-class PeriodLayout extends ConsumerStatefulWidget {
+class PeriodLayout extends ConsumerWidget {
   final List<TimeTablePeriod> periods;
   final double fontSize;
 
@@ -81,48 +83,41 @@ class PeriodLayout extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PeriodLayout> createState() => _PeriodLayoutState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    late TimeOfDay startOfDay;
+    late TimeOfDay endOfDay;
 
-class _PeriodLayoutState extends ConsumerState<PeriodLayout> {
-  @override
-  void initState() {
-    super.initState();
-    if (widget.periods.isEmpty) {
-      return;
-    }
-    var earliestStart = widget.periods
-        .map((e) => e.start)
-        .reduce((value, element) => value.isBefore(element) ? value : element);
-    var latestEnd = widget.periods
-        .map((e) => e.end)
-        .reduce((value, element) => value.isAfter(element) ? value : element);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(homeScreenStateProvider.notifier)
-        ..startOfDay = TimeOfDay.fromDateTime(earliestStart)
-        ..endOfDay = TimeOfDay.fromDateTime(latestEnd);
-    });
-  }
+    ref.watch(periodScheduleProvider).when(
+      data: (state) {
+        startOfDay = state.entries.first.startTime;
+        endOfDay = state.entries.last.endTime;
+      },
+      loading: () {
+        startOfDay =
+            PeriodSchedule.periodScheduleFallback.entries.first.startTime;
+        endOfDay = PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+      },
+      error: (error, stackTrace) {
+        startOfDay =
+            PeriodSchedule.periodScheduleFallback.entries.first.startTime;
+        endOfDay = PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+        Sentry.captureException(error, stackTrace: stackTrace);
+      },
+    );
 
-  @override
-  Widget build(BuildContext context) {
-    TimeOfDay startOfDay =
-        ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
-    TimeOfDay endOfDay =
-        ref.watch(homeScreenStateProvider.select((value) => value.endOfDay));
     return CustomMultiChildLayout(
       delegate: _PeriodLayoutDelegate(
-        periods: widget.periods,
+        periods: periods,
         startOfDay: startOfDay,
         endOfDay: endOfDay,
       ),
-      children: widget.periods
+      children: periods
           .map(
             (e) => LayoutId(
               id: e,
               child: TimeTablePeriodWidget(
                 period: e,
-                fontSize: widget.fontSize,
+                fontSize: fontSize,
               ),
             ),
           )

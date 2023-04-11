@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_day.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
@@ -26,9 +29,10 @@ final timeTableProvider = FutureProvider.family<TimeTableWeek, Week>((ref, week)
             "id": userSession.timeTablePersonID != -1
                 ? userSession.timeTablePersonID
                 : userSession.loggedInPersonID,
-            "type": userSession.timeTablePersonType != PersonType.unknown
-                ? userSession.timeTablePersonType.index
-                : userSession.loggedInPersonType.index
+            "type": (userSession.timeTablePersonType != PersonType.unknown
+                    ? userSession.timeTablePersonType.index
+                    : userSession.loggedInPersonType.index) +
+                1,
           },
           "showLsText": true,
           "showPeText": true,
@@ -45,17 +49,50 @@ final timeTableProvider = FutureProvider.family<TimeTableWeek, Week>((ref, week)
       },
     ),
   );
-  getLogger().i("Successfully fetched timetable for week $week");
   return timeTableWeek;
 });
 
 final filteredTimeTablePeriodsProvider = FutureProvider.family<List<TimeTablePeriod>, DateTime>((ref, date) async {
-  TimeTableWeek timeTableWeek = await ref.watch(timeTableProvider(Week.fromDateTime(date)).future);
-  Set<TimeTablePeriodSubjectInformation> filterItems = ref.watch(filterItemsProvider);
+  TimeTableWeek timeTableWeek =
+      await ref.watch(timeTableProvider(Week.fromDateTime(date)).future);
+  Set<TimeTablePeriodSubjectInformation> filterItems =
+      ref.watch(filterItemsProvider);
   TimeTableDay day = timeTableWeek.days[date.normalized()]!;
 
   return day.periods
-    .where(
-      (period) => !filterItems.contains(period.subject),
-    ).toList();
+      .where(
+        (period) => !filterItems.contains(period.subject),
+      )
+      .toList();
+});
+
+final allSubjectsProvider = Provider<List<TimeTablePeriod>>((ref) {
+  List<TimeTablePeriod> periods = [];
+
+  for (int i = 0; i < 5; i++) {
+    ref.watch(timeTableProvider(Week.relative(i))).when(
+          data: (data) {
+            periods.addAll(
+              data.days.values.fold<List<TimeTablePeriod>>(
+                [],
+                (previousValue, element) =>
+                    previousValue..addAll(element.periods),
+              ),
+            );
+          },
+          error: (error, stackTrace) {
+            Sentry.captureException(error, stackTrace: stackTrace);
+          },
+          loading: () {},
+        );
+  }
+
+  //Removing all duplicates
+  periods = (HashSet<TimeTablePeriod>(
+    equals: (a, b) => a.subject == b.subject,
+    hashCode: (e) => e.subject.hashCode,
+  )..addAll(periods))
+      .toList();
+
+  return periods;
 });

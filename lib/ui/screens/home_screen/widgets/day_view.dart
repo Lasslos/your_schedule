@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
@@ -33,6 +34,13 @@ class _DayViewState extends ConsumerState<DayView> {
     currentDate = ref.read(homeScreenStateProvider).currentDate;
     var index = currentDate.difference(DateTime.now().normalized()).inDays;
     _pageController = PageController(initialPage: index);
+
+    //Pre-load next and previous week
+    ref
+      ..read(timeTableProvider(
+          Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
+      ..read(timeTableProvider(
+          Week.fromDateTime(currentDate.subtract(const Duration(days: 7)))));
   }
 
   @override
@@ -53,6 +61,13 @@ class _DayViewState extends ConsumerState<DayView> {
             curve: Curves.easeInOut,
           );
         }
+
+        //Pre-load next and previous week
+        ref
+          ..read(timeTableProvider(
+              Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
+          ..read(timeTableProvider(Week.fromDateTime(
+              currentDate.subtract(const Duration(days: 7)))));
       },
     );
 

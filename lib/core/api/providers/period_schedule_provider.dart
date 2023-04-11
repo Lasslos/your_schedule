@@ -19,7 +19,6 @@ final periodScheduleProvider = FutureProvider((ref) async {
       "/WebUntis/api/rest/view/v1/timegrid",
       needsAuthorization: true,
     );
-    getLogger().i("Successfully fetched period schedule");
     return PeriodSchedule.fromJSON(jsonDecode(response.body));
   } catch (e) {
     getLogger().e("Failed to fetch period schedule", e);
