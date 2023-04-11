@@ -2,10 +2,84 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/filter/filter.dart';
+
+final allSubjectsProvider = Provider<List<TimeTablePeriod>>((ref) {
+  List<TimeTablePeriod> periods = [];
+
+  for (int i = 0; i < 5; i++) {
+    ref.watch(timeTableProvider(Week.relative(i))).when(
+      data: (data) {
+        periods.addAll(
+          data.days.values.fold<List<TimeTablePeriod>>(
+            [],
+                (previousValue, element) => previousValue..addAll(element.periods),
+          ),
+        );
+      },
+      error: (error, stackTrace) {
+        Sentry.captureException(error, stackTrace: stackTrace);
+      },
+      loading: () {},
+    );
+  }
+
+  //Removing all duplicates
+  periods = (HashSet<TimeTablePeriod>(
+    equals: (a, b) => a.subject == b.subject,
+    hashCode: (e) => e.subject.hashCode,
+  )..addAll(periods))
+      .toList()
+    ..sort(
+          (a, b) => a.subject.name.compareTo(b.subject.name),
+    );
+
+  final filters = ref.watch(filterItemsProvider);
+  periods.sort((a, b) {
+    bool aIsFiltered = filters.contains(a.subject);
+    bool bIsFiltered = filters.contains(b.subject);
+
+    if (aIsFiltered == bIsFiltered) {
+      return a.subject.name.compareTo(b.subject.name);
+    } else if (aIsFiltered && !bIsFiltered) {
+      return 1;
+    } else {
+      return -1;
+    }
+  });
+
+  return periods;
+});
+
+final allSubjectsFilteredProvider = Provider.family.autoDispose<List<TimeTablePeriod>, String>((ref, filter) {
+  List<TimeTablePeriod> periods = ref.watch(allSubjectsProvider);
+  periods = periods.where((element) =>
+  element.subject.name
+      .toLowerCase()
+      .contains(filter.toLowerCase()) ||
+      element.subject.longName
+          .toLowerCase()
+          .contains(filter.toLowerCase()) ||
+      element.teacher.name
+          .toLowerCase()
+          .contains(filter.toLowerCase()) ||
+      element.teacher.longName
+          .toLowerCase()
+          .contains(filter.toLowerCase()) ||
+      element.room.name
+          .toLowerCase()
+          .contains(filter.toLowerCase()) ||
+      element.room.longName
+          .toLowerCase()
+          .contains(filter.toLowerCase()),
+  ).toList();
+  return periods;
+});
 
 class FilterScreen extends ConsumerStatefulWidget {
   const FilterScreen({Key? key}) : super(key: key);
@@ -25,77 +99,37 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     super.initState();
     searchFocusNode = FocusNode();
     searchController = TextEditingController();
-    rebuildGridElements();
-  }
-
-  List<TimeTablePeriod> gridElements = [];
-
-  void rebuildGridElements() {
-    final filters = ref.read(filterItemsProvider);
-    //Alle Stunden laden
-    List<TimeTablePeriod> allPeriods =
-        ref.read(timeTableProvider).weekData.values.fold<List<TimeTablePeriod>>(
-      [],
-      (previous, element) => previous
-        ..addAll(
-          element.days.values.fold<List<TimeTablePeriod>>(
-            [],
-            (previousValue, element) => previousValue..addAll(element.periods),
-          ),
-        ),
-    );
-
-    //Alle Doppelungen entfernen, indem man die Liste in ein Set umwandelt
-    allPeriods = (HashSet<TimeTablePeriod>(
-      equals: (a, b) => a.subject == b.subject,
-      hashCode: (e) => e.subject.hashCode,
-    )..addAll(allPeriods))
-        .toList()
-      ..sort(
-        (a, b) => a.subject.name.compareTo(b.subject.name),
-      );
-
-    List<TimeTablePeriod> filteredPeriods = [];
-    List<TimeTablePeriod> notFilteredPeriods = [];
-    for (var period in allPeriods) {
-      if (filters.contains(period.subject)) {
-        filteredPeriods.add(period);
-      } else {
-        notFilteredPeriods.add(period);
-      }
-    }
-
-    gridElements = [...notFilteredPeriods, ...filteredPeriods];
   }
 
   @override
   Widget build(BuildContext context) {
-    final filters = ref.watch(filterItemsProvider);
-    final gridChildren = gridElements
-        .map<Widget>(
-          (e) => Padding(
-            key: ValueKey(e),
-            padding: const EdgeInsets.all(4.0),
-            child: Selectable(
-              selected: !filters.contains(e.subject),
-              onChanged: (bool value) {
-                if (value) {
-                  ref.read(filterItemsProvider.notifier).removeItem(e.subject);
-                } else {
-                  ref.read(filterItemsProvider.notifier).addItem(e.subject);
-                }
-              },
-              child: Center(
-                child: FilterGridTile(
-                  subject: e.subject,
-                  teacher: e.teacher,
-                  room: e.room,
-                ),
+    List<TimeTablePeriod> periods = ref.watch(allSubjectsFilteredProvider(searchQuery));
+    Set<TimeTablePeriodSubjectInformation> filters = ref.watch(filterItemsProvider);
+
+    final gridChildren = periods
+      .map<Widget>(
+        (e) => Padding(
+          key: ValueKey(e),
+          padding: const EdgeInsets.all(4.0),
+          child: Selectable(
+            selected: !filters.contains(e.subject),
+            onChanged: (bool value) {
+              if (value) {
+                ref.read(filterItemsProvider.notifier).removeItem(e.subject);
+              } else {
+                ref.read(filterItemsProvider.notifier).addItem(e.subject);
+              }
+            },
+            child: Center(
+              child: FilterGridTile(
+                subject: e.subject,
+                teacher: e.teacher,
+                room: e.room,
               ),
             ),
           ),
-        )
-        .toList();
+        ),
+      ).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -105,7 +139,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 onPressed: () => setState(() {
                   showSearch = false;
                   searchFocusNode.unfocus();
-                  rebuildGridElements();
+                  searchQuery = "";
                 }),
               )
             : null,
@@ -138,36 +172,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                     child: TextField(
                       onChanged: (value) {
                         setState(() {
-                          // Nur neu bauen, wenn der Suchbegriff nicht mit dem alten Suchbegriff beginnt
-                          // Sonst müssen keine Elemente entfernt werden, die durch rebuildGridElements hinzugefügt werden
-                          if (!value.startsWith(searchQuery)) {
-                            rebuildGridElements();
-                          }
                           searchQuery = value;
-                          //Alle Stunden finden, die den Suchbegriff enthalten
-                          gridElements = gridElements
-                              .where(
-                                (element) =>
-                                    element.subject.name
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()) ||
-                                    element.subject.longName
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()) ||
-                                    element.teacher.name
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()) ||
-                                    element.teacher.longName
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()) ||
-                                    element.room.name
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()) ||
-                                    element.room.longName
-                                        .toLowerCase()
-                                        .contains(value.toLowerCase()),
-                              )
-                              .toList();
                         });
                       },
                       controller: searchController,
@@ -185,7 +190,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                           onPressed: () {
                             setState(() {
                               searchController.clear();
-                              rebuildGridElements();
+                              searchQuery = "";
                             });
                           },
                         ),

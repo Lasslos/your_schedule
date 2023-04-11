@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
@@ -77,7 +78,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   Text(
                     "Login",
-                    style: textTheme.headline3
+                    style: textTheme.displaySmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -260,20 +261,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     try {
-      await ref.read(periodScheduleProvider.notifier).loadPeriodSchedule();
+      await ref.read(periodScheduleProvider.future);
     } catch (e, s) {
+      Sentry.captureException(e, stackTrace: s);
       getLogger().e("Error while fetching period schedule", e, s);
     }
     try {
-      await ref.read(timeTableProvider.notifier).fetchTimeTableWeek(Week.now());
+      await ref.read(timeTableProvider(Week.now()).future);
     } catch (e, s) {
+      Sentry.captureException(e, stackTrace: s);
       getLogger().e("Error while fetching timetable", e, s);
     }
 
     if (ref.read(filterItemsProvider).isEmpty) {
+      for (int i = 0; i < 5; i++) {
+        try {
+          await ref.read(timeTableProvider(Week.relative(i)).future);
+        } catch (e, s) {
+          Sentry.captureException(e, stackTrace: s);
+        }
+      }
+
+      var allSubjects = ref.read(allSubjectsProvider);
+
       ref.read(filterItemsProvider.notifier).filterEverything(
-            ref.read(timeTableProvider).weekData.values.toList(),
-          );
+        allSubjects,
+      );
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,

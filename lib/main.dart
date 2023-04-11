@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/settings/theme/theme_provider.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
@@ -17,7 +18,20 @@ void main() async {
       : darkMode != null
           ? ThemeMode.light
           : ThemeMode.system;
-  runApp(ProviderScope(child: MyApp(initialThemeMode: theme)));
+
+  await SentryFlutter.init((options) {
+      options
+        ..dsn = 'https://1be6b663150041f6be6a7a4375e5599f@o4504990166155264.ingest.sentry.io/4504990173167616'
+        ..tracesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(
+      ProviderScope(
+        child: MyApp(
+          initialThemeMode: theme,
+        ),
+      ),
+    ),
+  );
 }
 
 class MyApp extends ConsumerStatefulWidget {

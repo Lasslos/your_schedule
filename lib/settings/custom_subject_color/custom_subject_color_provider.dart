@@ -84,7 +84,8 @@ class CustomSubjectColorProvider extends StateNotifier<
     }
     //Hier wird der state auf die CustomSubjectColorItems gesetzt.
     state = Map.unmodifiable(
-        Map.fromEntries(items.map((e) => MapEntry(e.subject, e))));
+        Map.fromEntries(items.map((e) => MapEntry(e.subject, e))),
+    );
   }
 
   //Hier werden die CustomSubjectColorItems gespeichert.
@@ -96,10 +97,10 @@ class CustomSubjectColorProvider extends StateNotifier<
     );
   }
 
-  void addColor(
-      TimeTablePeriodSubjectInformation subject, Color color, Color textColor) {
+  void addColor(TimeTablePeriodSubjectInformation subject, Color color, Color textColor) {
     state = Map.unmodifiable(
-        {...state, subject: CustomSubjectColor(subject, color, textColor)});
+      {...state, subject: CustomSubjectColor(subject, color, textColor)},
+    );
     save();
   }
 

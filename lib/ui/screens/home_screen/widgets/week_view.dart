@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/timetable_period.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
@@ -91,27 +92,29 @@ class _Page extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     DateTime currentDate = DateTime.now().add(Duration(days: index * 7)).normalized();
     Week currentWeek = Week.fromDateTime(currentDate);
-    List<List<TimeTablePeriod>?> days = List.generate(
-      5,
-      (index) => ref.watch(
-        filteredTimeTablePeriodsFamily(
+    List<List<TimeTablePeriod>?> days = [];
+    String? error;
+
+    for (var i = 0; i < 5; i++) {
+      ref.watch(
+        filteredTimeTablePeriodsProvider(
           currentWeek.startDate.add(Duration(days: index)),
         ),
-      ),
-    );
-    if (days.any((element) => element == null)) {
+      ).when(
+        data: (data) {
+          days.add(data);
+        },
+        loading: () => [],
+        error: (error, stack) {
+          Sentry.captureException(error, stackTrace: stack);
+          error = error.toString();
+        },
+      );
+    }
+
+    if (error != null) {
       return Center(
-        child: FutureBuilder(
-          future: ref
-              .read(timeTableProvider.notifier)
-              .fetchTimeTableWeek(currentWeek),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text(snapshot.error.toString());
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
+        child: Text(error),
       );
     }
 
@@ -166,13 +169,13 @@ class _Page extends ConsumerWidget {
                           text: DateFormat('E\n').format(
                             currentWeek.startDate.add(Duration(days: i)),
                           ),
-                          style: Theme.of(context).textTheme.bodyText1,
+                          style: Theme.of(context).textTheme.bodyLarge,
                           children: [
                             TextSpan(
                               text: DateFormat("d. MMM").format(
                                 currentWeek.startDate.add(Duration(days: i)),
                               ),
-                              style: Theme.of(context).textTheme.caption,
+                              style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
                         ),

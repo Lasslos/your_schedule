@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
+import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 enum ViewMode {
@@ -51,13 +53,13 @@ class HomeScreenState {
 }
 
 class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
-  HomeScreenStateNotifier()
+  HomeScreenStateNotifier(TimeOfDay startOfDay, TimeOfDay endOfDay)
       : super(
           HomeScreenState(
             DateTime.now(),
             ViewMode.day,
-            PeriodSchedule.periodScheduleFallback.entries.first.startTime,
-            PeriodSchedule.periodScheduleFallback.entries.last.endTime,
+            startOfDay,
+            endOfDay,
           ),
         ) {
     _init();
@@ -95,7 +97,25 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
   }
 }
 
-var homeScreenStateProvider =
-    StateNotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
-  (ref) => HomeScreenStateNotifier(),
+var homeScreenStateProvider = StateNotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
+  (ref) {
+    TimeOfDay startOfDay = PeriodSchedule.periodScheduleFallback.entries.first.startTime;
+    TimeOfDay endOfDay = PeriodSchedule.periodScheduleFallback.entries.last.endTime;
+
+    ref.watch(periodScheduleProvider).when(
+      data: (periodSchedule) {
+        startOfDay = periodSchedule.entries.first.startTime;
+        endOfDay = periodSchedule.entries.last.endTime;
+      },
+      error: (error, stackTrace) {
+        Sentry.captureException(error, stackTrace: stackTrace);
+      },
+      loading: () {},
+    );
+
+    return HomeScreenStateNotifier(
+      startOfDay,
+      endOfDay,
+    );
+  }
 );

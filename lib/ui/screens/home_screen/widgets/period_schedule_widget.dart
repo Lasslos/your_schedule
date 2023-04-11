@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
@@ -15,30 +16,10 @@ class PeriodScheduleWidget extends ConsumerStatefulWidget {
   final Widget child;
 
   @override
-  ConsumerState<PeriodScheduleWidget> createState() =>
-      _PeriodScheduleWidgetState();
+  ConsumerState<PeriodScheduleWidget> createState() => _PeriodScheduleWidgetState();
 }
 
 class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      var periodSchedule = ref.read(periodScheduleProvider);
-      var startTime = ref.read(homeScreenStateProvider).startOfDay;
-      var endTime = ref.read(homeScreenStateProvider).endOfDay;
-
-      if (periodSchedule.entries.first.startTime != startTime) {
-        ref.read(homeScreenStateProvider.notifier).startOfDay =
-            periodSchedule.entries.first.startTime;
-      }
-      if (periodSchedule.entries.last.endTime != endTime) {
-        ref.read(homeScreenStateProvider.notifier).endOfDay =
-            periodSchedule.entries.last.endTime;
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -68,74 +49,79 @@ class _PeriodScheduleWidgetState extends ConsumerState<PeriodScheduleWidget> {
   }
 
   Widget _buildPeriodScheduleWidget(BuildContext context) {
-    var periodSchedule = ref.watch(periodScheduleProvider);
-    var startTime =
-        ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
-    var endTime =
-        ref.watch(homeScreenStateProvider.select((value) => value.endOfDay));
+    return ref.watch(periodScheduleProvider).when(
+      error: (error, stackTrace) {
+        Sentry.captureException(error, stackTrace: stackTrace);
+        return Text(error.toString());
+      },
+      loading: () => const SizedBox.shrink(),
+      data: (periodSchedule) {
+        var startTime = ref.watch(homeScreenStateProvider.select((value) => value.startOfDay));
+        var endTime = ref.watch(homeScreenStateProvider.select((value) => value.endOfDay));
 
-    var firstDifference =
-        periodSchedule.entries.first.startTime.difference(startTime).inMinutes;
-    List<Widget> children = [
-      if (firstDifference > 1)
-        Spacer(
-          flex: firstDifference,
-        ),
-    ];
+        var firstDifference = startTime.difference(startTime).inMinutes;
+        List<Widget> children = [
+          if (firstDifference > 1)
+            Spacer(
+              flex: firstDifference,
+            ),
+        ];
 
-    int periodScheduleLength = periodSchedule.entries.length;
-    for (int i = 0; i < periodScheduleLength; i++) {
-      var entry = periodSchedule.entries[i];
-      TimeOfDay? nextStartTime = periodScheduleLength - 1 != i
-          ? periodSchedule.entries[i + 1].startTime
-          : null;
-      int? difference = nextStartTime?.difference(entry.endTime).inMinutes;
+        int periodScheduleLength = periodSchedule.entries.length;
+        for (int i = 0; i < periodScheduleLength; i++) {
+          var entry = periodSchedule.entries[i];
+          TimeOfDay? nextStartTime = periodScheduleLength - 1 != i
+              ? periodSchedule.entries[i + 1].startTime
+              : null;
+          int? difference = nextStartTime?.difference(entry.endTime).inMinutes;
 
-      children.addAll([
-        if (children.isEmpty || children.last.runtimeType != Divider)
-          const Divider(
-            thickness: 0.7,
-            height: 1,
+          children.addAll([
+            if (children.isEmpty || children.last.runtimeType != Divider)
+              const Divider(
+                thickness: 0.7,
+                height: 1,
+              ),
+            Flexible(
+              flex: entry.length.inMinutes,
+              child: PeriodScheduleColumnElement(entry: entry),
+            ),
+            const Divider(
+              thickness: 0.7,
+              height: 1,
+            ),
+          ]);
+
+          if (difference != null && difference > 1) {
+            children.addAll([
+              Spacer(
+                flex: difference,
+              ),
+            ]);
+          } else if (difference != null && difference < 0) {
+            getLogger().w(
+              "Difference between consecutive period schedule entries is smaller than 0"
+                  " (difference: $difference, entry: $entry, nextStartTime: $nextStartTime)",
+            );
+          }
+        }
+
+        var lastDifference =
+            endTime.difference(periodSchedule.entries.last.endTime).inMinutes;
+        if (lastDifference > 1) {
+          children.add(
+            Spacer(
+              flex: lastDifference,
+            ),
+          );
+        }
+
+        return SizedBox(
+          width: 42,
+          child: Column(
+            children: children,
           ),
-        Flexible(
-          flex: entry.length.inMinutes,
-          child: PeriodScheduleColumnElement(entry: entry),
-        ),
-        const Divider(
-          thickness: 0.7,
-          height: 1,
-        ),
-      ]);
-
-      if (difference != null && difference > 1) {
-        children.addAll([
-          Spacer(
-            flex: difference,
-          ),
-        ]);
-      } else if (difference != null && difference < 0) {
-        getLogger().w(
-          "Difference between consecutive period schedule entries is smaller than 0"
-          " (difference: $difference, entry: $entry, nextStartTime: $nextStartTime)",
         );
-      }
-    }
-
-    var lastDifference =
-        endTime.difference(periodSchedule.entries.last.endTime).inMinutes;
-    if (lastDifference > 1) {
-      children.add(
-        Spacer(
-          flex: lastDifference,
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: 42,
-      child: Column(
-        children: children,
-      ),
+      },
     );
   }
 }

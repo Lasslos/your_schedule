@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
@@ -71,7 +72,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       _message = "Loading period schedule";
     });
     try {
-      await ref.read(periodScheduleProvider.notifier).loadPeriodSchedule();
+      await ref.read(periodScheduleProvider.future);
     } catch (e, s) {
       setState(() {
         _message = e.toString();
@@ -84,9 +85,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       _message = "Loading your timetable";
     });
     try {
-      await ref
-          .read(timeTableProvider.notifier)
-          .fetchTimeTableWeek(Week.relativeToCurrentWeek(0));
+      await ref.read(timeTableProvider(Week.now()).future);
     } catch (e, s) {
       setState(() {
         _message = e.toString();
@@ -99,9 +98,19 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     });
     await Future.delayed(const Duration(milliseconds: 500));
     if (ref.read(filterItemsProvider).isEmpty) {
+      for (int i = 0; i < 5; i++) {
+        try {
+          await ref.read(timeTableProvider(Week.relative(i)).future);
+        } catch (e, s) {
+          Sentry.captureException(e, stackTrace: s);
+        }
+      }
+
+      var allSubjects = ref.read(allSubjectsProvider);
+
       ref.read(filterItemsProvider.notifier).filterEverything(
-            ref.read(timeTableProvider).weekData.values.toList(),
-          );
+        allSubjects,
+      );
       // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,

@@ -16,4 +16,10 @@ class ProfileData {
         imageURL = json['user']['person']['imageUrl'],
         schoolLongName = json['tenant']['displayName'],
         schoolId = json['tenant']['id'];
+
+  const ProfileData.empty()
+      : displayName = "",
+        imageURL = null,
+        schoolLongName = null,
+        schoolId = null;
 }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/models/timetable_period.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
@@ -81,62 +80,58 @@ class _Page extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     DateTime currentDate = DateTime.now().add(Duration(days: index));
-    Week currentWeek = Week.fromDateTime(currentDate);
-    List<TimeTablePeriod>? periods =
-        ref.watch(filteredTimeTablePeriodsFamily(currentDate));
-    if (periods == null) {
-      return Center(
-        child: FutureBuilder(
-          future: ref
-              .read(timeTableProvider.notifier)
-              .fetchTimeTableWeek(currentWeek),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text(snapshot.error.toString());
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
-      );
-    }
 
-    return Column(
-      children: [
-        SizedBox(
-          height: 42,
-          child: InkWell(
-            onTap: () {
-              ref.read(homeScreenStateProvider.notifier).switchView();
-            },
-            child: Center(
-              child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  text: DateFormat('EEEE\n').format(currentDate),
-                  style: Theme.of(context).textTheme.bodyText1,
-                  children: [
-                    TextSpan(
-                      text: DateFormat("d. MMMM").format(currentDate),
-                      style: Theme.of(context).textTheme.caption,
+    return Center(
+      child: FutureBuilder(
+        future: ref.watch(filteredTimeTablePeriodsProvider(currentDate).future),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            Sentry.captureException(snapshot.error, stackTrace: snapshot.stackTrace);
+            return Text(snapshot.error.toString());
+          } else if (!snapshot.hasData) {
+            return const CircularProgressIndicator();
+          } else {
+            return Column(
+              children: [
+                SizedBox(
+                  height: 42,
+                  child: InkWell(
+                    onTap: () {
+                      ref.read(homeScreenStateProvider.notifier).switchView();
+                    },
+                    child: Center(
+                      child: RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: DateFormat('EEEE\n').format(currentDate),
+                          style: Theme.of(context).textTheme.bodyLarge,
+                          children: [
+                            TextSpan(
+                              text: DateFormat("d. MMMM").format(currentDate),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          child: Stack(
-            children: [
-              PeriodLayout(
-                fontSize: 12,
-                periods: periods,
-              ),
-              if (index == 0) const TimeIndicator(),
-            ],
-          ),
-        ),
-      ],
+                Expanded(
+                  child: Stack(
+                    children: [
+                      PeriodLayout(
+                        fontSize: 12,
+                        periods: snapshot.data!,
+                      ),
+                      if (index == 0) const TimeIndicator(),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
     );
   }
 }

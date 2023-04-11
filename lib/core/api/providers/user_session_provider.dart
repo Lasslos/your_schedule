@@ -13,21 +13,35 @@ import 'package:your_schedule/util/secure_storage_util.dart';
 @immutable
 class UserSession {
   const UserSession({
-    this.school = "",
-    this.apiBaseURL = "herakles.webuntis.com",
-    this.appName = "",
-    this.sessionID = "",
-    this.loggedInPersonID = -1,
-    this.schoolClassID = -1,
-    this.loggedInPersonType = PersonType.unknown,
-    this.timeTablePersonID = -1,
-    this.timeTablePersonType = PersonType.unknown,
-    this.sessionIsValid = false,
-    this.username = "",
-    String password = "",
-    this.bearerToken = "",
-    this.profileData,
-  }) : _password = password;
+    required this.school,
+    required this.apiBaseURL,
+    required this.sessionID,
+    required this.loggedInPersonID,
+    required this.schoolClassID,
+    required this.loggedInPersonType,
+    required this.timeTablePersonID,
+    required this.timeTablePersonType,
+    required this.sessionIsValid,
+    required this.username,
+    required this.password,
+    required this.bearerToken,
+    required this.profileData,
+  });
+
+  const UserSession.empty() :
+    school = "",
+    apiBaseURL = "",
+    sessionID = "",
+    loggedInPersonID = -1,
+    schoolClassID = -1,
+    loggedInPersonType = PersonType.unknown,
+    timeTablePersonID = -1,
+    timeTablePersonType = PersonType.unknown,
+    sessionIsValid = false,
+    username = "",
+    password = "",
+    bearerToken = "",
+    profileData = const ProfileData.empty();
 
   UserSession copyWith({
     String? appName,
@@ -46,7 +60,6 @@ class UserSession {
     ProfileData? profileData,
   }) {
     return UserSession(
-      appName: appName ?? this.appName,
       sessionID: sessionID ?? this.sessionID,
       loggedInPersonID: loggedInPersonID ?? this.loggedInPersonID,
       schoolClassID: schoolClassID ?? this.schoolClassID,
@@ -57,13 +70,13 @@ class UserSession {
       apiBaseURL: apiBaseURL ?? this.apiBaseURL,
       sessionIsValid: sessionIsValid ?? this.sessionIsValid,
       username: username ?? this.username,
-      password: password ?? _password,
+      password: password ?? this.password,
       bearerToken: bearerToken ?? this.bearerToken,
       profileData: profileData ?? this.profileData,
     );
   }
 
-  final String appName;
+  final String appName = "Stundenplan";
 
   final String sessionID;
   final int loggedInPersonID;
@@ -86,7 +99,7 @@ class UserSession {
   final bool sessionIsValid;
 
   final String username;
-  final String _password;
+  final String password;
 
   ///TOKEN für API
   final String bearerToken;
@@ -98,21 +111,32 @@ class UserSession {
       sessionID.isNotEmpty &&
       loggedInPersonID != -1;
 
-  bool get isRPCAuthorized => sessionID.isNotEmpty && loggedInPersonID != -1;
-
   bool get isAPIAuthorized => bearerToken.isNotEmpty;
 }
 
-class UserSessionNotifier extends StateNotifier<UserSession> {
-  UserSessionNotifier() : super(const UserSession());
+enum PersonType {
+  schoolClass("Klasse"),
+  teacher("Lehrer"),
+  subject("Fach"),
+  room("Raum"),
+  student("Schüler"),
+  unknown("");
 
-  Future<void> createSession(String username, String password, String school,
-      String apiBaseURL) async {
+  const PersonType(this.readableName);
+
+  final String readableName;
+}
+
+class UserSessionNotifier extends StateNotifier<UserSession> {
+  UserSessionNotifier() : super(const UserSession.empty());
+
+  Future<void> createSession(String username, String password, String school, String apiBaseURL) async {
     getLogger().i("Creating session for $username");
+
+    //Catching edge cases
     if (state.sessionIsValid) {
-      throw UserAlreadyLoggedInException(
-        "Der Benutzer ist bereits eingeloggt. Versuche eine neues User Objekt zu erstellen oder die Funktion 'logout()' vorher aufzurufen!",
-      );
+      getLogger().w("Session is already valid. Skipping creation.");
+      return;
     }
     if (username.isEmpty ||
         password.isEmpty ||
@@ -124,15 +148,13 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     }
     state = state.copyWith(school: school, apiBaseURL: apiBaseURL);
 
-    //Hier wird der login versucht
-
+    ///Create session
     RPCResponse response = await queryRPC(
       "authenticate",
       {"user": username, "password": password, "client": state.appName},
     );
 
-    //Hier wird geprüft ob der Login erfolgreich war
-
+    ///Error handling
     if (response.isHttpError) {
       if (response.httpStatusCode == 501) {
         throw ApiConnectionError(
@@ -143,9 +165,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
           "Ein Http-Fehler ist aufgetreten: ${response.httpStatusCode}",
         );
       }
-    }
-
-    if (response.isApiError) {
+    } else if (response.isApiError) {
       if (response.errorCode == RPCResponse.rpcWrongCredentials) {
         throw WrongCredentialsException(
           "Die eingegebenen Zugangsdaten sind falsch.",
@@ -156,7 +176,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
         );
       }
     }
-    //Hier werden die Daten im State gespeichert
+
     state = state.copyWith(
       sessionID: response.payload["sessionId"],
       loggedInPersonID: response.payload["personId"],
@@ -168,18 +188,14 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       timeTablePersonType: response.payload["personType"] != null
           ? PersonType.values[response.payload["personType"] - 1]
           : null,
-      sessionIsValid: true,
       username: username,
       password: password,
       school: school,
     );
 
-    //Hier wird der Bearer Token generiert
     await regenerateSessionBearerToken();
-    //Hier werden die Profile Daten geladen
-    state = state.copyWith(profileData: await _getProfileData());
+    state = state.copyWith(profileData: await _getProfileData(), sessionIsValid: true);
     getLogger().i("Successfully created session!");
-    //Hier werden die Daten in den SecureStorage geschrieben
     secureStorage
       ..write(key: usernameKey, value: username)
       ..write(key: passwordKey, value: password)
@@ -190,17 +206,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
   Future<RPCResponse> logout() async {
     getLogger().i("Logging out");
     RPCResponse response = await queryRPC("logout", {}, validateSession: false);
-    state = state.copyWith(
-      sessionIsValid: false,
-      sessionID: "",
-      username: "",
-      password: "",
-      loggedInPersonID: -1,
-      schoolClassID: -1,
-      loggedInPersonType: PersonType.unknown,
-      bearerToken: "",
-      profileData: null,
-    );
+    state = state = const UserSession.empty();
     return response;
   }
 
@@ -242,7 +248,6 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
       return response;
     }
 
-    //Falls die Session nicht mehr gültig ist, versuche sie zu validieren und erneut abzusenden
     await _validateSession();
     if (state.sessionIsValid) {
       return RPCResponse.fromHttpResponse(
@@ -298,7 +303,7 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     getLogger().v("Revalidation active session");
     await createSession(
       state.username,
-      state._password,
+      state.password,
       state.school,
       state.apiBaseURL,
     );
@@ -324,16 +329,3 @@ final userSessionProvider =
     StateNotifierProvider<UserSessionNotifier, UserSession>((ref) {
   return UserSessionNotifier();
 });
-
-enum PersonType {
-  schoolClass("Klasse"),
-  teacher("Lehrer"),
-  subject("Fach"),
-  room("Raum"),
-  student("Schüler"),
-  unknown("");
-
-  const PersonType(this.readableName);
-
-  final String readableName;
-}

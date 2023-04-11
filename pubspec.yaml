@@ -13,18 +13,19 @@ dependencies:
   logger: ^1.1.0
   flutter_material_color_picker: ^1.1.0+2
   flutter_riverpod: ^2.0.0-dev.9
-  flutter_secure_storage: ^5.1.2
+  flutter_secure_storage: ^8.0.0
   shared_preferences: ^2.0.15
-  google_fonts: ^3.0.1
-  intl: ^0.17.0
+  google_fonts: ^4.0.3
+  intl: ^0.18.0
   linked_scroll_controller: ^0.2.0
-  flutter_native_splash: ^2.2.11
+  flutter_native_splash: ^2.2.19
+  sentry_flutter: ^7.4.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  flutter_launcher_icons: ^0.10.0
+  flutter_launcher_icons: ^0.13.0
 
 flutter_icons:
   android: true

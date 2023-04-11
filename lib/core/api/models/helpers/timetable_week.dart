@@ -87,7 +87,7 @@ class Week {
 
   Week.now() : this.fromDateTime(DateTime.now());
 
-  Week.relativeToCurrentWeek(int relative)
+  Week.relative(int relative)
       : startDate =
             DateTime.now().startOfWeek().add(Duration(days: relative * 7)),
         endDate = DateTime.now().endOfWeek().add(Duration(days: relative * 7));
