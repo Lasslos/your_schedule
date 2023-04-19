@@ -1,0 +1,170 @@
+URL: https://herakles.webuntis.com/WebUntis/jsonrpc_intern.do?school=cjd-k%C3%B6nigswinter&v=a5.2.3
+Method: Post
+content-type: application/json; charset=utf-8
+
+Request Body:
+{
+  "id": "-1",
+  "jsonrpc": "2.0",
+  "method": "getUserData2017",
+  "params": [
+    {
+      "elementId": 0,
+      "deviceOs": "AND",
+      "deviceOsVersion": "",
+      "auth": {
+        "user": "Q1",
+        "otp": 594033,
+        "clientTime": 1681934073043
+      }
+    }
+  ]
+}
+Response Body:
+{
+  "jsonrpc": "2.0",
+  "id": "-1",
+  "result": {
+    "masterData": {
+      "holidays": [
+         {
+           "id": 122,
+           "name": "1.11.",
+           "longName": "Allerheiligen",
+           "startDate": "2022-11-01",
+           "endDate": "2022-11-01"
+         },
+         {
+           "id": 127,
+           "name": "1.5.",
+           "longName": "Tag der Arbeit",
+           "startDate": "2023-05-01",
+           "endDate": "2023-05-01"
+         },
+       ...
+      ],
+      "klassen": [
+        {
+          "id": 555,
+          "name": "5A",
+          "longName": "Willemsen, Bolle",
+          "startDate": "2022-08-08",
+          "endDate": "2023-06-25",
+          "active": true,
+        },
+        {
+          "id": 560,
+          "name": "5B",
+          "longName": "Dr. Peters,Oboth",
+          "startDate": "2022-08-08",
+          "endDate": "2023-06-25",
+          "active": true,
+        },
+        ...
+      ],
+      "rooms": [
+        {
+          "id": 1349,
+          "name": "?",
+          "longName": "?",
+          "active": false,
+        },
+        {
+          "id": 36,
+          "name": "A-07",
+          "longName": "Lehrerarbeitsraum",
+          "active": true,
+        },
+        ...
+      ],
+      "subjects": [
+        {
+          "id": 1,
+          "name": "0WPF",
+          "longName": "Wahlpflichbereich Französisch RS6 nur 2.HJ",
+          "active": true,
+        },
+        {
+          "id": 6,
+          "name": "0WPP",
+          "longName": "Wahlpflichbereich Politik RS6 nur 2.HJ",
+          "active": true,
+        },
+        ...
+      ],
+      "teachers": [
+        {
+          "id": 1,
+          "name": "BEG",
+          "firstName": "",
+          "lastName": "Bergmann",
+          "active": false,
+        },
+        {
+          "id": 725,
+          "name": "BEH",
+          "firstName": "Noemi",
+          "lastName": "BEHR",
+          "active": true,
+        },
+        ...
+      ],
+      "timeGrid": {
+        "days": [
+          {
+            "day": "MON",
+            "units": [
+              {
+                "label": "1",
+                "startTime": "T07:55",
+                "endTime": "T08:55"
+              },
+              {
+                "label": "2",
+                "startTime": "T09:10",
+                "endTime": "T10:10"
+              },
+              {
+                "label": "3",
+                "startTime": "T10:20",
+                "endTime": "T11:20"
+              },
+              {
+                "label": "4",
+                "startTime": "T11:45",
+                "endTime": "T12:45"
+              },
+              {
+                "label": "5",
+                "startTime": "T12:55",
+                "endTime": "T13:55"
+              },
+              {
+                "label": "MiPau",
+                "startTime": "T13:55",
+                "endTime": "T14:25"
+              },
+              {
+                "label": "7",
+                "startTime": "T14:25",
+                "endTime": "T15:25"
+              },
+              {
+                "label": "8",
+                "startTime": "T15:35",
+                "endTime": "T16:35"
+              }
+            ]
+          },
+          ...
+        ]
+      }
+    },
+    "userData": {
+      "elemType": "CLASS",
+      "elemId": 764,
+      "displayName": "",
+      "schoolName": "Jugenddorf-Christophorusschule",
+    },
+  }
+}

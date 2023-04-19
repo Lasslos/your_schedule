@@ -38,10 +38,16 @@ class _WeekViewState extends ConsumerState<WeekView> {
 
     //Pre-load next and previous week
     ref
-      ..read(timeTableProvider(
-          Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
-      ..read(timeTableProvider(
-          Week.fromDateTime(currentDate.subtract(const Duration(days: 7)))));
+      ..read(
+        timeTableProvider(
+          Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+        ),
+      )
+      ..read(
+        timeTableProvider(
+          Week.fromDateTime(currentDate.subtract(const Duration(days: 7))),
+        ),
+      );
   }
 
   @override
@@ -67,10 +73,18 @@ class _WeekViewState extends ConsumerState<WeekView> {
 
         //Pre-load next and previous week
         ref
-          ..read(timeTableProvider(
-              Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
-          ..read(timeTableProvider(Week.fromDateTime(
-              currentDate.subtract(const Duration(days: 7)))));
+          ..read(
+            timeTableProvider(
+              Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+            ),
+          )
+          ..read(
+            timeTableProvider(
+              Week.fromDateTime(
+                currentDate.subtract(const Duration(days: 7)),
+              ),
+            ),
+          );
       },
     );
 

@@ -1,0 +1,33 @@
+URL: https://mobile.webuntis.com/ms/schoolquery2/?v=a5.2.3
+Method: Post
+content-type: application/json; charset=utf-8
+
+Request Body:
+{
+  "id": "-1",
+  "jsonrpc": "2.0",
+  "method": "searchSchool",
+  "params": [
+    {
+      "search": "cjd"
+    }
+  ]
+}
+
+{
+  "result": {
+    "size": 0,
+    "schools": [
+      {
+        "server": "herakles.webuntis.com",
+        "address": "53639, Königswinter, Cleethorpeser Platz 12",
+        "displayName": "Jugenddorf-Christophorusschule",
+        "loginName": "cjd-königswinter",
+        "schoolId": 5237400,
+        "serverUrl": "https://herakles.webuntis.com/WebUntis/?school=cjd-k%C3%B6nigswinter",
+      }
+    ]
+  },
+  "id": "-1",
+  "jsonrpc": "2.0"
+}

@@ -1,14 +1,3 @@
-class UserAlreadyLoggedInException implements Exception {
-  String cause;
-
-  UserAlreadyLoggedInException(this.cause);
-
-  @override
-  String toString() {
-    return cause;
-  }
-}
-
 class WrongCredentialsException implements Exception {
   String cause;
 
@@ -35,6 +24,17 @@ class ApiConnectionError implements Exception {
   String cause;
 
   ApiConnectionError(this.cause);
+
+  @override
+  String toString() {
+    return cause;
+  }
+}
+
+class InvalidSchoolNameException implements Exception {
+  String cause;
+
+  InvalidSchoolNameException(this.cause);
 
   @override
   String toString() {

@@ -15,7 +15,13 @@ final timeTableProvider = FutureProvider.family<TimeTableWeek, Week>((ref, week)
   UserSession userSession = ref.watch(userSessionProvider);
   getLogger().i("Fetching timetable for week $week");
   if (!userSession.sessionIsValid) {
-    return TimeTableWeek(week, const {});
+    return TimeTableWeek(week, {
+      for (int i = 0; i < 7; i++)
+        week.startDate.add(Duration(days: i)): TimeTableDay(
+          week.startDate.add(Duration(days: i)),
+          i,
+        )
+    });
   }
   var timeTableWeek = TimeTableWeek.fromRPCResponse(
     week,

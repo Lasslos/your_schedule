@@ -4,9 +4,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/models/profile_data.dart';
+import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
+import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/rpc_response.dart';
 import 'package:your_schedule/core/exceptions.dart';
+import 'package:your_schedule/filter/filter.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/secure_storage_util.dart';
 
@@ -169,6 +174,10 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
         throw WrongCredentialsException(
           "Die eingegebenen Zugangsdaten sind falsch.",
         );
+      } else if (response.errorCode == -8500) {
+        throw InvalidSchoolNameException(
+          "Die eingegebene Schule ist ungültig.",
+        );
       } else {
         throw ApiConnectionError(
           "Api Connection Error: ${response.errorMessage} (${response.errorCode})",
@@ -195,12 +204,16 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
     );
 
     await regenerateSessionBearerToken();
-    state = state.copyWith(profileData: await _getProfileData(), sessionIsValid: true);
+    state = state.copyWith(
+        profileData: await _getProfileData(), sessionIsValid: true);
     secureStorage
       ..write(key: usernameKey, value: username)
       ..write(key: passwordKey, value: password)
-      ..write(key: schoolKey, value: school)..write(
-        key: apiBaseURlKey, value: apiBaseURL);
+      ..write(key: schoolKey, value: school)
+      ..write(
+        key: apiBaseURlKey,
+        value: apiBaseURL,
+      );
   }
 
   Future<RPCResponse> logout() async {
@@ -330,3 +343,51 @@ final userSessionProvider =
     StateNotifierProvider<UserSessionNotifier, UserSession>((ref) {
   return UserSessionNotifier();
 });
+
+Stream<dynamic> initializeData(WidgetRef ref) async* {
+  yield "Loading period schedule";
+  try {
+    await ref.read(periodScheduleProvider.future);
+  } catch (e, s) {
+    yield e.toString();
+    getLogger().e("Error while fetching period schedule", e, s);
+    Sentry.captureException(e, stackTrace: s);
+    yield false;
+    return;
+  }
+
+  yield "Loading your timetable";
+  try {
+    await ref.read(timeTableProvider(Week.now()).future);
+  } catch (e, s) {
+    yield e.toString();
+    getLogger().e("Error while fetching timetable", e, s);
+    Sentry.captureException(e, stackTrace: s);
+    yield false;
+    return;
+  }
+
+  yield "Done";
+  yield true;
+}
+
+Future<bool> addFiltersIfNone(WidgetRef ref) async {
+  if (ref.read(filterItemsProvider).isNotEmpty) {
+    return false;
+  } else {
+    for (int i = 0; i < 5; i++) {
+      try {
+        await ref.read(timeTableProvider(Week.relative(i)).future);
+      } catch (e, s) {
+        Sentry.captureException(e, stackTrace: s);
+      }
+    }
+
+    var allSubjects = ref.read(allSubjectsProvider);
+
+    ref.read(filterItemsProvider.notifier).filterEverything(
+          allSubjects,
+        );
+  }
+  return true;
+}

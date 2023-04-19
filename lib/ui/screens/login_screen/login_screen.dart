@@ -1,11 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
-import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
-import 'package:your_schedule/filter/filter.dart';
+import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -173,32 +172,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 8),
                   isLoading
                       ? const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: SizedBox(
-                            height: 48,
-                            child: Center(
-                              child: LinearProgressIndicator(),
-                            ),
-                          ),
-                        )
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: SizedBox(
+                      height: 48,
+                      child: Center(
+                        child: LinearProgressIndicator(),
+                      ),
+                    ),
+                  )
                       : ElevatedButton(
-                          focusNode: focusNodes[3],
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                              theme.colorScheme.primary,
-                            ),
-                            foregroundColor: MaterialStateProperty.all(
-                              theme.colorScheme.onPrimary,
-                            ),
-                            textStyle:
-                                MaterialStateProperty.all(textTheme.labelLarge),
-                          ),
-                          onPressed: () {
-                            FocusScope.of(context).unfocus();
-                            _login();
-                          },
-                          child: const Text("Log In"),
-                        ),
+                    focusNode: focusNodes[3],
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        theme.colorScheme.primary,
+                      ),
+                      foregroundColor: MaterialStateProperty.all(
+                        theme.colorScheme.onPrimary,
+                      ),
+                      textStyle:
+                      MaterialStateProperty.all(textTheme.labelLarge),
+                    ),
+                    onPressed: () {
+                      FocusScope.of(context).unfocus();
+                      _login();
+                    },
+                    child: const Text("Log In"),
+                  ),
                 ],
               ),
             ),
@@ -219,7 +218,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!domain.startsWith("https://") || !domain.endsWith(".webuntis.com")) {
       setState(() {
         message =
-            "Invalid domain: Must start with \"https://\" and end with \".webuntis.com\"";
+        "Invalid domain: Must start with \"https://\" and end with \".webuntis.com\"";
         isLoading = false;
       });
       return;
@@ -228,10 +227,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ///Hier fügen wir ein Delay hinzu, damit die Animation nicht so schnell ein- und ausgeht.
     ///Das verhindert, dass die Ladeanimation schnell angezeigt wird und dann wieder verschwindet.
     Future.wait([
-      loginAsync(username, password, school, domain),
+      login(username, password, school, domain),
       Future.delayed(const Duration(milliseconds: 300)),
     ]).then(
-      (value) {
+          (value) {
         if (mounted) {
           setState(() {
             isLoading = false;
@@ -241,7 +240,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<void> loginAsync(
+  Future<void> login(
     String username,
     String password,
     String school,
@@ -251,54 +250,42 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref
           .read(userSessionProvider.notifier)
           .createSession(username, password, school, domain);
+    } on MissingCredentialsException {
+      message = "Bitte fülle alle Felder aus";
+      return;
+    } on WrongCredentialsException {
+      message = "Falsche Anmeldedaten";
+      return;
+    } on SocketException catch (e) {
+      setState(() {
+        message = e.message;
+      });
+      return;
+    } on InvalidSchoolNameException catch (e) {
+      setState(() {
+        message = e.cause;
+      });
+      return;
     } catch (e, s) {
+      setState(() {
+        message = e.toString();
+      });
       getLogger().e("Error while creating session", e, s);
-      debugPrintStack(stackTrace: s);
-
-      ///Kein setState, weil die Methode login() dies bereits tut.
-      message = e.toString();
+      Sentry.captureException(e, stackTrace: s);
       return;
     }
 
-    try {
-      await ref.read(periodScheduleProvider.future);
-    } catch (e, s) {
-      Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while fetching period schedule", e, s);
-    }
-    try {
-      await ref.read(timeTableProvider(Week.now()).future);
-    } catch (e, s) {
-      Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while fetching timetable", e, s);
-    }
-
-    if (ref.read(filterItemsProvider).isEmpty) {
-      for (int i = 0; i < 5; i++) {
-        try {
-          await ref.read(timeTableProvider(Week.relative(i)).future);
-        } catch (e, s) {
-          Sentry.captureException(e, stackTrace: s);
+    //Initialisierung des Stundenplans
+    await for (var result in initializeData(ref)) {
+      if (result is bool) {
+        if (!result) {
+          ref.read(userSessionProvider.notifier).logout();
+          return;
         }
       }
-
-      var allSubjects = ref.read(allSubjectsProvider);
-
-      ref.read(filterItemsProvider.notifier).filterEverything(
-        allSubjects,
-      );
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-      // ignore: use_build_context_synchronously
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const FilterScreen()),
-      );
-      return;
     }
+
+    bool didAddFilters = await addFiltersIfNone(ref);
 
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
@@ -306,7 +293,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
 
-    ///Das hier ist wichtig, weil der login button zurückkommt, sobalt die Methode fertig ist. Er darf aber erst zurückkommen, wenn die Animation zum anderen Screen fertig ist.
+    if (didAddFilters) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const FilterScreen()),
+      );
+    }
+
+    ///Das hier ist wichtig, weil der login button zurückkommt, sobald die Methode fertig ist. Er darf aber erst zurückkommen, wenn die Animation zum anderen Screen fertig ist.
     await Future.delayed(const Duration(milliseconds: 500));
   }
 

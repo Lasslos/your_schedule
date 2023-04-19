@@ -4,21 +4,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:your_schedule/core/api/models/period_schedule.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
-import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/util/logger.dart';
 
 final periodScheduleProvider = FutureProvider((ref) async {
   UserSession userSession = ref.watch(userSessionProvider);
   getLogger().i("Fetching period schedule");
-  if (!userSession.isAPIAuthorized) {
-    throw ApiConnectionError("The user is not logged in!");
+  if (!userSession.sessionIsValid) {
+    return PeriodSchedule.periodScheduleFallback;
   }
   try {
     http.Response response =
-    await ref.read(userSessionProvider.notifier).queryURL(
-      "/WebUntis/api/rest/view/v1/timegrid",
-      needsAuthorization: true,
-    );
+        await ref.read(userSessionProvider.notifier).queryURL(
+              "/WebUntis/api/rest/view/v1/timegrid",
+              needsAuthorization: true,
+            );
     return PeriodSchedule.fromJSON(jsonDecode(response.body));
   } catch (e) {
     getLogger().e("Failed to fetch period schedule", e);

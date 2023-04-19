@@ -37,10 +37,16 @@ class _DayViewState extends ConsumerState<DayView> {
 
     //Pre-load next and previous week
     ref
-      ..read(timeTableProvider(
-          Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
-      ..read(timeTableProvider(
-          Week.fromDateTime(currentDate.subtract(const Duration(days: 7)))));
+      ..read(
+        timeTableProvider(
+          Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+        ),
+      )
+      ..read(
+        timeTableProvider(
+          Week.fromDateTime(currentDate.subtract(const Duration(days: 7))),
+        ),
+      );
   }
 
   @override
@@ -64,10 +70,18 @@ class _DayViewState extends ConsumerState<DayView> {
 
         //Pre-load next and previous week
         ref
-          ..read(timeTableProvider(
-              Week.fromDateTime(currentDate.add(const Duration(days: 7)))))
-          ..read(timeTableProvider(Week.fromDateTime(
-              currentDate.subtract(const Duration(days: 7)))));
+          ..read(
+            timeTableProvider(
+              Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+            ),
+          )
+          ..read(
+            timeTableProvider(
+              Week.fromDateTime(
+                currentDate.subtract(const Duration(days: 7)),
+              ),
+            ),
+          );
       },
     );
 

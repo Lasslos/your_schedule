@@ -1,10 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
-import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/core/api/providers/user_session_provider.dart';
 import 'package:your_schedule/core/exceptions.dart';
 import 'package:your_schedule/filter/filter.dart';
@@ -38,14 +37,16 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
   //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
+    //Initialisierung der Provider
     ref.read(filterItemsProvider.notifier).initialize();
     ref.read(customSubjectColorProvider.notifier).initialize();
 
+    //Login
     try {
       await ref.read(userSessionProvider.notifier).createSession(
-            await secureStorage.read(key: usernameKey) ?? "",
-            await secureStorage.read(key: passwordKey) ?? "",
-            await secureStorage.read(key: schoolKey) ?? "",
+        await secureStorage.read(key: usernameKey) ?? "",
+        await secureStorage.read(key: passwordKey) ?? "",
+        await secureStorage.read(key: schoolKey) ?? "",
             await secureStorage.read(key: apiBaseURlKey) ?? "",
           );
     } on MissingCredentialsException {
@@ -56,78 +57,72 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         ),
       );
       return;
-    } catch (e, s) {
-      getLogger().e("Error while creating session", e, s);
-      // Weil wir den BuildContext nicht speichern, ist die Nutzung hier kein Problem
-      // ignore: use_build_context_synchronously
+    } on WrongCredentialsException {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => LoginScreen(message: e.toString()),
+          builder: (context) =>
+              const LoginScreen(message: "Zugangsdaten sind falsch"),
         ),
       );
       return;
-    }
-    setState(() {
-      _message = "Loading period schedule";
-    });
-    try {
-      await ref.read(periodScheduleProvider.future);
-    } catch (e, s) {
-      setState(() {
-        _message = e.toString();
-        _showTryAgain = true;
-      });
-      getLogger().e("Error while fetching period schedule", e, s);
-      return;
-    }
-    setState(() {
-      _message = "Loading your timetable";
-    });
-    try {
-      await ref.read(timeTableProvider(Week.now()).future);
-    } catch (e, s) {
-      setState(() {
-        _message = e.toString();
-        _showTryAgain = true;
-      });
-      getLogger().e("Error while fetching timetable", e, s);
-    }
-    setState(() {
-      _message = "Done";
-    });
-    await Future.delayed(const Duration(milliseconds: 500));
-    if (ref.read(filterItemsProvider).isEmpty) {
-      for (int i = 0; i < 5; i++) {
-        try {
-          await ref.read(timeTableProvider(Week.relative(i)).future);
-        } catch (e, s) {
-          Sentry.captureException(e, stackTrace: s);
-        }
-      }
-
-      var allSubjects = ref.read(allSubjectsProvider);
-
-      ref.read(filterItemsProvider.notifier).filterEverything(
-        allSubjects,
-      );
-      // ignore: use_build_context_synchronously
+    } on InvalidSchoolNameException {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-      // ignore: use_build_context_synchronously
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const FilterScreen()),
+        MaterialPageRoute(
+          builder: (context) =>
+              const LoginScreen(message: "Der Schulname ist ungültig"),
+        ),
       );
       return;
+    } on SocketException {
+      setState(() {
+        _message = "No internet connection";
+        _showTryAgain = true;
+      });
+      return;
+    } catch (e, s) {
+      setState(() {
+        _message = e.toString();
+        _showTryAgain = true;
+      });
+      getLogger().e("Error while creating session", e, s);
+      Sentry.captureException(e, stackTrace: s);
+      return;
     }
+
+    //Initialisierung des Stundenplans
+    await for (var result in initializeData(ref)) {
+      if (result is String) {
+        setState(() {
+          _message = result;
+        });
+      } else if (result is bool) {
+        if (!result) {
+          ref.read(userSessionProvider.notifier).logout();
+          setState(() {
+            _showTryAgain = true;
+          });
+          return;
+        }
+      }
+    }
+
+    bool didAddFilters = await addFiltersIfNone(ref);
+
     // ignore: use_build_context_synchronously
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const HomeScreen()),
     );
+
+    if (didAddFilters) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const FilterScreen()),
+      );
+    }
   }
 
   @override
