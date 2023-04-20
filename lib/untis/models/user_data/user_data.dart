@@ -14,10 +14,9 @@ part 'user_data.g.dart';
 
 @freezed
 class UserData with _$UserData {
-  const factory UserData(
-    @protected InternalGeneralData generalData,
-    @protected InternalUserData userData,
-  ) = _UserData;
+  @JsonSerializable(explicitToJson: true)
+  const factory UserData(@protected InternalGeneralData generalData,
+      @protected InternalUserData userData,) = _UserData;
 
   const UserData._();
 

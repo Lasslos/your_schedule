@@ -12,14 +12,13 @@ part 'internal_general_data.g.dart';
 
 @freezed
 class InternalGeneralData with _$InternalGeneralData {
-  const factory InternalGeneralData(
-    List<Holiday> holidays,
-    List<Klasse> klassen,
-    List<Room> rooms,
-    List<Subject> subjects,
-    List<Teacher> teachers,
-    TimeGrid timeGrid,
-  ) = _InternalGeneralData;
+  @JsonSerializable(explicitToJson: true)
+  const factory InternalGeneralData(List<Holiday> holidays,
+      List<Klasse> klassen,
+      List<Room> rooms,
+      List<Subject> subjects,
+      List<Teacher> teachers,
+      TimeGrid timeGrid,) = _InternalGeneralData;
 
   factory InternalGeneralData.fromJson(Map<String, dynamic> json) =>
       _$InternalGeneralDataFromJson(json);
