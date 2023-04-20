@@ -1,0 +1,152 @@
+URL: https://herakles.webuntis.com/WebUntis/jsonrpc_intern.do?school=cjd-k%C3%B6nigswinter&v=a5.2.3
+Method: POST
+content-type: application/json
+
+Request Body:
+{
+  "id": "0",
+  "jsonrpc": "2.0",
+  "method": "getTimetable2017",
+  "params": [
+    {
+      "id": 764,
+      "type": "CLASS",
+      "startDate": "2023-04-17",
+      "endDate": "2023-04-23",
+      "masterDataTimestamp": 1682022053705,
+      "timetableTimestamp": 0,
+      "timetableTimestamps": [],
+      "auth": {
+        "user": "Q1",
+        "otp": 936561,
+        "clientTime": 1682022050395
+      }
+    }
+  ]
+}
+
+Response Body:
+{
+  "jsonrpc": "2.0",
+  "id": "0",
+  "result": {
+    "timetable": {
+      "displayableStartDate": "2023-04-17",
+      "displayableEndDate": "2023-04-23",
+      "periods": [
+{
+  "jsonrpc": "2.0",
+  "id": "0",
+  "result": {
+    "timetable": {
+      "displayableStartDate": "2023-04-17",
+      "displayableEndDate": "2023-04-23",
+      "periods": [
+        {
+          "id": 786234,
+          "lessonId": 15436,
+          "startDateTime": "2023-04-17T07:55Z",
+          "endDateTime": "2023-04-17T08:55Z",
+          "foreColor": "#000000",
+          "backColor": "#32cd32",
+          "innerForeColor": "#000000",
+          "innerBackColor": "#000000",
+          "text": {
+            "lesson": "T17",
+            "substitution": "",
+            "info": "",
+            "attachments": []
+          },
+          "elements": [
+            {
+              "type": "CLASS",
+              "id": 764,
+              "orgId": 764
+            },
+            {
+              "type": "TEACHER",
+              "id": 725,
+              "orgId": 725
+            },
+            {
+              "type": "SUBJECT",
+              "id": 111,
+              "orgId": 111
+            },
+            {
+              "type": "ROOM",
+              "id": 191,
+              "orgId": 191
+            }
+          ],
+          "can": [
+            "READ_PERIODINFO"
+          ],
+          "is": [
+            "REGULAR"
+          ],
+          "homeWorks": null,
+          "messengerChannel": null,
+          "exam": null,
+          "isOnlinePeriod": false,
+          "blockHash": 1365001269
+        },
+        {
+          "id": 786239,
+          "lessonId": 15436,
+          "startDateTime": "2023-04-19T07:55Z",
+          "endDateTime": "2023-04-19T08:55Z",
+          "foreColor": "#000000",
+          "backColor": "#32cd32",
+          "innerForeColor": "#000000",
+          "innerBackColor": "#000000",
+          "text": {
+            "lesson": "T17",
+            "substitution": "",
+            "info": "",
+            "attachments": []
+          },
+          "elements": [
+            {
+              "type": "CLASS",
+              "id": 764,
+              "orgId": 764
+            },
+            {
+              "type": "TEACHER",
+              "id": 725,
+              "orgId": 725
+            },
+            {
+              "type": "SUBJECT",
+              "id": 111,
+              "orgId": 111
+            },
+            {
+              "type": "ROOM",
+              "id": 96,
+              "orgId": 96
+            }
+          ],
+          "can": [
+            "READ_PERIODINFO"
+          ],
+          "is": [
+            "REGULAR"
+          ],
+          "homeWorks": null,
+          "messengerChannel": null,
+          "exam": null,
+          "isOnlinePeriod": false,
+          "blockHash": 2042138199
+        },
+      ]
+    },
+    "masterData": {...}
+  }
+}
+      ]
+    },
+    "masterData": {...}
+  }
+}
