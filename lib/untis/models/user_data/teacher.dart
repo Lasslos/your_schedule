@@ -6,13 +6,13 @@ part 'teacher.g.dart';
 
 @freezed
 class Teacher with _$Teacher {
-  const factory Teacher({
-    required int id,
-    required String name,
-    required String firstName,
-    required String longName,
-    required bool active,
-  }) = _Teacher;
+  const factory Teacher(
+    int id,
+    @JsonKey(name: "name") String shortName,
+    String firstName,
+    String longName,
+    bool active,
+  ) = _Teacher;
 
   factory Teacher.fromJson(Map<String, dynamic> json) =>
       _$TeacherFromJson(json);

@@ -7,11 +7,11 @@ part 'time_grid_entry.g.dart';
 
 @freezed
 class TimeGridEntry with _$TimeGridEntry {
-  factory TimeGridEntry({
-    required String label,
-    @TimeOfDaySerializer() required TimeOfDay startTime,
-    @TimeOfDaySerializer() required TimeOfDay endTime,
-  }) = _TimeGridEntry;
+  const factory TimeGridEntry(
+    String label,
+    @TimeOfDaySerializer() TimeOfDay startTime,
+    @TimeOfDaySerializer() TimeOfDay endTime,
+  ) = _TimeGridEntry;
 
   factory TimeGridEntry.fromJson(Map<String, dynamic> json) =>
       _$TimeGridEntryFromJson(json);

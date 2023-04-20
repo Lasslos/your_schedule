@@ -7,15 +7,30 @@ part 'time_grid.g.dart';
 
 @freezed
 class TimeGrid with _$TimeGrid {
-  const factory TimeGrid({
-    @JsonKey(readValue: _readTimeGridEntries)
-        required List<TimeGridEntry> timeGridEntries,
-  }) = _TimeGrid;
+  @JsonSerializable(explicitToJson: true)
+  const factory TimeGrid(
+    @_TimeGridConverter() List<TimeGridEntry> timeGridEntries,
+  ) = _TimeGrid;
 
   factory TimeGrid.fromJson(Map<String, dynamic> json) =>
       _$TimeGridFromJson(json);
 }
 
-dynamic _readTimeGridEntries(Map<dynamic, dynamic> json, String name) {
-  return json['days'][0]["untis"];
+class _TimeGridConverter
+    implements JsonConverter<TimeGrid, Map<String, dynamic>> {
+  const _TimeGridConverter();
+
+  @override
+  TimeGrid fromJson(Map<String, dynamic> json) {
+    return TimeGrid.fromJson(json['days'][0]["untis"]);
+  }
+
+  @override
+  Map<String, dynamic> toJson(TimeGrid object) {
+    return {
+      'days': [
+        {'untis': object.toJson()},
+      ],
+    };
+  }
 }

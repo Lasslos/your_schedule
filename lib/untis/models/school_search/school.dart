@@ -4,16 +4,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'school.freezed.dart';
 part 'school.g.dart';
 
-@freezed
+@Freezed()
 class School with _$School {
-  const factory School({
-    required String server,
-    required String address,
-    required String displayName,
-    required String loginName,
-    required int schoolId,
-    required String serverUrl,
-  }) = _School;
+  const factory School(
+    String server,
+    String address,
+    String displayName,
+    String loginName,
+    int schoolId,
+    String serverUrl,
+  ) = _School;
 
   factory School.fromJson(Map<String, dynamic> json) => _$SchoolFromJson(json);
 }

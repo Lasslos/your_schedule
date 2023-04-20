@@ -6,13 +6,13 @@ part 'holiday.g.dart';
 
 @freezed
 class Holiday with _$Holiday {
-  const factory Holiday({
-    required int id,
-    required String name,
-    required String longName,
-    required DateTime startDate,
-    required DateTime endDate,
-  }) = _Holiday;
+  const factory Holiday(
+    int id,
+    String name,
+    String longName,
+    DateTime startDate,
+    DateTime endDate,
+  ) = _Holiday;
 
   factory Holiday.fromJson(Map<String, dynamic> json) =>
       _$HolidayFromJson(json);
