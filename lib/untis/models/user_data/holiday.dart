@@ -7,7 +7,6 @@ part 'holiday.g.dart';
 @freezed
 class Holiday with _$Holiday {
   const factory Holiday(
-    int id,
     String name,
     String longName,
     DateTime startDate,

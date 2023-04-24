@@ -7,7 +7,6 @@ part 'klasse.g.dart';
 @freezed
 class Klasse with _$Klasse {
   const factory Klasse(
-    int id,
     String name,
     String longName,
     DateTime startDate,

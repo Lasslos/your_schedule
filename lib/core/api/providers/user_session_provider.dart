@@ -205,7 +205,9 @@ class UserSessionNotifier extends StateNotifier<UserSession> {
 
     await regenerateSessionBearerToken();
     state = state.copyWith(
-        profileData: await _getProfileData(), sessionIsValid: true);
+      profileData: await _getProfileData(),
+      sessionIsValid: true,
+    );
     secureStorage
       ..write(key: usernameKey, value: username)
       ..write(key: passwordKey, value: password)

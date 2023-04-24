@@ -26,6 +26,7 @@ Response Body:
   "id": "-1",
   "result": {
     "masterData": {
+      "timeStamp": 1682362654804,
       "holidays": [
          {
            "id": 122,

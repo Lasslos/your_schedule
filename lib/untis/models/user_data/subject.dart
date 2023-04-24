@@ -7,7 +7,6 @@ part 'subject.g.dart';
 @freezed
 class Subject with _$Subject {
   const factory Subject(
-    int id,
     String name,
     String longName,
     bool active,

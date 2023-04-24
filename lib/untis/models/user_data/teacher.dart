@@ -7,7 +7,6 @@ part 'teacher.g.dart';
 @freezed
 class Teacher with _$Teacher {
   const factory Teacher(
-    int id,
     @JsonKey(name: "name") String shortName,
     String firstName,
     String longName,

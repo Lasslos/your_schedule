@@ -34,14 +34,6 @@ Response Body:
       "displayableStartDate": "2023-04-17",
       "displayableEndDate": "2023-04-23",
       "periods": [
-{
-  "jsonrpc": "2.0",
-  "id": "0",
-  "result": {
-    "timetable": {
-      "displayableStartDate": "2023-04-17",
-      "displayableEndDate": "2023-04-23",
-      "periods": [
         {
           "id": 786234,
           "lessonId": 15436,
@@ -140,11 +132,6 @@ Response Body:
           "isOnlinePeriod": false,
           "blockHash": 2042138199
         },
-      ]
-    },
-    "masterData": {...}
-  }
-}
       ]
     },
     "masterData": {...}
