@@ -5,7 +5,7 @@ import 'package:your_schedule/untis/models/user_data/klasse.dart';
 import 'package:your_schedule/untis/models/user_data/room.dart';
 import 'package:your_schedule/untis/models/user_data/subject.dart';
 import 'package:your_schedule/untis/models/user_data/teacher.dart';
-import 'package:your_schedule/untis/models/user_data/time_grid.dart';
+import 'package:your_schedule/untis/models/user_data/time_grid_entry.dart';
 
 part 'user_data.freezed.dart';
 
@@ -18,7 +18,7 @@ class UserData with _$UserData {
     Map<int, Room> rooms,
     Map<int, Subject> subjects,
     Map<int, Teacher> teachers,
-    TimeGrid timeGrid,
+    List<TimeGridEntry> timeGrid,
     String type,
     int id,
     String displayName,
@@ -50,9 +50,10 @@ class UserData with _$UserData {
         for (var e in json['masterData']['teachers'])
           e['id'] as int: Teacher.fromJson(e)
       },
-      TimeGrid.fromJson(
-          (json['masterData']['timegrid']['days'] as List<dynamic>)
-              .first()['untis']),
+      (json['masterData']['timeGrid']['days'].first['units'] as List<dynamic>)
+          .map((e) {
+        return TimeGridEntry.fromJson(e);
+      }).toList(),
       json['userData']['elemType'] as String,
       json['userData']['elemId'] as int,
       json['userData']['displayName'] as String,
@@ -82,7 +83,7 @@ class UserData with _$UserData {
         'timegrid': {
           'days': [
             {
-              'untis': timeGrid.toJson(),
+              'units': timeGrid.map((e) => e.toJson()).toList(),
             }
           ],
         },

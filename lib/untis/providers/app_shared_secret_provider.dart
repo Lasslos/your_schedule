@@ -7,7 +7,7 @@ final appSharedSecretProvider = FutureProvider.autoDispose.family<String,
     (ref, requestScaffold) async {
   var response = await rpcRequest(
     method: 'getAppSharedSecret',
-    params: requestScaffold.data.toJson(),
+    params: [requestScaffold.data.toJson()],
     serverUrl: requestScaffold.serverUrl,
   );
   return response.map(

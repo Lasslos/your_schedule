@@ -12,23 +12,13 @@ import 'package:your_schedule/util/logger.dart';
 
 part 'rpc_request.freezed.dart';
 
-mixin DataField<T> {
-  T get data;
+abstract class DataField<T> {
+  abstract final T data;
 }
 
-mixin AuthenticationDetails {
-  String get user;
-
-  String get appSharedSecret;
-
-  Map<String, dynamic> getAuthParamsJson() => {
-        'auth': {
-          'user': user,
-          'token': OTP.generateTOTPCode(
-              appSharedSecret, DateTime.now().millisecondsSinceEpoch ~/ 1000),
-          'clientTime': DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        }
-      };
+abstract class AuthenticationDetails {
+  abstract final String user;
+  abstract final String appSharedSecret;
 }
 
 @freezed
@@ -40,44 +30,69 @@ class UnauthenticatedRPCRequestScaffold
 
 @freezed
 class UnauthenticatedDataRPCRequestScaffold<T>
-    with _$UnauthenticatedDataRPCRequestScaffold
-    implements DataField<T> {
+    with _$UnauthenticatedDataRPCRequestScaffold {
+  @Implements.fromString("DataField<T>")
   const factory UnauthenticatedDataRPCRequestScaffold(
     Uri serverUrl,
-    @protected T _data,
+    T data,
   ) = _UnauthenticatedDataRPCRequestScaffold<T>;
-
-  const UnauthenticatedDataRPCRequestScaffold._();
-
-  @override
-  T get data => _data;
 }
 
 @freezed
-class AuthenticatedRPCRequestScaffold
-    with _$AuthenticatedRPCRequestScaffold, AuthenticationDetails {
+class AuthenticatedRPCRequestScaffold with _$AuthenticatedRPCRequestScaffold {
+  @With<AuthenticationDetails>()
   const factory AuthenticatedRPCRequestScaffold(
     Uri serverUrl,
     String user,
     String appSharedSecret,
   ) = _AuthenticatedRPCRequestScaffold;
+
+  const AuthenticatedRPCRequestScaffold._();
+
+  Map<String, dynamic> getAuthParamsJson() {
+    return {
+      'auth': {
+        'user': user,
+        'otp': OTP.generateTOTPCode(
+          appSharedSecret.trim(),
+          DateTime.now().millisecondsSinceEpoch,
+          algorithm: Algorithm.SHA1,
+          isGoogle: true,
+        ),
+        'clientTime': DateTime.now().millisecondsSinceEpoch,
+      }
+    };
+  }
 }
 
 @freezed
 class AuthenticatedDataRPCRequestScaffold<T>
-    with _$AuthenticatedDataRPCRequestScaffold, AuthenticationDetails
-    implements DataField<T> {
+    with _$AuthenticatedDataRPCRequestScaffold {
+  @Implements.fromString("DataField<T>")
+  @With<AuthenticationDetails>()
   const factory AuthenticatedDataRPCRequestScaffold(
     Uri serverUrl,
     String user,
     String appSharedSecret,
-    @protected T _data,
+    T data,
   ) = _AuthenticatedDataRPCRequestScaffold<T>;
 
   const AuthenticatedDataRPCRequestScaffold._();
 
-  @override
-  T get data => _data;
+  Map<String, dynamic> getAuthParamsJson() {
+    return {
+      'auth': {
+        'user': user,
+        'otp': OTP.generateTOTPCode(
+          appSharedSecret.trim(),
+          DateTime.now().millisecondsSinceEpoch,
+          algorithm: Algorithm.SHA1,
+          isGoogle: true,
+        ),
+        'clientTime': DateTime.now().millisecondsSinceEpoch,
+      }
+    };
+  }
 }
 
 int _id = 0;

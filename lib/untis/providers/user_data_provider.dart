@@ -7,12 +7,14 @@ final userDataProvider =
         (ref, requestScaffold) async {
   var response = await rpcRequest(
     method: 'getUserData2017',
-    params: {
-      'elementId': 0,
-      'deviceOs': 'AND',
-      'deviceOsVersion': '',
-      ...requestScaffold.getAuthParamsJson()
-    },
+    params: [
+      {
+        'elementId': 0,
+        'deviceOs': 'AND',
+        'deviceOsVersion': '',
+        ...requestScaffold.getAuthParamsJson()
+      }
+    ],
     serverUrl: requestScaffold.serverUrl,
   );
   return response.map(

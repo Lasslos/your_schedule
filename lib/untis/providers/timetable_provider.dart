@@ -22,16 +22,18 @@ final timeTableProvider = FutureProvider.family<
 
   var response = await rpcRequest(
     method: 'getTimetable2017',
-    params: {
-      'id': userData.id,
-      'type': userData.type,
-      'startDate': DateFormat('yyyy-MM-dd').format(week.startDate),
-      'endDate': DateFormat('yyyy-MM-dd').format(week.endDate),
-      'masterDataTimestamp': userData.timeStamp,
-      'timetableTimestamp': 0,
-      'timetableTimestamps': [],
-      ...requestScaffold.getAuthParamsJson()
-    },
+    params: [
+      {
+        'id': userData.id,
+        'type': userData.type,
+        'startDate': DateFormat('yyyy-MM-dd').format(week.startDate),
+        'endDate': DateFormat('yyyy-MM-dd').format(week.endDate),
+        'masterDataTimestamp': userData.timeStamp,
+        'timetableTimestamp': 0,
+        'timetableTimestamps': [],
+        ...requestScaffold.getAuthParamsJson()
+      }
+    ],
     serverUrl: requestScaffold.serverUrl,
   );
 

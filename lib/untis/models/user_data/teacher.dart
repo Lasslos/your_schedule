@@ -9,7 +9,7 @@ class Teacher with _$Teacher {
   const factory Teacher(
     @JsonKey(name: "name") String shortName,
     String firstName,
-    String longName,
+    String lastName,
     bool active,
   ) = _Teacher;
 

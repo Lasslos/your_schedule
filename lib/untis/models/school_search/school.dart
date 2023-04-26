@@ -12,7 +12,7 @@ class School with _$School {
     String displayName,
     String loginName,
     int schoolId,
-    String serverUrl,
+    @JsonKey(name: 'serverUrl') String apiBaseUrl,
   ) = _School;
 
   factory School.fromJson(Map<String, dynamic> json) => _$SchoolFromJson(json);

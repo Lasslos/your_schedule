@@ -7,7 +7,7 @@ part 'app_shared_secret_params.g.dart';
 @freezed
 class AppSharedSecretParams with _$AppSharedSecretParams {
   const factory AppSharedSecretParams({
-    required String userName,
+    @JsonKey(name: "userName") required String username,
     required String password,
   }) = _AppSharedSecretParams;
 

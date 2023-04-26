@@ -384,6 +384,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.0"
+  hotp:
+    dependency: transitive
+    description:
+      name: hotp
+      sha256: "20bea17b3a2b4b9de741e369abafd0d387bf0aadbff2e9f69e8824cdbdce644a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   html:
     dependency: transitive
     description:
@@ -877,6 +885,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  totp:
+    dependency: "direct main"
+    description:
+      name: totp
+      sha256: c0aa0933e2d8d33e7595110c9039502e591a211afec43412b2ca969e8a8ee23f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.1"
   typed_data:
     dependency: transitive
     description:
