@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/api/models/profile_data.dart';
-import 'package:your_schedule/core/api/providers/user_session_provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
+import 'package:your_schedule/untis/models/user_data/user_data.dart';
+import 'package:your_schedule/untis/providers/app_shared_secret_provider.dart';
+import 'package:your_schedule/untis/providers/user_data_provider.dart';
+import 'package:your_schedule/user_profiles/user_profile.dart';
+import 'package:your_schedule/user_profiles/user_profiles_provider.dart';
+import 'package:your_schedule/util/logger.dart';
 
 class MyDrawer extends ConsumerWidget {
   const MyDrawer({
@@ -14,30 +19,68 @@ class MyDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    Widget avatar = getProfileAvatar(context, ref);
-    String username =
-        ref.watch(userSessionProvider.select((value) => value.username));
-    String school =
-        ref.watch(userSessionProvider.select((value) => value.school));
-    ProfileData? profileData =
-        ref.watch(userSessionProvider.select((value) => value.profileData));
+    UserProfile userProfile = ref.watch(
+        userProfilesProvider.select((value) => value.selectedUserProfile));
+    var appSharedSecret = ref.watch(
+      appSharedSecretProvider(
+        userProfile.appSharedSecretParams,
+      ),
+    );
+    if (appSharedSecret.hasError) {
+      Sentry.captureException(
+        appSharedSecret.error,
+        stackTrace: appSharedSecret.stackTrace,
+      );
+      getLogger().e(appSharedSecret.error, appSharedSecret.stackTrace);
+      return const Drawer(
+        child: Center(
+          child: Text("Fehler beim Laden des AppSharedSecrets"),
+        ),
+      );
+    }
+    if (appSharedSecret.isLoading) {
+      return const Drawer(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
 
-    if (profileData != null && profileData.displayName.isNotEmpty) {
-      username = profileData.displayName;
+    var userData = ref.watch(
+      userDataProvider(
+        userProfile.getAuthenticatedRPCRequestScaffold(
+          appSharedSecret.requireValue,
+        ),
+      ),
+    );
+
+    if (userData.hasError) {
+      Sentry.captureException(
+        userData.error,
+        stackTrace: userData.stackTrace,
+      );
+      getLogger().e(userData.error, userData.stackTrace);
+      return const Drawer(
+        child: Center(
+          child: Text("Fehler beim Laden der Benutzerdaten"),
+        ),
+      );
     }
-    if (profileData != null &&
-        profileData.schoolLongName != null &&
-        profileData.schoolLongName!.isNotEmpty) {
-      school = profileData.schoolLongName!;
+    if (userData.isLoading) {
+      return const Drawer(
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
+    UserData userDataValue = userData.requireValue;
 
     return Drawer(
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(username),
-            accountEmail: Text(school),
-            currentAccountPicture: avatar,
+            accountName: Text(userDataValue.displayName),
+            accountEmail: Text(userProfile.username),
             decoration: BoxDecoration(
               color: Colors.lightBlue[500],
             ),
@@ -79,7 +122,7 @@ class MyDrawer extends ConsumerWidget {
               style: TextStyle(color: theme.colorScheme.error),
             ),
             onTap: () {
-              ref.read(userSessionProvider.notifier).logout();
+              ref.read(userProfilesProvider.notifier).remove(userProfile);
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,

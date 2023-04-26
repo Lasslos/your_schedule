@@ -1,0 +1,73 @@
+URL: https://herakles.webuntis.com/WebUntis/jsonrpc_intern.do?school=cjd-k%C3%B6nigswinter
+Method: POST
+content-type: application/json; charset=utf-8
+
+Request Body:
+{
+  "id": "-1",
+  "jsonrpc": "2.0",
+  "method": "getExams2017",
+  "params": [
+    {
+      "id": 764,
+      "type": "CLASS",
+      "startDate": "2023-04-26",
+      "endDate": "2023-05-03",
+      "auth": {
+        "clientTime": 1682527921443,
+        "otp": 159924,
+        "user": "Q1"
+      }
+    }
+  ]
+}
+
+Response Body:
+{
+  "jsonrpc": "2.0",
+  "id": "untis-mobile-android-5.9.3",
+  "result": {
+    "type": "CLASS",
+    "id": 764,
+    "exams": [
+      {
+        "id": 7195,
+        "examType": null,
+        "startDateTime": "2023-04-26T09:10Z",
+        "endDateTime": "2023-04-26T12:45Z",
+        "departmentId": 0,
+        "subjectId": 1271,
+        "klasseIds": [
+          764
+        ],
+        "roomIds": [
+          321,
+          321,
+          321
+        ],
+        "teacherIds": [
+          566
+        ],
+        "invigilators": [
+          {
+            "id": 566,
+            "startTime": "T09:10",
+            "endTime": "T10:10"
+          },
+          {
+            "id": 331,
+            "startTime": "T10:20",
+            "endTime": "T11:20"
+          },
+          {
+            "id": 471,
+            "startTime": "T11:45",
+            "endTime": "T12:45"
+          }
+        ],
+        "name": "SW L1/4966",
+        "text": ""
+      },
+    ]
+  }
+}

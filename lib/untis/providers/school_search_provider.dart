@@ -5,7 +5,7 @@ import 'package:your_schedule/untis/rpc_request/rpc_request.dart';
 final schoolSearchProvider =
     FutureProvider.autoDispose.family<List<School>, String>((ref, query) async {
   final response = await rpcRequest(
-    serverUrl: Uri.parse("https://mobile.webuntis.com/ms/schoolquery2/"),
+    serverUrl: Uri.parse("https://schoolsearch.webuntis.com/ms/schoolquery2/"),
     method: "searchSchool",
     params: [
       {

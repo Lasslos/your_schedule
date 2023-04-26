@@ -1,4 +1,4 @@
-URL: https://mobile.webuntis.com/ms/schoolquery2/?v=a5.2.3
+URL: https://schoolsearch.webuntis.com/ms/schoolquery2/
 Method: Post
 content-type: application/json; charset=utf-8
 
@@ -14,6 +14,7 @@ Request Body:
   ]
 }
 
+Response Body:
 {
   "result": {
     "size": 0,

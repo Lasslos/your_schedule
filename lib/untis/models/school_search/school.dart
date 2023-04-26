@@ -15,5 +15,7 @@ class School with _$School {
     @JsonKey(name: 'serverUrl') String apiBaseUrl,
   ) = _School;
 
+  const School._();
+
   factory School.fromJson(Map<String, dynamic> json) => _$SchoolFromJson(json);
 }
