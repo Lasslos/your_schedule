@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:your_schedule/untis/rpc_request/rpc_error.dart';
+import 'package:your_schedule/core/rpc_request/rpc_error.dart';
 
 part 'rpc_response.freezed.dart';
 

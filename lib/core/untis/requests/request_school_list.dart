@@ -1,9 +1,7 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/untis/models/school_search/school.dart';
-import 'package:your_schedule/untis/rpc_request/rpc_request.dart';
+import 'package:your_schedule/core/rpc_request/rpc_request.dart';
+import 'package:your_schedule/core/untis/models/school_search/school.dart';
 
-final schoolSearchProvider =
-    FutureProvider.autoDispose.family<List<School>, String>((ref, query) async {
+Future<List<School>> requestSchoolList(String query) async {
   final response = await rpcRequest(
     serverUrl: Uri.parse("https://schoolsearch.webuntis.com/ms/schoolquery2/"),
     method: "searchSchool",
@@ -24,4 +22,4 @@ final schoolSearchProvider =
       throw Exception(error.error);
     },
   );
-});
+}

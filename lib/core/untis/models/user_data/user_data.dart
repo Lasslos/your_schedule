@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:your_schedule/untis/models/user_data/holiday.dart';
-import 'package:your_schedule/untis/models/user_data/klasse.dart';
-import 'package:your_schedule/untis/models/user_data/room.dart';
-import 'package:your_schedule/untis/models/user_data/subject.dart';
-import 'package:your_schedule/untis/models/user_data/teacher.dart';
-import 'package:your_schedule/untis/models/user_data/time_grid_entry.dart';
+import 'package:your_schedule/core/untis/models/user_data/holiday.dart';
+import 'package:your_schedule/core/untis/models/user_data/klasse.dart';
+import 'package:your_schedule/core/untis/models/user_data/room.dart';
+import 'package:your_schedule/core/untis/models/user_data/subject.dart';
+import 'package:your_schedule/core/untis/models/user_data/teacher.dart';
+import 'package:your_schedule/core/untis/models/user_data/time_grid_entry.dart';
 
 part 'user_data.freezed.dart';
 

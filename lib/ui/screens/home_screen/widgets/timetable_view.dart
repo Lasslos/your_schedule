@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
 import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
-import 'package:your_schedule/core/api/providers/timetable_request_provider.dart';
+import 'package:your_schedule/core/api/providers/request_timetable.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/day_view.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_schedule_widget.dart';
