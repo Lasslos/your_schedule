@@ -5,8 +5,8 @@ import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
 import 'package:your_schedule/untis/models/user_data/user_data.dart';
-import 'package:your_schedule/untis/providers/app_shared_secret_provider.dart';
-import 'package:your_schedule/untis/providers/user_data_provider.dart';
+import 'package:your_schedule/untis/providers/app_shared_secret_request_provider.dart';
+import 'package:your_schedule/untis/providers/user_data_reqeuest_provider.dart';
 import 'package:your_schedule/user_profiles/user_profile.dart';
 import 'package:your_schedule/user_profiles/user_profiles_provider.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -19,38 +19,11 @@ class MyDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    UserProfile userProfile = ref.watch(
-        userProfilesProvider.select((value) => value.selectedUserProfile));
-    var appSharedSecret = ref.watch(
-      appSharedSecretProvider(
-        userProfile.appSharedSecretParams,
-      ),
-    );
-    if (appSharedSecret.hasError) {
-      Sentry.captureException(
-        appSharedSecret.error,
-        stackTrace: appSharedSecret.stackTrace,
-      );
-      getLogger().e(appSharedSecret.error, appSharedSecret.stackTrace);
-      return const Drawer(
-        child: Center(
-          child: Text("Fehler beim Laden des AppSharedSecrets"),
-        ),
-      );
-    }
-    if (appSharedSecret.isLoading) {
-      return const Drawer(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+    UserProfile userProfile = ref.watch(userProfilesProvider.select((value) => value.selectedUserProfile));
 
     var userData = ref.watch(
       userDataProvider(
-        userProfile.getAuthenticatedRPCRequestScaffold(
-          appSharedSecret.requireValue,
-        ),
+        userProfile.getAuthenticatedRPCRequestScaffold(ref),
       ),
     );
 

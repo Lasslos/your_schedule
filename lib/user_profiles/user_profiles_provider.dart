@@ -1,5 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:your_schedule/user_profiles/user_profile.dart';
+import 'package:flutter/foundation.dart';
+
+part 'user_profiles_provider.freezed.dart';
+
+@freezed
+class Session with _$Session {
+  const factory Session(
+    UserProfile profile,
+    String appSharedSecret,
+    bool hasValidAppSharedSecret,
+  ) = _Session;
+}
 
 class UserProfilesNotifier extends StateNotifier<List<UserProfile>> {
   UserProfilesNotifier() : super([]);

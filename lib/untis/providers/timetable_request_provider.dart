@@ -1,17 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:your_schedule/untis/models/timetable/timetable_period.dart';
-import 'package:your_schedule/untis/providers/user_data_provider.dart';
+import 'package:your_schedule/untis/providers/user_data_reqeuest_provider.dart';
 import 'package:your_schedule/untis/rpc_request/rpc_request.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
 
-final timeTableProvider = FutureProvider.family<
-    Map<DateTime, List<TimeTablePeriod>>,
+final timeTableRequestProvider = FutureProvider.autoDispose.family<Map<DateTime, List<TimeTablePeriod>>,
     AuthenticatedDataRPCRequestScaffold<Week>>((ref, requestScaffold) async {
   Week week = requestScaffold.data;
   var userData = await ref.watch(
-    userDataProvider(
+    userDataRequestProvider(
       AuthenticatedRPCRequestScaffold(
         requestScaffold.serverUrl,
         requestScaffold.user,

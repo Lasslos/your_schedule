@@ -2,8 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/untis/models/user_data/user_data.dart';
 import 'package:your_schedule/untis/rpc_request/rpc_request.dart';
 
-final userDataProvider =
-    FutureProvider.family<UserData, AuthenticatedRPCRequestScaffold>(
+final userDataRequestProvider = FutureProvider.autoDispose.family<UserData, AuthenticatedRPCRequestScaffold>(
         (ref, requestScaffold) async {
   var response = await rpcRequest(
     method: 'getUserData2017',

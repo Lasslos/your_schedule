@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/core/api/models/timetable_period_information_elements.dart';
-import 'package:your_schedule/core/api/providers/timetable_provider.dart';
 import 'package:your_schedule/filter/filter.dart';
 
 class FilterScreen extends ConsumerStatefulWidget {
@@ -18,7 +15,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   bool showSearch = false;
   String searchQuery = "";
 
-  late List<TimeTablePeriod> periods;
+  late List<int> periods;
 
   @override
   void initState() {
