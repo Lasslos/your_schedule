@@ -1,6 +1,13 @@
+import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/filter/filter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/session/filters.dart';
+import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/core/session/timetable.dart';
+import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/util/week.dart';
 
 class FilterScreen extends ConsumerStatefulWidget {
   const FilterScreen({Key? key}) : super(key: key);
@@ -22,14 +29,14 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     super.initState();
     searchFocusNode = FocusNode();
     searchController = TextEditingController();
-    periods = ref.read(allSubjectsProvider);
+    periods = ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
     _sortPeriods();
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen(
-      allSubjectsProvider,
+      selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()),
       (previous, next) {
         setState(() {
           periods = next;
@@ -39,41 +46,65 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       },
     );
 
-    if (periods.isEmpty &&
-        ref.watch(allSubjectsProvider.select((value) => value.isEmpty))) {
+    var timeTableAsync = ref.watch(timeTableProvider(Week.now()));
+
+    if (ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects)).isEmpty
+        || timeTableAsync.isLoading) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
+    if (timeTableAsync.hasError) {
+      Sentry.captureException(timeTableAsync.error, stackTrace: timeTableAsync.stackTrace);
+      getLogger().e(timeTableAsync.error, timeTableAsync.stackTrace);
+      return const Scaffold(
+        body: Center(
+          child: Text('Fehler beim Laden des Stundenplans'),
+        ),
+      );
+    }
 
-    final filters = ref.watch(filterItemsProvider);
+    var timeTable = timeTableAsync.requireValue.values.fold(<TimeTablePeriod>[], (previousValue, element) => previousValue..addAll(element));
+
+    var filters = ref.watch(filtersProvider);
+
+    var subjects = ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects));
+    var teachers = ref.watch(selectedSessionProvider.select((value) => value.userData!.teachers));
+    var rooms = ref.watch(selectedSessionProvider.select((value) => value.userData!.rooms));
 
     final gridChildren = periods
-        .map<Widget>(
-          (e) => Padding(
+      .map<Widget>(
+        (e) {
+          TimeTablePeriod? examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+          Subject? subject = subjects[e];
+          Teacher? teacher = teachers[examplePeriod?.teacher?.id];
+          Room? room = rooms[examplePeriod?.room?.id];
+
+          return Padding(
             key: ValueKey(e),
             padding: const EdgeInsets.all(4.0),
             child: Selectable(
-              selected: !filters.contains(e.subject),
+              selected: !filters.contains(e),
               onChanged: (bool value) {
                 if (value) {
-                  ref.read(filterItemsProvider.notifier).removeItem(e.subject);
-              } else {
-                ref.read(filterItemsProvider.notifier).addItem(e.subject);
-              }
-            },
-            child: Center(
-              child: FilterGridTile(
-                subject: e.subject,
-                teacher: e.teacher,
-                room: e.room,
+                  ref.read(filtersProvider.notifier).remove(e);
+                } else {
+                  ref.read(filtersProvider.notifier).remove(e);
+                }
+              },
+              child: Center(
+                child: FilterGridTile(
+                  subject: subject?.name ?? 'Fach $e',
+                  teacher: teacher?.shortName ?? 'Lehrer $e',
+                  room: room?.name ?? 'Raum $e',
+                ),
               ),
             ),
-          ),
-        ),
-      ).toList();
+          );
+        },
+    ).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -120,7 +151,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                       onChanged: (value) {
                         setState(() {
                           if (!value.startsWith(searchQuery)) {
-                            periods = ref.read(allSubjectsProvider);
+                            periods = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()));
                             searchQuery = value;
                             _filterPeriods();
                             _sortPeriods();
@@ -146,7 +177,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                             setState(() {
                               searchController.clear();
                               searchQuery = "";
-                              periods = ref.read(allSubjectsProvider);
+                              periods = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()));
                               _filterPeriods();
                               _sortPeriods();
                             });
@@ -178,41 +209,51 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   }
 
   void _sortPeriods() {
-    final filters = ref.read(filterItemsProvider);
+    final filters = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()));
 
     periods.sort((a, b) {
-      if (filters.contains(a.subject) && !filters.contains(b.subject)) {
+      if (filters.contains(a) && !filters.contains(b)) {
         return 1;
-      } else if (!filters.contains(a.subject) && filters.contains(b.subject)) {
+      } else if (!filters.contains(a) && filters.contains(b)) {
         return -1;
       } else {
-        return a.subject.name.compareTo(b.subject.name);
+        final subjects = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects));
+        return subjects[a]?.name.compareTo(subjects[b]?.name ?? '') ?? 0;
       }
     });
   }
 
   void _filterPeriods() {
+    var timeTableAsync = ref.watch(timeTableProvider(Week.now()));
+    var timeTable = timeTableAsync.requireValue.values.fold(<TimeTablePeriod>[], (previousValue, element) => previousValue..addAll(element));
+    var subjects = ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects));
+    var teachers = ref.watch(selectedSessionProvider.select((value) => value.userData!.teachers));
+    var rooms = ref.watch(selectedSessionProvider.select((value) => value.userData!.rooms));
+
     periods = periods
         .where(
-          (element) =>
-              element.subject.name
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()) ||
-              element.subject.longName
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()) ||
-              element.teacher.name
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()) ||
-              element.teacher.longName
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()) ||
-              element.room.name
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()) ||
-              element.room.longName
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase()),
+          (e) {
+            var examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+            var subject = subjects[e];
+            var teacher = teachers[examplePeriod?.teacher?.id];
+            var room = rooms[examplePeriod?.room?.id];
+
+            var result = false;
+            if (subject != null) {
+              result = subject.name.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+              result = subject.longName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+            }
+            if (teacher != null) {
+              result = teacher.firstName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+              result = teacher.lastName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+              result = teacher.shortName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+            }
+            if (room != null) {
+              result = room.name.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+              result = room.longName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
+            }
+            return result;
+          }
         )
         .toList();
   }
@@ -303,9 +344,9 @@ class FilterGridTile extends StatelessWidget {
     super.key,
   });
 
-  final TimeTablePeriodSubjectInformation subject;
-  final TimeTablePeriodTeacherInformation teacher;
-  final TimeTablePeriodRoomInformation room;
+  final String subject;
+  final String teacher;
+  final String room;
 
   @override
   Widget build(BuildContext context) {
@@ -319,19 +360,19 @@ class FilterGridTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(
-                subject.name,
+                subject,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.fade,
                 maxLines: 1,
               ),
               Text(
-                teacher.name,
+                teacher,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.fade,
                 maxLines: 1,
               ),
               Text(
-                room.name,
+                room,
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.fade,
                 maxLines: 1,

@@ -36,8 +36,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await secureStorage.read(key: passwordKey) ?? "";
     schoolFieldController.text =
         await secureStorage.read(key: schoolKey) ?? "cjd-königswinter";
-    domainFieldController.text = await secureStorage.read(key: apiBaseURlKey) ??
-        "https://herakles.webuntis.com";
   }
 
   @override

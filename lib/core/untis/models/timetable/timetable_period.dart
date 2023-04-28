@@ -1,3 +1,4 @@
+import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:your_schedule/core/untis/models/timetable/internal_period_text.dart';
@@ -30,16 +31,21 @@ class TimeTablePeriod with _$TimeTablePeriod {
 
   String get infoText => internalPeriodText.info;
 
-  Clazz get clazz =>
-      elements.firstWhere((element) => element is Clazz) as Clazz;
+  ClazzId? get clazz => elements.firstWhereOrNull(
+    (element) => element is ClazzId,
+  ) as ClazzId?;
 
-  Teacher get teacher =>
-      elements.firstWhere((element) => element is Teacher) as Teacher;
+  TeacherId? get teacher => elements.firstWhereOrNull(
+    (element) => element is TeacherId,
+  ) as TeacherId?;
 
-  Subject get subject =>
-      elements.firstWhere((element) => element is Subject) as Subject;
+  SubjectId? get subject => elements.firstWhereOrNull(
+    (element) => element is SubjectId,
+  ) as SubjectId?;
 
-  Room get room => elements.firstWhere((element) => element is Room) as Room;
+  RoomId? get room => elements.firstWhereOrNull(
+    (element) => element is RoomId,
+  ) as RoomId?;
 
   factory TimeTablePeriod.fromJson(Map<String, dynamic> json) =>
       _$TimeTablePeriodFromJson(json);

@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
-import 'package:your_schedule/untis/models/user_data/user_data.dart';
-import 'package:your_schedule/untis/providers/request_app_shared_secret.dart';
-import 'package:your_schedule/untis/providers/request_user_data.dart';
-import 'package:your_schedule/user_profiles/user_profile.dart';
-import 'package:your_schedule/user_profiles/user_profiles_provider.dart';
-import 'package:your_schedule/util/logger.dart';
 
 class MyDrawer extends ConsumerWidget {
   const MyDrawer({
@@ -19,41 +13,15 @@ class MyDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    UserProfile userProfile = ref.watch(userProfilesProvider.select((value) => value.selectedUserProfile));
-
-    var userData = ref.watch(
-      userDataProvider(
-        userProfile.getAuthenticatedRPCRequestScaffold(ref),
-      ),
-    );
-
-    if (userData.hasError) {
-      Sentry.captureException(
-        userData.error,
-        stackTrace: userData.stackTrace,
-      );
-      getLogger().e(userData.error, userData.stackTrace);
-      return const Drawer(
-        child: Center(
-          child: Text("Fehler beim Laden der Benutzerdaten"),
-        ),
-      );
-    }
-    if (userData.isLoading) {
-      return const Drawer(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    UserData userDataValue = userData.requireValue;
+    final session = ref.watch(selectedSessionProvider);
+    final userData = session.userData!;
 
     return Drawer(
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(userDataValue.displayName),
-            accountEmail: Text(userProfile.username),
+            accountName: Text(userData.displayName),
+            accountEmail: Text(session.username),
             decoration: BoxDecoration(
               color: Colors.lightBlue[500],
             ),
@@ -95,7 +63,7 @@ class MyDrawer extends ConsumerWidget {
               style: TextStyle(color: theme.colorScheme.error),
             ),
             onTap: () {
-              ref.read(userProfilesProvider.notifier).remove(userProfile);
+              ref.read(sessionsProvider.notifier).removeSession(session);
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,

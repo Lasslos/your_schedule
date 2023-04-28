@@ -5,8 +5,12 @@ import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
 
-Future<Map<DateTime, List<Exam>>> requestExams(String apiBaseUrl,
-    UserData userData, AuthParams authParams, Week week) async {
+Future<Map<DateTime, List<Exam>>> requestExams(
+  String apiBaseUrl,
+  UserData userData,
+  AuthParams authParams,
+  Week week,
+) async {
   var response = await rpcRequest(
     method: 'getExams2017',
     params: [

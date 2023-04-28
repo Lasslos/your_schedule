@@ -1,8 +1,11 @@
+//ignore_for_file: use_build_context_synchronously
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:your_schedule/filter/filter.dart';
-import 'package:your_schedule/settings/custom_subject_color/custom_subject_color_provider.dart';
+import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
+import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({
@@ -14,7 +17,7 @@ class LoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
-  String _message = "Logging in";
+  String _message = "Loading session";
   bool _showTryAgain = false;
 
   @override
@@ -27,11 +30,36 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
   //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
-    //Initialisierung der Provider
-    ref.read(filterItemsProvider.notifier).initialize();
-    ref.read(customSubjectColorProvider.notifier).initialize();
+    await ref.read(sessionsProvider.notifier).initializeFromSharedPrefs();
+    var sessions = ref.read(sessionsProvider);
 
-    //TODO
+    if (sessions.isEmpty) {
+      setState(() {
+        _message = "No sessions found";
+      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return const LoginScreen(message: '');
+          },
+        ),
+      );
+      return;
+    }
+
+    var connectivity = await Connectivity().checkConnectivity();
+    if (connectivity != ConnectivityResult.none) {
+      activateSession(ref, sessions.first);
+    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return const HomeScreen();
+        },
+      ),
+    );
   }
 
   @override

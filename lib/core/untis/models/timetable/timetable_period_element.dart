@@ -11,25 +11,25 @@ class TimeTablePeriodElement with _$TimeTablePeriodElement {
   const factory TimeTablePeriodElement.clazz(
     int id,
     int orgId,
-  ) = Clazz;
+  ) = ClazzId;
 
   @FreezedUnionValue('TEACHER')
   const factory TimeTablePeriodElement.teacher(
     int id,
     int orgId,
-  ) = Teacher;
+  ) = TeacherId;
 
   @FreezedUnionValue('SUBJECT')
   const factory TimeTablePeriodElement.subject(
     int id,
     int orgId,
-  ) = Subject;
+  ) = SubjectId;
 
   @FreezedUnionValue('ROOM')
   const factory TimeTablePeriodElement.room(
     int id,
     int orgId,
-  ) = Room;
+  ) = RoomId;
 
   factory TimeTablePeriodElement.fromJson(Map<String, dynamic> json) =>
       _$TimeTablePeriodElementFromJson(json);

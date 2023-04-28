@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/settings/custom_subject_color/custom_subject_color_provider.dart';
+import 'package:your_schedule/core/session/custom_subject_colors.dart';
 import 'package:your_schedule/settings/theme/theme_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -101,8 +101,8 @@ class SettingsScreen extends ConsumerWidget {
                         onPressed: () {
                           Navigator.of(context).pop();
                           ref
-                              .read(customSubjectColorProvider.notifier)
-                              .resetColors();
+                              .read(customSubjectColorsProvider.notifier)
+                              .reset();
                         },
                         child: const Text("Zurücksetzen"),
                       ),

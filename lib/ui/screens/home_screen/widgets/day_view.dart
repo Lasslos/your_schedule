@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/providers/request_timetable.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';

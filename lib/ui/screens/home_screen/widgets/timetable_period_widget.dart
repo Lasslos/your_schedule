@@ -3,7 +3,7 @@ import 'package:flutter_material_color_picker/flutter_material_color_picker.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/filter/filter.dart';
+import 'package:your_schedule/filter/filters.dart';
 import 'package:your_schedule/settings/custom_subject_color/custom_subject_color_provider.dart';
 
 class TimeTablePeriodWidget extends ConsumerWidget {
