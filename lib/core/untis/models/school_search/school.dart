@@ -12,10 +12,13 @@ class School with _$School {
     String displayName,
     String loginName,
     int schoolId,
-    @JsonKey(name: 'serverUrl') String apiBaseUrl,
+    String serverUrl,
   ) = _School;
 
   const School._();
+
+  String get rpcUrl =>
+      "https://$server/WebUntis/jsonrpc_intern.do?school=$loginName";
 
   factory School.fromJson(Map<String, dynamic> json) => _$SchoolFromJson(json);
 }

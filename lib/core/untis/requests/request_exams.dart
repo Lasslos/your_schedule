@@ -44,7 +44,7 @@ Future<Map<DateTime, List<Exam>>> requestExams(
       return examMap;
     },
     error: (error) {
-      throw Exception(error.error);
+      throw error.error;
     },
   );
 }

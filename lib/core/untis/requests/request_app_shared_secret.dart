@@ -18,7 +18,7 @@ Future<String> requestAppSharedSecret(
       return result.result;
     },
     error: (error) {
-      throw Exception(error.error);
+      throw error.error;
     },
   );
 }

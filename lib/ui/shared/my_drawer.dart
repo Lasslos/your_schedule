@@ -68,7 +68,7 @@ class MyDrawer extends ConsumerWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginScreen(message: ""),
+                  builder: (context) => const LoginScreen(),
                 ),
               );
             },

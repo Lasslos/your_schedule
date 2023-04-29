@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/api/models/helpers/timetable_week.dart';
-import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/core/api/providers/request_timetable.dart';
+import 'package:your_schedule/core/session/filters.dart';
+import 'package:your_schedule/core/session/timetable.dart';
+import 'package:your_schedule/core/untis/untis_api.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/util/week.dart';
 
 class WeekView extends ConsumerStatefulWidget {
   const WeekView({
@@ -118,28 +120,36 @@ class _Page extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DateTime currentDate = DateTime.now().add(Duration(days: index * 7)).normalized();
+    DateTime currentDate =
+        DateTime.now().add(Duration(days: index * 7)).normalized();
     Week currentWeek = Week.fromDateTime(currentDate);
     List<List<TimeTablePeriod>?> days = [];
     String? error;
 
+    var timeTableAsync =
+        ref.watch(timeTableProvider(Week.fromDateTime(currentDate)));
+    var filters = ref.watch(filtersProvider);
+
+    if (timeTableAsync.hasError) {
+      Sentry.captureException(timeTableAsync.error,
+          stackTrace: timeTableAsync.stackTrace);
+      return Text(timeTableAsync.error.toString());
+    } else if (timeTableAsync.isLoading) {
+      return const CircularProgressIndicator();
+    }
+
+    var timeTable = timeTableAsync.requireValue;
+
     for (var i = 0; i < 5; i++) {
       days.add(
-        ref
-            .watch(
-              filteredTimeTablePeriodsProvider(
-                currentWeek.startDate.add(Duration(days: i)),
-              ),
-            )
-            .when(
-              data: (data) => data,
-              loading: () => [],
-              error: (error, stack) {
-                Sentry.captureException(error, stackTrace: stack);
-                error = error.toString();
-                return [];
-              },
-            ),
+        timeTable[currentWeek.startDate.add(Duration(days: i))]!.where(
+          (element) {
+            if (element.subject == null) {
+              return true;
+            }
+            return filters.contains(element.subject!.id);
+          },
+        ).toList(),
       );
     }
 

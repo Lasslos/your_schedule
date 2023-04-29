@@ -23,7 +23,7 @@ class TimeTableNotifier extends StateNotifier<AsyncValue<TimeTableWeek>> {
       active: (activeSession) async {
         state = AsyncData(
           await requestTimeTable(
-            _session.school.apiBaseUrl,
+            _session.school.rpcUrl,
             activeSession.userData,
             AuthParams(
               user: _session.username,

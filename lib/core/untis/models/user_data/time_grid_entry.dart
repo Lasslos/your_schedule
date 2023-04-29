@@ -13,6 +13,13 @@ class TimeGridEntry with _$TimeGridEntry {
     @TimeOfDaySerializer() TimeOfDay endTime,
   ) = _TimeGridEntry;
 
+  const TimeGridEntry._();
+
   factory TimeGridEntry.fromJson(Map<String, dynamic> json) =>
       _$TimeGridEntryFromJson(json);
+
+  Duration get length => Duration(
+        minutes: (endTime.hour * 60 + endTime.minute) -
+            (startTime.hour * 60 + startTime.minute),
+      );
 }

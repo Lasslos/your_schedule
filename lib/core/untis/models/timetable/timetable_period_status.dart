@@ -4,7 +4,12 @@ part 'timetable_period_status.g.dart';
 
 @JsonEnum(alwaysCreate: true, fieldRename: FieldRename.screamingSnake)
 enum TimeTablePeriodStatus {
-  regular,
-  cancelled,
-  exam;
+  regular('Regulär'),
+  irregular('Veranstaltung o. Vertretung'),
+  cancelled('Entfall'),
+  exam('Klausur');
+
+  final String displayName;
+
+  const TimeTablePeriodStatus(this.displayName);
 }

@@ -27,11 +27,12 @@ class FiltersNotifier extends StateNotifier<Set<int>> {
     await prefs.setString('$_userId.filters', jsonEncode(state.toList()));
   }
 
-  Future<void> initialize() async {
+  Future<void> initializeFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final filters = prefs.getString('$_userId.filters');
     if (filters != null) {
-      state = Set.unmodifiable(jsonDecode(filters) as List<int>);
+      state = Set.unmodifiable(
+          (jsonDecode(filters) as List<dynamic>).map((e) => e as int).toSet());
     }
   }
 }

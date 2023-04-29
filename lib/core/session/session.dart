@@ -27,8 +27,6 @@ class Session with _$Session {
     @Default(null) UserData? userData,
   }) = _InactiveSession;
 
-  Session._();
-
   factory Session.fromJson(Map<String, dynamic> json) =>
       _$SessionFromJson(json);
 }
@@ -93,12 +91,12 @@ Future<Session> activateSession(WidgetRef ref, Session session) async {
   }
 
   var appSharedSecret = await requestAppSharedSecret(
-    session.school.apiBaseUrl,
+    session.school.rpcUrl,
     session.username,
     session.password,
   );
   var userData = await requestUserData(
-    session.school.apiBaseUrl,
+    session.school.rpcUrl,
     AuthParams(
       user: session.username,
       appSharedSecret: appSharedSecret,

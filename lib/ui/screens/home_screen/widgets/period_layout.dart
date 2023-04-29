@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/api/models/period_schedule.dart';
-import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
+import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/core/untis/untis_api.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_widget.dart';
 
 /// Ein Widget, das die Stunden in einer Tagesansicht anzeigt.
@@ -34,14 +32,14 @@ Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
   DateTime? lastEndTime;
 
   periods.sort(
-    (a, b) => !a.start.isAtSameMomentAs(b.start)
-        ? a.start.compareTo(b.start)
-        : a.end.compareTo(b.end),
+    (a, b) => !a.startTime.isAtSameMomentAs(b.startTime)
+        ? a.startTime.compareTo(b.startTime)
+        : a.endTime.compareTo(b.endTime),
   );
 
   // Wir gehen jede Stunde in der Reihenfolge ihrer Startzeit durch.
   for (TimeTablePeriod period in periods) {
-    if (lastEndTime != null && period.start.isAfter(lastEndTime)) {
+    if (lastEndTime != null && period.startTime.isAfter(lastEndTime)) {
       // In diesem Fall sind alle folgenden Stunden nach der letzten Endzeit und sind daher unabhängig.
       // Wir geben das Raster zurück und beginnen ein neues.
       yield grid;
@@ -63,8 +61,8 @@ Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
       /// Wenn wir keine freie Spalte gefunden haben, fügen wir eine neue Spalte hinzu.
       grid.add([period]);
     }
-    if (lastEndTime == null || period.end.isAfter(lastEndTime)) {
-      lastEndTime = period.end;
+    if (lastEndTime == null || period.endTime.isAfter(lastEndTime)) {
+      lastEndTime = period.endTime;
     }
   }
   if (grid.isNotEmpty) {
@@ -87,23 +85,10 @@ class PeriodLayout extends ConsumerWidget {
     late TimeOfDay startOfDay;
     late TimeOfDay endOfDay;
 
-    ref.watch(periodScheduleProvider).when(
-      data: (state) {
-        startOfDay = state.entries.first.startTime;
-        endOfDay = state.entries.last.endTime;
-      },
-      loading: () {
-        startOfDay =
-            PeriodSchedule.periodScheduleFallback.entries.first.startTime;
-        endOfDay = PeriodSchedule.periodScheduleFallback.entries.last.endTime;
-      },
-      error: (error, stackTrace) {
-        startOfDay =
-            PeriodSchedule.periodScheduleFallback.entries.first.startTime;
-        endOfDay = PeriodSchedule.periodScheduleFallback.entries.last.endTime;
-        Sentry.captureException(error, stackTrace: stackTrace);
-      },
-    );
+    var timeGrid = ref.watch(
+        selectedSessionProvider.select((value) => value.userData!.timeGrid));
+    startOfDay = timeGrid.first.startTime;
+    endOfDay = timeGrid.last.endTime;
 
     return CustomMultiChildLayout(
       delegate: _PeriodLayoutDelegate(
@@ -163,7 +148,7 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
             period,
             Offset(
               i * columnWidth,
-              dateTimeToYOffset(period.start),
+              dateTimeToYOffset(period.startTime),
             ),
           );
         }
@@ -190,10 +175,10 @@ class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
             BoxConstraints(
               minWidth: columnWidth * possibleWidthExpansion(period, i),
               maxWidth: columnWidth * possibleWidthExpansion(period, i),
-              minHeight: dateTimeToYOffset(period.end) -
-                  dateTimeToYOffset(period.start),
-              maxHeight: dateTimeToYOffset(period.end) -
-                  dateTimeToYOffset(period.start),
+              minHeight: dateTimeToYOffset(period.endTime) -
+                  dateTimeToYOffset(period.startTime),
+              maxHeight: dateTimeToYOffset(period.endTime) -
+                  dateTimeToYOffset(period.startTime),
             ),
           );
         }

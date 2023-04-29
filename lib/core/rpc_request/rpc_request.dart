@@ -18,6 +18,8 @@ class AuthParams with _$AuthParams {
     required String appSharedSecret,
   }) = _AuthParams;
 
+  const AuthParams._();
+
   Map<String, dynamic> toJson() => {
         'auth': {
           'user': user,
@@ -77,11 +79,15 @@ Future<RPCResponse> rpcRequest({
         getLogger().wtf('id of response does not match id of request');
         throw Exception('id of response does not match id of request');
       }
-      getLogger().i("Successful RPC Request: ${rpcResponse.toString()}");
+      getLogger().i("Successful RPC Request: $method"
+          "\n${rpcResponse.toStringNoResult()}");
       return rpcResponse;
     } else {
-      getLogger()
-          .e('HTTP Error: ${response.statusCode} ${response.reasonPhrase}');
+      getLogger().e(
+        'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
+        response,
+        StackTrace.current,
+      );
       throw HttpException(
         'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
         uri: serverUrl,

@@ -1,67 +1,192 @@
-import 'dart:io';
-
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
+import 'package:your_schedule/core/rpc_request/rpc_error.dart';
+import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/core/untis/untis_api.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
-import 'package:your_schedule/util/logger.dart';
-import 'package:your_schedule/util/secure_storage_util.dart';
+import 'package:your_schedule/ui/screens/login_screen/collapsable.dart';
+import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({required this.message, super.key});
-
-  final String message;
+class LoginScreen extends ConsumerWidget {
+  const LoginScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+        body: PageTransitionSwitcher(
+          transitionBuilder: (child, animation, secondaryAnimation) =>
+              SharedAxisTransition(
+            animation: animation,
+            secondaryAnimation: secondaryAnimation,
+            transitionType: SharedAxisTransitionType.horizontal,
+            child: child,
+          ),
+          child: ref.watch(loginStateProvider).currentPage == 0
+              ? const _SelectSchoolScreen()
+              : const _LoginScreen(),
+        ),
+      );
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  late String message;
+class _SelectSchoolScreen extends ConsumerStatefulWidget {
+  const _SelectSchoolScreen({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  ConsumerState createState() => _SelectSchoolScreenState();
+}
+
+class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
+  final TextEditingController _controller = TextEditingController();
+  bool showSchoolList = false;
+  List<School> _possibleSchools = [];
+  String? _errorMessage;
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 16,
+              ),
+              Collapsable(
+                isExpanded: !showSchoolList,
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/school_blue.png',
+                      width: MediaQuery.of(context).size.width / 2,
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      'Willkommen in der App Stundenplan!',
+                      style: Theme.of(context).textTheme.displaySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      'Dein Stundenplan ist nur noch ein paar Klicks entfernt.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              TextField(
+                autocorrect: false,
+                autofillHints: const [
+                  AutofillHints.username,
+                  AutofillHints.fullStreetAddress,
+                ],
+                controller: _controller,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  helperText: "Welche Schule besuchst du?",
+                  hintText: "Schulname oder Adresse",
+                  errorText: _errorMessage,
+                  border: const OutlineInputBorder(),
+                ),
+                onTap: () {},
+                onChanged: (s) async {
+                  if (s.length < 3) {
+                    setState(() {
+                      _possibleSchools = [];
+                      _errorMessage = null;
+                      showSchoolList = false;
+                    });
+                    return;
+                  }
+                  setState(() {
+                    showSchoolList = true;
+                  });
+                  try {
+                    var schools = await requestSchoolList(s);
+                    setState(() {
+                      _possibleSchools = schools;
+                      _errorMessage = null;
+                    });
+                  } on RPCError catch (e) {
+                    setState(() {
+                      _errorMessage = e.message;
+                    });
+                  }
+                },
+              ),
+              if (showSchoolList)
+                Expanded(
+                  child: ListView(
+                    children: [
+                      for (var school in _possibleSchools)
+                        ListTile(
+                          title: Text(school.displayName),
+                          subtitle: Text(school.address),
+                          onTap: () {
+                            ref.read(loginStateProvider.notifier).state = ref
+                                .read(loginStateProvider.notifier)
+                                .state
+                                .copyWith(
+                                  school: school,
+                                  currentPage: 1,
+                                );
+                          },
+                        ),
+                    ],
+                  ),
+                )
+            ],
+          ),
+        ),
+      );
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+}
+
+class _LoginScreen extends ConsumerStatefulWidget {
+  const _LoginScreen({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  ConsumerState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<_LoginScreen> {
+  late TextEditingController _usernameFieldController;
+  late TextEditingController _passwordFieldController;
+  var isLoading = false;
+  var showPassword = false;
   List<FocusNode> focusNodes = [];
 
   @override
   void initState() {
     super.initState();
-    message = widget.message;
-    focusNodes = List.generate(4, (index) => FocusNode());
-    asyncInitialization();
-  }
-
-  Future<void> asyncInitialization() async {
-    usernameFieldController.text =
-        await secureStorage.read(key: usernameKey) ?? "";
-    passwordFieldController.text =
-        await secureStorage.read(key: passwordKey) ?? "";
-    schoolFieldController.text =
-        await secureStorage.read(key: schoolKey) ?? "cjd-königswinter";
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    for (var element in focusNodes) {
-      element.dispose();
+    _usernameFieldController = TextEditingController();
+    _passwordFieldController = TextEditingController();
+    for (var i = 0; i < 3; i++) {
+      focusNodes.add(FocusNode());
     }
-    usernameFieldController.dispose();
-    passwordFieldController.dispose();
-    schoolFieldController.dispose();
-    domainFieldController.dispose();
+    focusNodes[0].requestFocus();
   }
 
-  var usernameFieldController = TextEditingController();
-  var passwordFieldController = TextEditingController();
-  var schoolFieldController = TextEditingController();
-  var domainFieldController = TextEditingController();
-  var isLoading = false;
-
   @override
-  Widget build(BuildContext context) {
-    var theme = Theme.of(context);
-    var textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      body: Center(
+  Widget build(BuildContext context) => Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Card(
@@ -73,269 +198,133 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   Text(
                     "Login",
-                    style: textTheme.displaySmall
+                    style: Theme.of(context)
+                        .textTheme
+                        .displaySmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     "Melde dich mit deinem Untis-Konto an",
-                    style: textTheme.labelMedium,
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     autofocus: true,
+                    focusNode: focusNodes[0],
                     autocorrect: false,
                     autofillHints: const [AutofillHints.username],
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.next,
-                    controller: usernameFieldController,
+                    controller: _usernameFieldController,
                     onEditingComplete: () {
                       FocusScope.of(context).requestFocus(focusNodes[0]);
                     },
                     decoration: const InputDecoration(
                       labelText: "Benutzername",
-                      hintText: "Q1",
                       prefixIcon: Icon(Icons.person),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    focusNode: focusNodes[0],
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    obscureText: true,
-                    keyboardType: TextInputType.visiblePassword,
-                    autofillHints: const [AutofillHints.password],
-                    textInputAction: TextInputAction.next,
-                    controller: passwordFieldController,
-                    onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[1]);
-                    },
-                    decoration: const InputDecoration(
-                      labelText: "Passwort",
-                      hintText: "•••••••",
-                      prefixIcon: Icon(Icons.lock),
                     ),
                   ),
                   const SizedBox(height: 8),
                   TextField(
                     focusNode: focusNodes[1],
                     autocorrect: false,
-                    keyboardType: TextInputType.text,
+                    enableSuggestions: false,
+                    obscureText: !showPassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    autofillHints: const [AutofillHints.password],
                     textInputAction: TextInputAction.next,
-                    controller: schoolFieldController,
+                    controller: _passwordFieldController,
                     onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[2]);
+                      FocusScope.of(context).requestFocus(focusNodes[1]);
                     },
                     decoration: InputDecoration(
-                      labelText: "Schule",
-                      hintText: "cjd-königswinter",
-                      prefixIcon: const Icon(Icons.school),
+                      labelText: "Passwort",
+                      prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
-                        icon: const Icon(Icons.help_outline),
+                        icon: showPassword
+                            ? const Icon(Icons.visibility)
+                            : const Icon(Icons.visibility_off),
                         onPressed: () {
-                          _openSchoolExplainingDialog();
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    focusNode: focusNodes[2],
-                    autocorrect: false,
-                    keyboardType: TextInputType.url,
-                    controller: domainFieldController,
-                    onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[3]);
-                    },
-                    decoration: InputDecoration(
-                      labelText: "Domain",
-                      hintText: "https://?.webuntis.com",
-                      prefixIcon: const Icon(Icons.domain),
-                      suffixIcon: IconButton(
-                        icon: const Icon(Icons.help_outline),
-                        onPressed: () {
-                          _openDomainExplainingDialog();
+                          setState(() {
+                            showPassword = !showPassword;
+                          });
                         },
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    message,
-                    style: textTheme.labelMedium?.copyWith(color: Colors.red),
+                    ref.watch(loginStateProvider).message,
+                    style: Theme.of(context)
+                        .textTheme
+                        .labelMedium
+                        ?.copyWith(color: Colors.red),
                   ),
                   const SizedBox(height: 8),
                   isLoading
                       ? const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      height: 48,
-                      child: Center(
-                        child: LinearProgressIndicator(),
-                      ),
-                    ),
-                  )
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: SizedBox(
+                            height: 48,
+                            child: Center(
+                              child: LinearProgressIndicator(),
+                            ),
+                          ),
+                        )
                       : ElevatedButton(
-                    focusNode: focusNodes[3],
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        theme.colorScheme.primary,
-                      ),
-                      foregroundColor: MaterialStateProperty.all(
-                        theme.colorScheme.onPrimary,
-                      ),
-                      textStyle:
-                      MaterialStateProperty.all(textTheme.labelLarge),
-                    ),
-                    onPressed: () {
-                      FocusScope.of(context).unfocus();
-                      _login();
-                    },
-                    child: const Text("Log In"),
-                  ),
+                          focusNode: focusNodes[2],
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                              Theme.of(context).colorScheme.primary,
+                            ),
+                            foregroundColor: MaterialStateProperty.all(
+                              Theme.of(context).colorScheme.onPrimary,
+                            ),
+                            textStyle: MaterialStateProperty.all(
+                                Theme.of(context).textTheme.labelLarge),
+                          ),
+                          onPressed: () {
+                            FocusScope.of(context).unfocus();
+                            _login();
+                          },
+                          child: const Text("Log In"),
+                        ),
                 ],
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
-  void _login() {
+  void _login() async {
     setState(() {
       isLoading = true;
     });
-    var username = usernameFieldController.text.trim();
-    var password = passwordFieldController.text.trim();
-    var school = schoolFieldController.text.trim();
-    var domain = domainFieldController.text.trim();
-    if (!domain.startsWith("https://") || !domain.endsWith(".webuntis.com")) {
+    var school = ref.read(loginStateProvider).school!;
+    Session session = Session.inactive(
+      school: school,
+      username: _usernameFieldController.text,
+      password: _passwordFieldController.text,
+    );
+
+    try {
+      session = await activateSession(ref, session);
+      ref.read(sessionsProvider.notifier).addSession(session);
+      //ignore: use_build_context_synchronously
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+    } on RPCError catch (e) {
+      ref.read(loginStateProvider.notifier).state =
+          ref.read(loginStateProvider).copyWith(
+                message: e.message,
+              );
+    } finally {
       setState(() {
-        message =
-        "Invalid domain: Must start with \"https://\" and end with \".webuntis.com\"";
         isLoading = false;
       });
-      return;
     }
-
-    ///Hier fügen wir ein Delay hinzu, damit die Animation nicht so schnell ein- und ausgeht.
-    ///Das verhindert, dass die Ladeanimation schnell angezeigt wird und dann wieder verschwindet.
-    Future.wait([
-      login(username, password, school, domain),
-      Future.delayed(const Duration(milliseconds: 300)),
-    ]).then(
-          (value) {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      },
-    );
-  }
-
-  Future<void> login(
-    String username,
-    String password,
-    String school,
-    String domain,
-  ) async {
-    try {
-      await ref
-          .read(userSessionProvider.notifier)
-          .createSession(username, password, school, domain);
-    } on MissingCredentialsException {
-      message = "Bitte fülle alle Felder aus";
-      return;
-    } on WrongCredentialsException {
-      message = "Falsche Anmeldedaten";
-      return;
-    } on SocketException catch (e) {
-      setState(() {
-        message = e.message;
-      });
-      return;
-    } on InvalidSchoolNameException catch (e) {
-      setState(() {
-        message = e.cause;
-      });
-      return;
-    } catch (e, s) {
-      setState(() {
-        message = e.toString();
-      });
-      getLogger().e("Error while creating session", e, s);
-      Sentry.captureException(e, stackTrace: s);
-      return;
-    }
-
-    //Initialisierung des Stundenplans
-    await for (var result in initializeData(ref)) {
-      if (result is bool) {
-        if (!result) {
-          ref.read(userSessionProvider.notifier).logout();
-          return;
-        }
-      }
-    }
-
-    bool didAddFilters = await addFiltersIfNone(ref);
-
-    // ignore: use_build_context_synchronously
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
-
-    if (didAddFilters) {
-      // ignore: use_build_context_synchronously
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const FilterScreen()),
-      );
-    }
-
-    ///Das hier ist wichtig, weil der login button zurückkommt, sobald die Methode fertig ist. Er darf aber erst zurückkommen, wenn die Animation zum anderen Screen fertig ist.
-    await Future.delayed(const Duration(milliseconds: 500));
-  }
-
-  void _openSchoolExplainingDialog() {
-    _openExplainingDialog(
-      "Wie finde ich den exakten Namen meiner Schule?",
-      "Öffne die Website \nhttps://webuntis.com.\n"
-          "Suche deine Schule.\n"
-          "In dem Link, zu dem du weitergeleitet wurdest, steht \"school=\", "
-          "gefolgt von dem Namen, den du brauchst.\n"
-          "Es folgt ein #, welches nicht mehr Teil des Namens ist.",
-    );
-  }
-
-  void _openDomainExplainingDialog() {
-    _openExplainingDialog(
-      "Wie finde ich die Domain?",
-      "Öffne die Website \nhttps://webuntis.com.\n"
-          "Suche deine Schule.\n"
-          "Kopiere den Link, an den du weitergeleitet wurdest, das ist zum Beispiel https://herakles.webuntis.com...\n"
-          "Entferne alles, was hinter dem \".com\" steht. "
-          "Das ist die Domain.",
-    );
-  }
-
-  void _openExplainingDialog(String title, String content) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Ok", textAlign: TextAlign.end),
-          ),
-        ],
-      ),
-    );
   }
 }

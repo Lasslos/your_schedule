@@ -49,7 +49,7 @@ Future<Map<DateTime, List<TimeTablePeriod>>> requestTimeTable(
       return timeTablePeriodMap;
     },
     error: (error) {
-      throw Exception(error.error);
+      throw error.error;
     },
   );
 }

@@ -25,11 +25,14 @@ class CustomSubjectColorsNotifier extends StateNotifier<Map<int, CustomSubjectCo
   
   Future<void> saveToPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('$_userId.custom_subject_colors', jsonEncode(state.values.map((e) => e.toJson())));
+    await prefs.setString('$_userId.custom_subject_colors',
+        jsonEncode(state.values.map((e) => e.toJson())));
   }
-  Future<void> initialize() async {
+
+  Future<void> initializeFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
-    final customSubjectColors = prefs.getString('$_userId.custom_subject_colors');
+    final customSubjectColors =
+        prefs.getString('$_userId.custom_subject_colors');
     if (customSubjectColors != null) {
       state = Map.unmodifiable({
         for (var e in jsonDecode(customSubjectColors) as List)
@@ -39,7 +42,8 @@ class CustomSubjectColorsNotifier extends StateNotifier<Map<int, CustomSubjectCo
   }
 }
 
-final customSubjectColorsProvider = StateNotifierProvider(
+final customSubjectColorsProvider = StateNotifierProvider<
+    CustomSubjectColorsNotifier, Map<int, CustomSubjectColor>>(
   (ref) {
     int userId = ref.watch(selectedSessionProvider).userData!.id;
     return CustomSubjectColorsNotifier(userId);

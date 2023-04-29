@@ -40,13 +40,18 @@ class TimeTablePeriod with _$TimeTablePeriod {
   ) as TeacherId?;
 
   SubjectId? get subject => elements.firstWhereOrNull(
-    (element) => element is SubjectId,
-  ) as SubjectId?;
+        (element) => element is SubjectId,
+      ) as SubjectId?;
 
   RoomId? get room => elements.firstWhereOrNull(
-    (element) => element is RoomId,
-  ) as RoomId?;
+        (element) => element is RoomId,
+      ) as RoomId?;
 
   factory TimeTablePeriod.fromJson(Map<String, dynamic> json) =>
       _$TimeTablePeriodFromJson(json);
+
+  bool collidesWith(TimeTablePeriod period) {
+    return startTime.isBefore(period.endTime) &&
+        endTime.isAfter(period.startTime);
+  }
 }

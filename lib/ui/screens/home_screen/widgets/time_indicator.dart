@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/api/models/period_schedule.dart';
-import 'package:your_schedule/core/api/providers/period_schedule_provider.dart';
+import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 class TimeIndicator extends ConsumerWidget {
@@ -14,60 +12,43 @@ class TimeIndicator extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => TimedRefresh(
         interval: const Duration(seconds: 30),
         builder: (time, context) {
-          late TimeOfDay startTime;
-          late TimeOfDay endTime;
-          ref.watch(periodScheduleProvider).when(
-            data: (state) {
-              startTime = state.entries.first.startTime;
-              endTime = state.entries.last.endTime;
-            },
-            loading: () {
-              startTime =
-                  PeriodSchedule.periodScheduleFallback.entries.first.startTime;
-              endTime =
-                  PeriodSchedule.periodScheduleFallback.entries.last.endTime;
-            },
-            error: (error, stackTrace) {
-              startTime =
-                  PeriodSchedule.periodScheduleFallback.entries.first.startTime;
-              endTime =
-                  PeriodSchedule.periodScheduleFallback.entries.last.endTime;
-              Sentry.captureException(error, stackTrace: stackTrace);
-            },
-          );
-
+          var timeGrid = ref.watch(selectedSessionProvider
+              .select((value) => value.userData!.timeGrid));
+          TimeOfDay startTime = timeGrid.first.startTime;
+          TimeOfDay endTime = timeGrid.last.endTime;
           TimeOfDay now = TimeOfDay.fromDateTime(time);
 
-          if (now.difference(startTime) < Duration.zero ||
-              now.difference(endTime) > Duration.zero) {
-            return const SizedBox.shrink();
+          double relativePosition;
+
+          if (now.difference(startTime) < Duration.zero) {
+            relativePosition = 0;
+          } else if (now.difference(endTime) > Duration.zero) {
+            relativePosition = 1;
+          } else {
+            relativePosition = now.difference(startTime).inMinutes /
+                endTime.difference(startTime).inMinutes;
           }
 
-          double relativePosition = now.difference(startTime).inMinutes /
-              endTime.difference(startTime).inMinutes;
-          if (relativePosition < 0) {
-            relativePosition = 0;
-          } else if (relativePosition > 1) {
-            relativePosition = 1;
-          }
           return LayoutBuilder(
             builder: (context, constraints) {
               return Column(
                 children: [
-                  Spacer(
-                    flex: (relativePosition * constraints.maxHeight).floor(),
-                  ),
+                  if (relativePosition != 0)
+                    Spacer(
+                      flex: (relativePosition * constraints.maxHeight).floor(),
+                    ),
                   Row(
                     children: [
                       Container(
                         width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.black
-                            : Colors.white,
-                        shape: BoxShape.circle,
-                      ),
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? Colors.black
+                                  : Colors.white,
+                          shape: BoxShape.circle,
+                        ),
                     ),
                     Expanded(
                       child: Container(
@@ -79,11 +60,12 @@ class TimeIndicator extends ConsumerWidget {
                     ),
                   ],
                 ),
-                Spacer(
-                  flex: (constraints.maxHeight -
-                          (relativePosition * constraints.maxHeight))
-                      .floor(),
-                ),
+                  if (relativePosition != 1)
+                    Spacer(
+                      flex: (constraints.maxHeight -
+                              (relativePosition * constraints.maxHeight))
+                          .floor(),
+                    ),
               ],
             );
           },

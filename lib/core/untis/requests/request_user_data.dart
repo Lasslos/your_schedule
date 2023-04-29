@@ -22,7 +22,7 @@ Future<UserData> requestUserData(
       return UserData.fromJson(result.result);
     },
     error: (error) {
-      throw Exception(error.error);
+      throw error.error;
     },
   );
 }

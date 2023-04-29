@@ -3,9 +3,13 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/session/custom_subject_colors.dart';
+import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
+import 'package:your_schedule/util/logger.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({
@@ -30,9 +34,14 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
   //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
-    await ref.read(sessionsProvider.notifier).initializeFromSharedPrefs();
-    var sessions = ref.read(sessionsProvider);
-
+    List<Session> sessions = [];
+    try {
+      await ref.read(sessionsProvider.notifier).initializeFromSharedPrefs();
+      sessions = ref.read(sessionsProvider);
+    } catch (e, s) {
+      await Sentry.captureException(e, stackTrace: s);
+      getLogger().e("Error while parsing session json", e, s);
+    }
     if (sessions.isEmpty) {
       setState(() {
         _message = "No sessions found";
@@ -41,11 +50,21 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return const LoginScreen(message: '');
+            return const LoginScreen();
           },
         ),
       );
       return;
+    }
+
+    try {
+      await ref.read(filtersProvider.notifier).initializeFromPrefs();
+      await ref
+          .read(customSubjectColorsProvider.notifier)
+          .initializeFromPrefs();
+    } catch (e, s) {
+      await Sentry.captureException(e, stackTrace: s);
+      getLogger().e("Error while parsing json", e, s);
     }
 
     var connectivity = await Connectivity().checkConnectivity();

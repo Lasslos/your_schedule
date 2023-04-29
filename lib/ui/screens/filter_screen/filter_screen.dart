@@ -57,8 +57,13 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       );
     }
     if (timeTableAsync.hasError) {
-      Sentry.captureException(timeTableAsync.error, stackTrace: timeTableAsync.stackTrace);
-      getLogger().e(timeTableAsync.error, timeTableAsync.stackTrace);
+      Sentry.captureException(timeTableAsync.error,
+          stackTrace: timeTableAsync.stackTrace);
+      getLogger().e(
+        "Error while loading timetable",
+        timeTableAsync.error,
+        timeTableAsync.stackTrace,
+      );
       return const Scaffold(
         body: Center(
           child: Text('Fehler beim Laden des Stundenplans'),
@@ -86,18 +91,18 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             key: ValueKey(e),
             padding: const EdgeInsets.all(4.0),
             child: Selectable(
-              selected: !filters.contains(e),
-              onChanged: (bool value) {
-                if (value) {
-                  ref.read(filtersProvider.notifier).remove(e);
-                } else {
-                  ref.read(filtersProvider.notifier).remove(e);
-                }
-              },
-              child: Center(
-                child: FilterGridTile(
-                  subject: subject?.name ?? 'Fach $e',
-                  teacher: teacher?.shortName ?? 'Lehrer $e',
+              selected: filters.contains(e),
+            onChanged: (bool value) {
+              if (value) {
+                ref.read(filtersProvider.notifier).add(e);
+              } else {
+                ref.read(filtersProvider.notifier).remove(e);
+              }
+            },
+            child: Center(
+              child: FilterGridTile(
+                subject: subject?.name ?? 'Fach $e',
+                teacher: teacher?.shortName ?? 'Lehrer $e',
                   room: room?.name ?? 'Raum $e',
                 ),
               ),

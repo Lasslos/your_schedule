@@ -1,4 +1,4 @@
-URL: https://schoolsearch.webuntis.com/ms/schoolquery2/
+URL: https://schoolsearch.webuntis.com/schoolquery2/
 Method: Post
 content-type: application/json; charset=utf-8
 

@@ -80,7 +80,7 @@ class UserData with _$UserData {
         'teachers': teachers.entries
             .map((e) => {'id': e.key, ...e.value.toJson()})
             .toList(),
-        'timegrid': {
+        'timeGrid': {
           'days': [
             {
               'units': timeGrid.map((e) => e.toJson()).toList(),

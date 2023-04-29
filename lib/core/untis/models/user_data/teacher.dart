@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:your_schedule/util/string_utils.dart';
 
 part 'teacher.freezed.dart';
 part 'teacher.g.dart';
@@ -13,6 +14,11 @@ class Teacher with _$Teacher {
     bool active,
   ) = _Teacher;
 
+  const Teacher._();
+
   factory Teacher.fromJson(Map<String, dynamic> json) =>
       _$TeacherFromJson(json);
+
+  String get longName =>
+      "${firstName.toLowerCase().capitalizeFirst()} ${lastName.toLowerCase().capitalizeFirst()}";
 }

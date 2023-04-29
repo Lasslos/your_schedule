@@ -20,7 +20,7 @@ class ExamsNotifier extends StateNotifier<AsyncValue<Map<DateTime, List<Exam>>>>
       active: (activeSession) async {
         state = AsyncData(
           await requestExams(
-            _session.school.apiBaseUrl,
+            _session.school.rpcUrl,
             activeSession.userData,
             AuthParams(
               user: _session.username,

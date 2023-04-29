@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:your_schedule/core/api/models/timetable_period.dart';
-import 'package:your_schedule/filter/filters.dart';
-import 'package:your_schedule/settings/custom_subject_color/custom_subject_color_provider.dart';
+import 'package:your_schedule/core/session/custom_subject_colors.dart';
+import 'package:your_schedule/core/session/filters.dart';
+import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
 
 class TimeTablePeriodWidget extends ConsumerWidget {
   const TimeTablePeriodWidget({
@@ -18,28 +20,32 @@ class TimeTablePeriodWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    UserData userData =
+        ref.watch(selectedSessionProvider.select((value) => value.userData!));
+
     CustomSubjectColor statusColor;
-    switch (period.periodStatus) {
-      case PeriodStatus.regular:
-        statusColor = ref.watch(
-              customSubjectColorProvider
-                  .select((value) => value[period.subject]),
-            ) ??
-            CustomSubjectColor.regularColor;
-        break;
-      case PeriodStatus.irregular:
-        statusColor = CustomSubjectColor.irregularColor;
-        break;
-      case PeriodStatus.cancelled:
-        statusColor = CustomSubjectColor.cancelledColor;
-        break;
-      case PeriodStatus.empty:
-        statusColor = CustomSubjectColor.emptyColor;
-        break;
-      case PeriodStatus.unknown:
-        statusColor = CustomSubjectColor.emptyColor;
-        break;
+    List<TimeTablePeriodStatus> periodStatuses = period.periodStatus;
+
+    if (periodStatuses.contains(TimeTablePeriodStatus.exam)) {
+      statusColor = examColor;
+    } else if (periodStatuses.contains(TimeTablePeriodStatus.cancelled)) {
+      statusColor = cancelledColor;
+    } else if (periodStatuses.contains(TimeTablePeriodStatus.irregular) ||
+        period.subject == null ||
+        period.room == null ||
+        period.teacher == null) {
+      statusColor = irregularColor;
+    } else if (periodStatuses.contains(TimeTablePeriodStatus.regular)) {
+      statusColor =
+          ref.watch(customSubjectColorsProvider)[period.subject?.id] ??
+              regularColor;
+    } else {
+      statusColor = emptyColor;
     }
+
+    Subject? subject = userData.subjects[period.subject?.id];
+    Room? room = userData.rooms[period.room?.id];
+    Teacher? teacher = userData.teachers[period.teacher?.id];
 
     return Card(
       margin: const EdgeInsets.all(2),
@@ -47,7 +53,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () {
-          onTap(context, ref, statusColor);
+          onTap(context, ref, statusColor, subject, teacher, room);
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -58,7 +64,8 @@ class TimeTablePeriodWidget extends ConsumerWidget {
               children: [
                 Flexible(
                   child: Text(
-                    period.subject.name,
+                    (useShortText ? subject?.name : subject?.longName) ??
+                        period.lessonText,
                     style: TextStyle(
                       fontSize: fontSize,
                       color: statusColor.textColor,
@@ -69,9 +76,8 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                 ),
                 Flexible(
                   child: Text(
-                    useShortText
-                        ? period.teacher.name
-                        : period.teacher.longName,
+                    (useShortText ? teacher?.shortName : teacher?.longName) ??
+                        period.teacher.toString(),
                     style: TextStyle(
                       fontSize: fontSize,
                       color: statusColor.textColor,
@@ -82,7 +88,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                 ),
                 Flexible(
                   child: Text(
-                    period.room.name,
+                    room?.name ?? period.room.toString(),
                     style: TextStyle(
                       fontSize: fontSize,
                       color: statusColor.textColor,
@@ -103,13 +109,18 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     CustomSubjectColor statusColor,
+    Subject? subject,
+    Teacher? teacher,
+    Room? room,
   ) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PeriodDetailsView(
           period: period,
-          statusColor:
-              period.periodStatus != PeriodStatus.regular ? statusColor : null,
+          statusColor: statusColor,
+          subject: subject,
+          teacher: teacher,
+          room: room,
         ),
         fullscreenDialog: true,
       ),
@@ -119,36 +130,41 @@ class TimeTablePeriodWidget extends ConsumerWidget {
 
 class PeriodDetailsView extends ConsumerWidget {
   final TimeTablePeriod period;
-  final CustomSubjectColor? statusColor;
+  final Subject? subject;
+  final Teacher? teacher;
+  final Room? room;
+  final CustomSubjectColor statusColor;
 
   const PeriodDetailsView({
     required this.period,
     required this.statusColor,
+    this.subject,
+    this.teacher,
+    this.room,
     super.key,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    CustomSubjectColor customSubjectColor = ref.watch(
-          customSubjectColorProvider.select((value) => value[period.subject]),
-        ) ??
-        CustomSubjectColor.regularColor;
+    var customSubjectColor =
+        ref.watch(customSubjectColorsProvider)[period.subject?.id] ??
+            regularColor;
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: statusColor?.color ?? customSubjectColor.color,
+        backgroundColor: statusColor.color,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          color: statusColor?.textColor ?? customSubjectColor.textColor,
+          color: statusColor.textColor,
         ),
         title: Text(
           "Stundendetails",
           style: TextStyle(
-            color: statusColor?.textColor ?? customSubjectColor.textColor,
+            color: statusColor.textColor,
           ),
         ),
       ),
@@ -171,12 +187,13 @@ class PeriodDetailsView extends ConsumerWidget {
                 ),
                 ListTile(
                   title: Text(
-                    period.subject.longName,
+                    (subject?.longName ?? period.subject?.id.toString()) ??
+                        period.lessonText,
                     style: const TextStyle(fontSize: 20),
                     textAlign: TextAlign.center,
                   ),
                   subtitle: Text(
-                    "${intl.DateFormat("dd. MMM HH:mm").format(period.start)}-${intl.DateFormat("HH:mm").format(period.end)}",
+                    "${intl.DateFormat("dd. MMM HH:mm").format(period.startTime)}-${intl.DateFormat("HH:mm").format(period.endTime)}",
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -190,54 +207,54 @@ class PeriodDetailsView extends ConsumerWidget {
             leading: const Icon(Icons.person_outline),
             title: const Text("Lehrer"),
             subtitle: Text(
-              period.teacher.longName,
+              teacher?.longName ?? period.teacher.toString(),
             ),
           ),
           ListTile(
             leading: const Icon(Icons.location_on_outlined),
             title: const Text("Raum"),
-            subtitle: Text(period.room.name),
+            subtitle: Text(
+              room?.name ?? period.room.toString(),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text("Status"),
-            subtitle: Text(period.periodStatus.readableName),
-          ),
-          ListTile(
-            enableFeedback: true,
-            leading: const Icon(Icons.school_outlined),
-            title: const Text("Klasse"),
             subtitle: Text(
-              "${period.schoolClass.name} - ${period.schoolClass.longName}",
+              period.periodStatus.map((e) => e.displayName).join(", "),
             ),
           ),
-          if (period.substText != null)
+          if (period.infoText.isNotEmpty)
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: Text(period.infoText),
+            ),
+          if (period.lessonText.isNotEmpty)
             ListTile(
               leading: const Icon(Icons.text_snippet_outlined),
-              title: const Text("Vertretungstext"),
-              subtitle: Text(period.substText!),
+              title: Text(period.lessonText),
             ),
-          if (period.activityType != null)
+          if (period.substitutionText.isNotEmpty)
             ListTile(
-              leading: const Icon(Icons.backup_table),
-              title: const Text("Aktivitätstyp"),
-              subtitle: Text(period.activityType!),
+              leading: const Icon(Icons.home_work_outlined),
+              title: Text(period.substitutionText),
             ),
           const Divider(
             thickness: 1,
           ),
-          ListTile(
-            leading: SizedBox(
-              width: 24,
-              height: 24,
-              child: Center(
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: customSubjectColor.color,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
+          if (period.subject != null)
+            ListTile(
+              leading: SizedBox(
+                width: 24,
+                height: 24,
+                child: Center(
+                  child: Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: customSubjectColor.color,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                 ),
               ),
             ),
@@ -251,22 +268,22 @@ class PeriodDetailsView extends ConsumerWidget {
                   content: MaterialColorPicker(
                     onColorChange: (color) {
                       Color textColor = color.computeLuminance() > 0.5
-                          ? Colors.black
-                          : Colors.white;
-                      ref
-                          .read(customSubjectColorProvider.notifier)
-                          .addColor(period.subject, color, textColor);
-                    },
+                            ? Colors.black
+                            : Colors.white;
+                        ref.read(customSubjectColorsProvider.notifier).add(
+                            CustomSubjectColor(
+                                period.subject!.id, color, textColor));
+                      },
                     selectedColor: customSubjectColor.color,
                   ),
                   actions: [
                     TextButton(
                       onPressed: () {
-                        ref
-                            .read(customSubjectColorProvider.notifier)
-                            .removeColor(period.subject);
-                        Navigator.of(context).pop();
-                      },
+                          ref
+                              .read(customSubjectColorsProvider.notifier)
+                              .remove(period.subject!.id);
+                          Navigator.of(context).pop();
+                        },
                       child: const Text("Zurücksetzen"),
                     ),
                     TextButton(
@@ -280,17 +297,18 @@ class PeriodDetailsView extends ConsumerWidget {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.visibility_off, color: Colors.red),
-            title: const Text(
-              "Kurs ausblenden",
-              style: TextStyle(color: Colors.red),
+          if (period.subject != null)
+            ListTile(
+              leading: const Icon(Icons.visibility_off, color: Colors.red),
+              title: const Text(
+                "Kurs ausblenden",
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                ref.read(filtersProvider.notifier).remove(period.subject!.id);
+                Navigator.of(context).pop();
+              },
             ),
-            onTap: () {
-              ref.read(filterItemsProvider.notifier).addItem(period.subject);
-              Navigator.of(context).pop();
-            },
-          ),
         ],
       ),
     );

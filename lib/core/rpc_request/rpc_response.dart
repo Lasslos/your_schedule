@@ -37,4 +37,13 @@ class RPCResponse with _$RPCResponse {
       );
     }
   }
+
+  const RPCResponse._();
+
+  String toStringNoResult() => map(
+        result: (result) =>
+            'RPCResponse.result(jsonrpc: ${result.jsonrpc}, id: ${result.id}, result: (omitted)',
+        error: (error) =>
+            'RPCResponse.error(jsonrpc: ${error.jsonrpc}, id: ${error.id}, error: ${error.error})',
+      );
 }

@@ -26,6 +26,7 @@ dependencies:
   riverpod_annotation: ^2.1.1
   dart_extensions_methods: ^2.0.0
   connectivity_plus: ^3.0.6
+  animations: ^2.0.7
 
 dev_dependencies:
   flutter_test:

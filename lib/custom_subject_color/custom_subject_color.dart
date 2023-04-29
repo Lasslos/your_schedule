@@ -22,6 +22,11 @@ const CustomSubjectColor regularColor = CustomSubjectColor(
   Colors.lightGreen,
   Colors.white,
 );
+final CustomSubjectColor examColor = CustomSubjectColor(
+  -1,
+  Colors.red[900]!,
+  Colors.white,
+);
 const CustomSubjectColor irregularColor = CustomSubjectColor(
   -1,
   Colors.orange,
