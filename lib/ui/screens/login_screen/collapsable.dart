@@ -29,7 +29,7 @@ class _CollapsableState extends State<Collapsable>
   void prepareAnimations() {
     expandController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 00),
     );
     animation = CurvedAnimation(
       parent: expandController,

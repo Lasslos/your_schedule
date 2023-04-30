@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/session/custom_subject_colors.dart';
 import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/session.dart';
@@ -22,7 +23,6 @@ class LoadingScreen extends ConsumerStatefulWidget {
 
 class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   String _message = "Loading session";
-  bool _showTryAgain = false;
 
   @override
   void initState() {
@@ -67,10 +67,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       getLogger().e("Error while parsing json", e, s);
     }
 
-    var connectivity = await Connectivity().checkConnectivity();
-    if (connectivity != ConnectivityResult.none) {
+    final connectivityResult = ref.read(connectivityProvider);
+    if (connectivityResult.hasValue &&
+        connectivityResult.requireValue != ConnectivityResult.none) {
       activateSession(ref, sessions.first);
     }
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -97,14 +99,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
               ),
             ),
             const Spacer(flex: 1),
-            if (_showTryAgain)
-              ElevatedButton(
-                onPressed: () {
-                  login();
-                },
-                child: const Text("Try again"),
-              ),
-            if (!_showTryAgain) const CircularProgressIndicator(),
+            const CircularProgressIndicator(),
             const SizedBox(height: 25),
             Text(
               _message,

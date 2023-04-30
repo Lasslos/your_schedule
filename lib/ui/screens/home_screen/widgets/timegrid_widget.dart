@@ -48,7 +48,8 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
 
   Widget _buildTimeGridWidget(BuildContext context) {
     var timeGrid = ref.watch(
-        selectedSessionProvider.select((value) => value.userData!.timeGrid));
+      selectedSessionProvider.select((value) => value.userData!.timeGrid),
+    );
     TimeOfDay startTime = timeGrid.first.startTime;
     TimeOfDay endTime = timeGrid.last.endTime;
 

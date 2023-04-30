@@ -29,14 +29,17 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     super.initState();
     searchFocusNode = FocusNode();
     searchController = TextEditingController();
-    periods = ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
+    periods =
+        ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
+    _filterPeriods();
     _sortPeriods();
   }
 
   @override
   Widget build(BuildContext context) {
     ref.listen(
-      selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()),
+      selectedSessionProvider
+          .select((value) => value.userData!.subjects.keys.toList()),
       (previous, next) {
         setState(() {
           periods = next;
@@ -48,8 +51,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
     var timeTableAsync = ref.watch(timeTableProvider(Week.now()));
 
-    if (ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects)).isEmpty
-        || timeTableAsync.isLoading) {
+    if (ref
+            .watch(selectedSessionProvider
+                .select((value) => value.userData!.subjects))
+            .isEmpty ||
+        timeTableAsync.isLoading) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -57,8 +63,10 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       );
     }
     if (timeTableAsync.hasError) {
-      Sentry.captureException(timeTableAsync.error,
-          stackTrace: timeTableAsync.stackTrace);
+      Sentry.captureException(
+        timeTableAsync.error,
+        stackTrace: timeTableAsync.stackTrace,
+      );
       getLogger().e(
         "Error while loading timetable",
         timeTableAsync.error,
@@ -71,27 +79,31 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       );
     }
 
-    var timeTable = timeTableAsync.requireValue.values.fold(<TimeTablePeriod>[], (previousValue, element) => previousValue..addAll(element));
+    var timeTable = timeTableAsync.requireValue.values.fold(<TimeTablePeriod>[],
+        (previousValue, element) => previousValue..addAll(element));
 
     var filters = ref.watch(filtersProvider);
 
-    var subjects = ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects));
-    var teachers = ref.watch(selectedSessionProvider.select((value) => value.userData!.teachers));
-    var rooms = ref.watch(selectedSessionProvider.select((value) => value.userData!.rooms));
+    var subjects = ref.watch(
+        selectedSessionProvider.select((value) => value.userData!.subjects));
+    var teachers = ref.watch(
+        selectedSessionProvider.select((value) => value.userData!.teachers));
+    var rooms = ref.watch(
+        selectedSessionProvider.select((value) => value.userData!.rooms));
 
-    final gridChildren = periods
-      .map<Widget>(
-        (e) {
-          TimeTablePeriod? examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
-          Subject? subject = subjects[e];
-          Teacher? teacher = teachers[examplePeriod?.teacher?.id];
-          Room? room = rooms[examplePeriod?.room?.id];
+    final gridChildren = periods.map<Widget>(
+      (e) {
+        TimeTablePeriod? examplePeriod =
+            timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+        Subject? subject = subjects[e];
+        Teacher? teacher = teachers[examplePeriod?.teacher?.id];
+        Room? room = rooms[examplePeriod?.room?.id];
 
-          return Padding(
-            key: ValueKey(e),
-            padding: const EdgeInsets.all(4.0),
-            child: Selectable(
-              selected: filters.contains(e),
+        return Padding(
+          key: ValueKey(e),
+          padding: const EdgeInsets.all(4.0),
+          child: Selectable(
+            selected: filters.contains(e),
             onChanged: (bool value) {
               if (value) {
                 ref.read(filtersProvider.notifier).add(e);
@@ -103,12 +115,12 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
               child: FilterGridTile(
                 subject: subject?.name ?? 'Fach $e',
                 teacher: teacher?.shortName ?? 'Lehrer $e',
-                  room: room?.name ?? 'Raum $e',
-                ),
+                room: room?.name ?? 'Raum $e',
               ),
             ),
-          );
-        },
+          ),
+        );
+      },
     ).toList();
 
     return Scaffold(
@@ -156,7 +168,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                       onChanged: (value) {
                         setState(() {
                           if (!value.startsWith(searchQuery)) {
-                            periods = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()));
+                            periods = ref.read(selectedSessionProvider.select(
+                                (value) =>
+                                    value.userData!.subjects.keys.toList()));
                             searchQuery = value;
                             _filterPeriods();
                             _sortPeriods();
@@ -182,7 +196,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                             setState(() {
                               searchController.clear();
                               searchQuery = "";
-                              periods = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()));
+                              periods = ref.read(selectedSessionProvider.select(
+                                  (value) =>
+                                      value.userData!.subjects.keys.toList()));
                               _filterPeriods();
                               _sortPeriods();
                             });
@@ -214,53 +230,100 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   }
 
   void _sortPeriods() {
-    final filters = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects.keys.toList()));
+    final filters = ref.read(filtersProvider);
 
     periods.sort((a, b) {
       if (filters.contains(a) && !filters.contains(b)) {
-        return 1;
-      } else if (!filters.contains(a) && filters.contains(b)) {
         return -1;
+      } else if (!filters.contains(a) && filters.contains(b)) {
+        return 1;
       } else {
-        final subjects = ref.read(selectedSessionProvider.select((value) => value.userData!.subjects));
+        final subjects = ref.read(
+          selectedSessionProvider.select((value) => value.userData!.subjects),
+        );
         return subjects[a]?.name.compareTo(subjects[b]?.name ?? '') ?? 0;
       }
     });
   }
 
   void _filterPeriods() {
-    var timeTableAsync = ref.watch(timeTableProvider(Week.now()));
-    var timeTable = timeTableAsync.requireValue.values.fold(<TimeTablePeriod>[], (previousValue, element) => previousValue..addAll(element));
-    var subjects = ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects));
-    var teachers = ref.watch(selectedSessionProvider.select((value) => value.userData!.teachers));
-    var rooms = ref.watch(selectedSessionProvider.select((value) => value.userData!.rooms));
+    var timeTableAsync = ref.read(timeTableProvider(Week.now()));
+    var timeTable = timeTableAsync.requireValue.values.fold(
+      <TimeTablePeriod>[],
+      (previousValue, element) => previousValue..addAll(element),
+    );
+    var subjects = ref.read(
+      selectedSessionProvider.select((value) => value.userData!.subjects),
+    );
+    var teachers = ref.read(
+      selectedSessionProvider.select((value) => value.userData!.teachers),
+    );
+    var rooms = ref
+        .read(selectedSessionProvider.select((value) => value.userData!.rooms));
 
-    periods = periods
-        .where(
-          (e) {
-            var examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
-            var subject = subjects[e];
-            var teacher = teachers[examplePeriod?.teacher?.id];
-            var room = rooms[examplePeriod?.room?.id];
+    // Filter every non-valid class
+    periods = periods.where((e) {
+      var examplePeriod =
+          timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+      if (examplePeriod == null) {
+        return false;
+      }
+      var subjectId = examplePeriod.subject?.id;
+      var teacherId = examplePeriod.teacher?.id;
+      var roomId = examplePeriod.room?.id;
+      if (subjectId != null && !subjects.containsKey(subjectId)) {
+        return false;
+      }
+      if (teacherId != null && !teachers.containsKey(teacherId)) {
+        return false;
+      }
+      if (roomId != null && !rooms.containsKey(roomId)) {
+        return false;
+      }
+      return true;
+    }).toList();
 
-            var result = false;
-            if (subject != null) {
-              result = subject.name.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-              result = subject.longName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-            }
-            if (teacher != null) {
-              result = teacher.firstName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-              result = teacher.lastName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-              result = teacher.shortName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-            }
-            if (room != null) {
-              result = room.name.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-              result = room.longName.toLowerCase().contains(searchQuery.toLowerCase()) || result;
-            }
-            return result;
-          }
-        )
-        .toList();
+    // Filter by search query
+    periods = periods.where((e) {
+      var examplePeriod =
+          timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+      var subject = subjects[e];
+      var teacher = teachers[examplePeriod?.teacher?.id];
+      var room = rooms[examplePeriod?.room?.id];
+
+      var result = false;
+      if (subject != null) {
+        result =
+            subject.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                result;
+        result = subject.longName
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            result;
+      }
+      if (teacher != null) {
+        result = teacher.firstName
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            result;
+        result = teacher.lastName
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            result;
+        result = teacher.shortName
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            result;
+      }
+      if (room != null) {
+        result = room.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            result;
+        result =
+            room.longName.toLowerCase().contains(searchQuery.toLowerCase()) ||
+                result;
+      }
+      return result;
+    }).toList();
   }
 }
 

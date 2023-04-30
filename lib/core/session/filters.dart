@@ -7,16 +7,18 @@ import 'package:your_schedule/core/session/session.dart';
 class FiltersNotifier extends StateNotifier<Set<int>> {
   final int _userId;
 
-  FiltersNotifier(this._userId): super({});
+  FiltersNotifier(this._userId) : super({});
 
   void add(int id) {
     state = Set.unmodifiable(Set.from(state)..add(id));
     saveToPrefs();
   }
+
   void remove(int id) {
     state = Set.unmodifiable(Set.from(state)..remove(id));
     saveToPrefs();
   }
+
   void reset() {
     state = Set.unmodifiable({});
     saveToPrefs();
@@ -32,7 +34,8 @@ class FiltersNotifier extends StateNotifier<Set<int>> {
     final filters = prefs.getString('$_userId.filters');
     if (filters != null) {
       state = Set.unmodifiable(
-          (jsonDecode(filters) as List<dynamic>).map((e) => e as int).toSet());
+        (jsonDecode(filters) as List<dynamic>).map((e) => e as int).toSet(),
+      );
     }
   }
 }

@@ -1,12 +1,18 @@
 import 'package:animations/animations.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc_error.dart';
+import 'package:your_schedule/core/session/custom_subject_colors.dart';
+import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/collapsable.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart';
+import 'package:your_schedule/util/logger.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({
@@ -282,7 +288,8 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                               Theme.of(context).colorScheme.onPrimary,
                             ),
                             textStyle: MaterialStateProperty.all(
-                                Theme.of(context).textTheme.labelLarge),
+                              Theme.of(context).textTheme.labelLarge,
+                            ),
                           ),
                           onPressed: () {
                             FocusScope.of(context).unfocus();
@@ -301,6 +308,27 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     setState(() {
       isLoading = true;
     });
+
+    var connectivityResult = ref.read(connectivityProvider);
+    if (connectivityResult is AsyncLoading ||
+        connectivityResult.requireValue == ConnectivityResult.none) {
+      setState(() {
+        isLoading = false;
+      });
+      //ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.red,
+          content: SizedBox(
+            height: 48,
+            child: Center(child: Text("Keine Internetverbindung")),
+          ),
+        ),
+      );
+      return;
+    }
+
     var school = ref.read(loginStateProvider).school!;
     Session session = Session.inactive(
       school: school,
@@ -311,6 +339,17 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     try {
       session = await activateSession(ref, session);
       ref.read(sessionsProvider.notifier).addSession(session);
+
+      try {
+        await ref.read(filtersProvider.notifier).initializeFromPrefs();
+        await ref
+            .read(customSubjectColorsProvider.notifier)
+            .initializeFromPrefs();
+      } catch (e, s) {
+        await Sentry.captureException(e, stackTrace: s);
+        getLogger().e("Error while parsing json", e, s);
+      }
+
       //ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
@@ -318,9 +357,9 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       );
     } on RPCError catch (e) {
       ref.read(loginStateProvider.notifier).state =
-          ref.read(loginStateProvider).copyWith(
-                message: e.message,
-              );
+          ref.read(loginStateProvider).copyWith(message: e.message);
+    } catch (e, s) {
+      Sentry.captureException(e, stackTrace: s);
     } finally {
       setState(() {
         isLoading = false;

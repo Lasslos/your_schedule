@@ -9,7 +9,6 @@ import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/util/date_utils.dart';
-import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/week.dart';
 
 class WeekView extends ConsumerStatefulWidget {
@@ -117,7 +116,6 @@ class _Page extends ConsumerWidget {
     Key? key,
   }) : super(key: key);
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     DateTime currentDate =
@@ -131,26 +129,29 @@ class _Page extends ConsumerWidget {
     var filters = ref.watch(filtersProvider);
 
     if (timeTableAsync.hasError) {
-      Sentry.captureException(timeTableAsync.error,
-          stackTrace: timeTableAsync.stackTrace);
-      return Text(timeTableAsync.error.toString());
-    } else if (timeTableAsync.isLoading) {
-      return const CircularProgressIndicator();
-    }
-
-    var timeTable = timeTableAsync.requireValue;
-
-    for (var i = 0; i < 5; i++) {
-      days.add(
-        timeTable[currentWeek.startDate.add(Duration(days: i))]!.where(
-          (element) {
-            if (element.subject == null) {
-              return true;
-            }
-            return filters.contains(element.subject!.id);
-          },
-        ).toList(),
+      Sentry.captureException(
+        timeTableAsync.error,
+        stackTrace: timeTableAsync.stackTrace,
       );
+      return Center(child: Text(timeTableAsync.error.toString()));
+    } else if (timeTableAsync.isLoading) {
+      for (var i = 0; i < 5; i++) {
+        days.add([]);
+      }
+    } else {
+      var timeTable = timeTableAsync.requireValue;
+      for (var i = 0; i < 5; i++) {
+        days.add(
+          timeTable[currentWeek.startDate.add(Duration(days: i))]!.where(
+            (element) {
+              if (element.subject == null) {
+                return true;
+              }
+              return filters.contains(element.subject!.id);
+            },
+          ).toList(),
+        );
+      }
     }
 
     if (error != null) {

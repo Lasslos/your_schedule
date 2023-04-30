@@ -12,8 +12,9 @@ class TimeIndicator extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => TimedRefresh(
         interval: const Duration(seconds: 30),
         builder: (time, context) {
-          var timeGrid = ref.watch(selectedSessionProvider
-              .select((value) => value.userData!.timeGrid));
+          var timeGrid = ref.watch(
+            selectedSessionProvider.select((value) => value.userData!.timeGrid),
+          );
           TimeOfDay startTime = timeGrid.first.startTime;
           TimeOfDay endTime = timeGrid.last.endTime;
           TimeOfDay now = TimeOfDay.fromDateTime(time);
@@ -49,29 +50,30 @@ class TimeIndicator extends ConsumerWidget {
                                   : Colors.white,
                           shape: BoxShape.circle,
                         ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 1.25,
-                        color: Theme.of(context).brightness == Brightness.light
-                            ? Colors.black
-                            : Colors.white,
                       ),
-                    ),
-                  ],
-                ),
+                      Expanded(
+                        child: Container(
+                          height: 1.25,
+                          color:
+                              Theme.of(context).brightness == Brightness.light
+                                  ? Colors.black
+                                  : Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
                   if (relativePosition != 1)
                     Spacer(
                       flex: (constraints.maxHeight -
                               (relativePosition * constraints.maxHeight))
                           .floor(),
                     ),
-              ],
-            );
-          },
-        );
-      },
-    );
+                ],
+              );
+            },
+          );
+        },
+      );
 }
 
 class TimedRefresh extends StatefulWidget {

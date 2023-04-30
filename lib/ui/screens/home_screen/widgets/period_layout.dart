@@ -86,7 +86,8 @@ class PeriodLayout extends ConsumerWidget {
     late TimeOfDay endOfDay;
 
     var timeGrid = ref.watch(
-        selectedSessionProvider.select((value) => value.userData!.timeGrid));
+      selectedSessionProvider.select((value) => value.userData!.timeGrid),
+    );
     startOfDay = timeGrid.first.startTime;
     endOfDay = timeGrid.last.endTime;
 

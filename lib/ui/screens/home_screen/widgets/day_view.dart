@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/timetable.dart';
+import 'package:your_schedule/core/untis/models/timetable/timetable_period.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
@@ -114,17 +115,20 @@ class _Page extends ConsumerWidget {
 
     var timeTableAsync =
         ref.watch(timeTableProvider(Week.fromDateTime(currentDate)));
+    List<TimeTablePeriod> timeTable;
     var filters = ref.watch(filtersProvider);
 
     if (timeTableAsync.hasError) {
-      Sentry.captureException(timeTableAsync.error,
-          stackTrace: timeTableAsync.stackTrace);
-      return Text(timeTableAsync.error.toString());
+      Sentry.captureException(
+        timeTableAsync.error,
+        stackTrace: timeTableAsync.stackTrace,
+      );
+      return Center(child: Text(timeTableAsync.error.toString()));
     } else if (timeTableAsync.isLoading) {
-      return const CircularProgressIndicator();
+      timeTable = [];
+    } else {
+      timeTable = timeTableAsync.requireValue[currentDate]!;
     }
-
-    var timeTable = timeTableAsync.requireValue[currentDate]!;
 
     return Center(
       child: Column(
@@ -158,9 +162,11 @@ class _Page extends ConsumerWidget {
                 PeriodLayout(
                   fontSize: 12,
                   periods: timeTable
-                      .where((element) =>
-                          element.subject == null ||
-                          filters.contains(element.subject!.id))
+                      .where(
+                        (element) =>
+                            element.subject == null ||
+                            filters.contains(element.subject!.id),
+                      )
                       .toList(),
                 ),
                 if (index == 0) const TimeIndicator(),

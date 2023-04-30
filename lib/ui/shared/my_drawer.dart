@@ -20,11 +20,13 @@ class MyDrawer extends ConsumerWidget {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(userData.displayName),
-            accountEmail: Text(session.username),
+            accountName: Text(session.username),
+            accountEmail: Text(userData.schoolName),
+            currentAccountPicture: getProfileAvatar(context, ref),
             decoration: BoxDecoration(
               color: Colors.lightBlue[500],
             ),
+            //TODO: Multiple accounts
           ),
           ListTile(
             title: const Text("Stundenplan"),

@@ -24,6 +24,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
         ref.watch(selectedSessionProvider.select((value) => value.userData!));
 
     CustomSubjectColor statusColor;
+    bool isRegularStatusColor = false;
     List<TimeTablePeriodStatus> periodStatuses = period.periodStatus;
 
     if (periodStatuses.contains(TimeTablePeriodStatus.exam)) {
@@ -36,6 +37,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
         period.teacher == null) {
       statusColor = irregularColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.regular)) {
+      isRegularStatusColor = true;
       statusColor =
           ref.watch(customSubjectColorsProvider)[period.subject?.id] ??
               regularColor;
@@ -53,7 +55,14 @@ class TimeTablePeriodWidget extends ConsumerWidget {
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () {
-          onTap(context, ref, statusColor, subject, teacher, room);
+          onTap(
+            context,
+            ref,
+            isRegularStatusColor ? null : statusColor,
+            subject,
+            teacher,
+            room,
+          );
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -108,7 +117,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
   void onTap(
     BuildContext context,
     WidgetRef ref,
-    CustomSubjectColor statusColor,
+    CustomSubjectColor? statusColor,
     Subject? subject,
     Teacher? teacher,
     Room? room,
@@ -133,7 +142,7 @@ class PeriodDetailsView extends ConsumerWidget {
   final Subject? subject;
   final Teacher? teacher;
   final Room? room;
-  final CustomSubjectColor statusColor;
+  final CustomSubjectColor? statusColor;
 
   const PeriodDetailsView({
     required this.period,
@@ -152,19 +161,19 @@ class PeriodDetailsView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: statusColor.color,
+        backgroundColor: statusColor?.color ?? customSubjectColor.color,
         surfaceTintColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
             Navigator.of(context).pop();
           },
-          color: statusColor.textColor,
+          color: statusColor?.textColor ?? customSubjectColor.textColor,
         ),
         title: Text(
           "Stundendetails",
           style: TextStyle(
-            color: statusColor.textColor,
+            color: statusColor?.textColor ?? customSubjectColor.textColor,
           ),
         ),
       ),
@@ -183,7 +192,7 @@ class PeriodDetailsView extends ConsumerWidget {
                 Icon(
                   Icons.book_outlined,
                   size: 50,
-                  color: customSubjectColor.color,
+                  color: statusColor?.color ?? customSubjectColor.color,
                 ),
                 ListTile(
                   title: Text(
@@ -255,48 +264,52 @@ class PeriodDetailsView extends ConsumerWidget {
                       color: customSubjectColor.color,
                       borderRadius: BorderRadius.circular(6),
                     ),
+                  ),
                 ),
               ),
-            ),
-            title: const Text("Farbe ändern"),
-            onTap: () {
-              //einen color picker anzeigen
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text("Farbe ändern"),
-                  content: MaterialColorPicker(
-                    onColorChange: (color) {
-                      Color textColor = color.computeLuminance() > 0.5
+              title: const Text("Farbe ändern"),
+              onTap: () {
+                //einen color picker anzeigen
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Farbe ändern"),
+                    content: MaterialColorPicker(
+                      onColorChange: (color) {
+                        Color textColor = color.computeLuminance() > 0.5
                             ? Colors.black
                             : Colors.white;
                         ref.read(customSubjectColorsProvider.notifier).add(
-                            CustomSubjectColor(
-                                period.subject!.id, color, textColor));
+                              CustomSubjectColor(
+                                period.subject!.id,
+                                color,
+                                textColor,
+                              ),
+                            );
                       },
-                    selectedColor: customSubjectColor.color,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
+                      selectedColor: customSubjectColor.color,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
                           ref
                               .read(customSubjectColorsProvider.notifier)
                               .remove(period.subject!.id);
                           Navigator.of(context).pop();
                         },
-                      child: const Text("Zurücksetzen"),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text("Ok"),
-                    )
-                  ],
-                ),
-              );
-            },
-          ),
+                        child: const Text("Zurücksetzen"),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Ok"),
+                      )
+                    ],
+                  ),
+                );
+              },
+            ),
           if (period.subject != null)
             ListTile(
               leading: const Icon(Icons.visibility_off, color: Colors.red),
