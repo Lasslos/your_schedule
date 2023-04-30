@@ -14,7 +14,8 @@ class TimeTableView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var viewMode = ref.watch(homeScreenStateProvider.select((value) => value.viewMode));
+    var viewMode =
+        ref.watch(homeScreenStateProvider.select((value) => value.viewMode));
 
     return RefreshIndicator(
       onRefresh: () async {

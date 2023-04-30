@@ -71,6 +71,7 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
   }
 }
 
-var homeScreenStateProvider = StateNotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
-      (ref) => HomeScreenStateNotifier(),
+var homeScreenStateProvider =
+    StateNotifierProvider<HomeScreenStateNotifier, HomeScreenState>(
+  (ref) => HomeScreenStateNotifier(),
 );

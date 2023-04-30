@@ -32,12 +32,12 @@ class TimeTablePeriod with _$TimeTablePeriod {
   String get infoText => internalPeriodText.info;
 
   ClazzId? get clazz => elements.firstWhereOrNull(
-    (element) => element is ClazzId,
-  ) as ClazzId?;
+        (element) => element is ClazzId,
+      ) as ClazzId?;
 
   TeacherId? get teacher => elements.firstWhereOrNull(
-    (element) => element is TeacherId,
-  ) as TeacherId?;
+        (element) => element is TeacherId,
+      ) as TeacherId?;
 
   SubjectId? get subject => elements.firstWhereOrNull(
         (element) => element is SubjectId,

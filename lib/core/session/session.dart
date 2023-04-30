@@ -73,7 +73,8 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
   Future<void> saveToSharedPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setStringList(
-      'sessions', state.map((e) => jsonEncode(e.toJson())).toList(),
+      'sessions',
+      state.map((e) => jsonEncode(e.toJson())).toList(),
     );
   }
 }
