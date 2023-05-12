@@ -56,8 +56,8 @@ android {
         minSdkVersion 19
         targetSdkVersion flutter.targetSdkVersion
         //TODO: Change versionCode and versionName if there is a new version
-        versionCode 1302
-        versionName "v1.3.2"
+        versionCode 1303
+        versionName "v1.3.3"
     }
 
     signingConfigs {
