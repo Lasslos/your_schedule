@@ -52,7 +52,7 @@ class CustomSubjectColorsNotifier
 final customSubjectColorsProvider = StateNotifierProvider<
     CustomSubjectColorsNotifier, Map<int, CustomSubjectColor>>(
   (ref) {
-    int userId = ref.watch(selectedSessionProvider).userData!.id;
+    int userId = ref.watch(selectedSessionProvider.select((value) => value.userData!.id));
     return CustomSubjectColorsNotifier(userId);
   },
 );

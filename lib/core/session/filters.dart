@@ -42,7 +42,7 @@ class FiltersNotifier extends StateNotifier<Set<int>> {
 
 final filtersProvider = StateNotifierProvider<FiltersNotifier, Set<int>>(
   (ref) {
-    int userId = ref.watch(selectedSessionProvider).userData!.id;
+    int userId = ref.watch(selectedSessionProvider.select((value) => value.userData!.id));
     return FiltersNotifier(userId);
   },
 );

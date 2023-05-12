@@ -53,11 +53,11 @@ android {
         applicationId "eu.laslo_hauschild.your_schedule"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion flutter.targetSdkVersion
         //TODO: Change versionCode and versionName if there is a new version
-        versionCode 1300
-        versionName "v1.3.0"
+        versionCode 1302
+        versionName "v1.3.2"
     }
 
     signingConfigs {

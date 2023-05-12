@@ -35,6 +35,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
     List<Session> sessions = [];
+
     try {
       await ref.read(sessionsProvider.notifier).initializeFromSharedPrefs();
       sessions = ref.read(sessionsProvider);
@@ -57,20 +58,27 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       return;
     }
 
+    setState(() {
+      _message = "Loading data";
+    });
     try {
       await ref.read(filtersProvider.notifier).initializeFromPrefs();
-      await ref
-          .read(customSubjectColorsProvider.notifier)
-          .initializeFromPrefs();
+      await ref.read(customSubjectColorsProvider.notifier).initializeFromPrefs();
     } catch (e, s) {
       await Sentry.captureException(e, stackTrace: s);
       getLogger().e("Error while parsing json", e, s);
     }
 
-    final connectivityResult = ref.read(connectivityProvider);
-    if (connectivityResult.hasValue &&
-        connectivityResult.requireValue != ConnectivityResult.none) {
-      activateSession(ref, sessions.first);
+    setState(() {
+      _message = "Refreshing session";
+    });
+    final connectivityResult = await ref.read(connectivityProvider.future);
+    if (connectivityResult != ConnectivityResult.none) {
+      await refreshSession(ref, sessions.first);
+    } else {
+      setState(() {
+        _message = "No internet connection, using cached data";
+      });
     }
 
     Navigator.pushReplacement(

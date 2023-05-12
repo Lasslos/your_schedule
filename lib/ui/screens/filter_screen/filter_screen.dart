@@ -52,8 +52,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     var timeTableAsync = ref.watch(timeTableProvider(Week.now()));
 
     if (ref
-            .watch(selectedSessionProvider
-                .select((value) => value.userData!.subjects))
+            .watch(
+              selectedSessionProvider.select((value) => value.userData!.subjects),
+            )
             .isEmpty ||
         timeTableAsync.isLoading) {
       return const Scaffold(
@@ -79,22 +80,26 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       );
     }
 
-    var timeTable = timeTableAsync.requireValue.values.fold(<TimeTablePeriod>[],
-        (previousValue, element) => previousValue..addAll(element));
+    var timeTable = timeTableAsync.requireValue.values.fold(
+      <TimeTablePeriod>[],
+      (previousValue, element) => previousValue..addAll(element),
+    );
 
     var filters = ref.watch(filtersProvider);
 
     var subjects = ref.watch(
-        selectedSessionProvider.select((value) => value.userData!.subjects));
+      selectedSessionProvider.select((value) => value.userData!.subjects),
+    );
     var teachers = ref.watch(
-        selectedSessionProvider.select((value) => value.userData!.teachers));
+      selectedSessionProvider.select((value) => value.userData!.teachers),
+    );
     var rooms = ref.watch(
-        selectedSessionProvider.select((value) => value.userData!.rooms));
+      selectedSessionProvider.select((value) => value.userData!.rooms),
+    );
 
     final gridChildren = periods.map<Widget>(
       (e) {
-        TimeTablePeriod? examplePeriod =
-            timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+        TimeTablePeriod? examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
         Subject? subject = subjects[e];
         Teacher? teacher = teachers[examplePeriod?.teacher?.id];
         Room? room = rooms[examplePeriod?.room?.id];
@@ -113,9 +118,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             },
             child: Center(
               child: FilterGridTile(
-                subject: subject?.name ?? 'Fach $e',
-                teacher: teacher?.shortName ?? 'Lehrer $e',
-                room: room?.name ?? 'Raum $e',
+                subject: subject?.name ?? 'Kein Fach',
+                teacher: teacher?.shortName ?? 'Kein Lehrer',
+                room: room?.name ?? 'Kein Raum',
               ),
             ),
           ),
@@ -168,9 +173,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                       onChanged: (value) {
                         setState(() {
                           if (!value.startsWith(searchQuery)) {
-                            periods = ref.read(selectedSessionProvider.select(
-                                (value) =>
-                                    value.userData!.subjects.keys.toList()));
+                            periods = ref.read(
+                              selectedSessionProvider.select(
+                                (value) => value.userData!.subjects.keys.toList(),
+                              ),
+                            );
                             searchQuery = value;
                             _filterPeriods();
                             _sortPeriods();
@@ -196,9 +203,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                             setState(() {
                               searchController.clear();
                               searchQuery = "";
-                              periods = ref.read(selectedSessionProvider.select(
-                                  (value) =>
-                                      value.userData!.subjects.keys.toList()));
+                              periods = ref.read(
+                                selectedSessionProvider.select(
+                                  (value) => value.userData!.subjects.keys.toList(),
+                                ),
+                              );
                               _filterPeriods();
                               _sortPeriods();
                             });
@@ -285,44 +294,26 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
     // Filter by search query
     periods = periods.where((e) {
-      var examplePeriod =
-          timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+      var examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
       var subject = subjects[e];
       var teacher = teachers[examplePeriod?.teacher?.id];
       var room = rooms[examplePeriod?.room?.id];
 
-      var result = false;
+      var accept = false;
       if (subject != null) {
-        result =
-            subject.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                result;
-        result = subject.longName
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ||
-            result;
+        accept = subject.name.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
+        accept = subject.longName.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
       }
       if (teacher != null) {
-        result = teacher.firstName
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ||
-            result;
-        result = teacher.lastName
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ||
-            result;
-        result = teacher.shortName
-                .toLowerCase()
-                .contains(searchQuery.toLowerCase()) ||
-            result;
+        accept = teacher.firstName.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
+        accept = teacher.lastName.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
+        accept = teacher.shortName.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
       }
       if (room != null) {
-        result = room.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-            result;
-        result =
-            room.longName.toLowerCase().contains(searchQuery.toLowerCase()) ||
-                result;
+        accept = room.name.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
+        accept = room.longName.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
       }
-      return result;
+      return accept;
     }).toList();
   }
 }
@@ -430,19 +421,19 @@ class FilterGridTile extends StatelessWidget {
               Text(
                 subject,
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.fade,
+                overflow: TextOverflow.clip,
                 maxLines: 1,
               ),
               Text(
                 teacher,
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.fade,
+                overflow: TextOverflow.clip,
                 maxLines: 1,
               ),
               Text(
                 room,
                 textAlign: TextAlign.center,
-                overflow: TextOverflow.fade,
+                overflow: TextOverflow.clip,
                 maxLines: 1,
               ),
             ],

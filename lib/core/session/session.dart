@@ -6,6 +6,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/rpc_request/rpc_request.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/util/logger.dart';
 
 part 'session.freezed.dart';
 part 'session.g.dart';
@@ -44,10 +45,24 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
     saveToSharedPrefs();
   }
 
+  Future<void> removeSessionWhenDone(Future<dynamic> future, Session session) async {
+    try {
+      await future;
+    } catch (e) {
+      getLogger().e(e);
+    } finally {
+      removeSession(session);
+    }
+  }
+
   void updateSession(Session oldSession, Session newSession) {
-    var index = state.indexOf(oldSession);
-    state = List.unmodifiable([...state]..setAll(index, [newSession]));
-    saveToSharedPrefs();
+    //places the newsession in the list at the same index as the old session
+    //index of session is preserved
+    state = List.unmodifiable(
+      [...state].map(
+        (e) => e == oldSession ? newSession : e,
+      ),
+    );
   }
 
   set currentlyUsedSession(Session session) {
@@ -110,4 +125,21 @@ Future<Session> activateSession(WidgetRef ref, Session session) async {
     appSharedSecret,
     userData,
   );
+}
+
+Future<void> refreshSession(WidgetRef ref, Session session) async {
+  assert(session is _ActiveSession, "Session must be active");
+  var activeSession = session as _ActiveSession;
+
+  var userData = await requestUserData(
+    session.school.rpcUrl,
+    AuthParams(
+      user: activeSession.username,
+      appSharedSecret: activeSession.appSharedSecret,
+    ),
+  );
+  ref.read(sessionsProvider.notifier).updateSession(
+        session,
+        session.copyWith(userData: userData),
+      );
 }

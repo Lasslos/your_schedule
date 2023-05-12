@@ -1,7 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
-import 'package:flutter/foundation.dart';
 
 part 'login_state_provider.freezed.dart';
 
@@ -14,5 +14,4 @@ class LoginState with _$LoginState {
   }) = _LoginState;
 }
 
-final loginStateProvider =
-    StateProvider<LoginState>((ref) => const LoginState());
+final loginStateProvider = StateProvider.autoDispose<LoginState>((ref) => const LoginState());

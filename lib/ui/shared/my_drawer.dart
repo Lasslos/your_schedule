@@ -65,7 +65,6 @@ class MyDrawer extends ConsumerWidget {
               style: TextStyle(color: theme.colorScheme.error),
             ),
             onTap: () {
-              ref.read(sessionsProvider.notifier).removeSession(session);
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
@@ -73,6 +72,10 @@ class MyDrawer extends ConsumerWidget {
                   builder: (context) => const LoginScreen(),
                 ),
               );
+              ref.read(sessionsProvider.notifier).removeSessionWhenDone(
+                    Future.delayed(const Duration(milliseconds: 500)),
+                    session,
+                  );
             },
           ),
         ],

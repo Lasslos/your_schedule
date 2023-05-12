@@ -14,12 +14,12 @@ Future<List<School>> requestSchoolList(String query) async {
 
   return response.map(
     result: (result) {
-      return result.result['schools']
-          .map<School>((school) => School.fromJson(school))
-          .toList();
+      return result.result['schools'].map<School>((school) => School.fromJson(school)).toList();
     },
     error: (error) {
       throw error.error;
     },
   );
 }
+
+const tooManyResults = -6003;

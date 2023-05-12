@@ -67,45 +67,52 @@ class TimeTablePeriodWidget extends ConsumerWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             bool useShortText = constraints.maxWidth < 100;
+            String? subjectText = useShortText ? subject?.name ?? period.lessonText : period.lessonText;
+            if (subjectText.isEmpty) {
+              subjectText = null;
+            }
+            String? teacherText = useShortText ? teacher?.shortName : teacher?.longName;
+            String? roomText = room?.name;
 
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Flexible(
-                  child: Text(
-                    (useShortText ? subject?.name : subject?.longName) ??
-                        period.lessonText,
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      color: statusColor.textColor,
+                if (subjectText != null)
+                  Flexible(
+                    child: Text(
+                      subjectText,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: statusColor.textColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
                   ),
-                ),
-                Flexible(
-                  child: Text(
-                    (useShortText ? teacher?.shortName : teacher?.longName) ??
-                        period.teacher.toString(),
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      color: statusColor.textColor,
+                if (teacherText != null)
+                  Flexible(
+                    child: Text(
+                      teacherText,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: statusColor.textColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
                   ),
-                ),
-                Flexible(
-                  child: Text(
-                    room?.name ?? period.room.toString(),
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      color: statusColor.textColor,
+                if (roomText != null)
+                  Flexible(
+                    child: Text(
+                      roomText,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: statusColor.textColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.clip,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.visible,
                   ),
-                ),
               ],
             );
           },
@@ -216,14 +223,14 @@ class PeriodDetailsView extends ConsumerWidget {
             leading: const Icon(Icons.person_outline),
             title: const Text("Lehrer"),
             subtitle: Text(
-              teacher?.longName ?? period.teacher.toString(),
+              teacher?.longName ?? "Kein Lehrer",
             ),
           ),
           ListTile(
             leading: const Icon(Icons.location_on_outlined),
             title: const Text("Raum"),
             subtitle: Text(
-              room?.name ?? period.room.toString(),
+              room?.name ?? "Kein Raum",
             ),
           ),
           ListTile(

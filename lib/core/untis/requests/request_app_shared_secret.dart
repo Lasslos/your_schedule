@@ -22,3 +22,5 @@ Future<String> requestAppSharedSecret(
     },
   );
 }
+
+const badCredentials = -8504;
