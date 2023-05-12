@@ -122,7 +122,6 @@ class _Page extends ConsumerWidget {
         DateTime.now().add(Duration(days: index * 7)).normalized();
     Week currentWeek = Week.fromDateTime(currentDate);
     List<List<TimeTablePeriod>?> days = [];
-    String? error;
 
     var timeTableAsync =
         ref.watch(timeTableProvider(Week.fromDateTime(currentDate)));
@@ -152,12 +151,6 @@ class _Page extends ConsumerWidget {
           ).toList(),
         );
       }
-    }
-
-    if (error != null) {
-      return Center(
-        child: Text(error),
-      );
     }
 
     return Column(

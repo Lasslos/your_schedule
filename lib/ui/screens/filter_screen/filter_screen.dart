@@ -152,8 +152,8 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             child: child,
           ),
           child: !showSearch
-              ? Row(
-                  children: const [
+              ? const Row(
+                  children: [
                     Text('Deine Kurse'),
                     Spacer(),
                   ],
@@ -162,9 +162,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                   height: 36,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(18),
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
+                    color: Theme.of(context).colorScheme.onSurface
                         .withOpacity(0.12),
                   ),
                   padding: const EdgeInsets.only(left: 10),
