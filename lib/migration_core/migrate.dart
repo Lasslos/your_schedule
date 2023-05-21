@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -76,12 +77,13 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     ref.read(filtersProvider.notifier).addAll(newFilters.toList());
 
     Map<int, CustomSubjectColor> newCustomSubjectColors = {};
-    subjects.forEach((key, value) {
-      if (customSubjectColors.containsKey(value.name)) {
-        newCustomSubjectColors[key] = CustomSubjectColor(
-          key,
-          customSubjectColors[value.name]!.color,
-          customSubjectColors[value.name]!.textColor,
+    subjects.forEach((newId, newSubject) {
+      var element = customSubjectColors.entries.firstWhereOrNull((element) => element.key.name == newSubject.name);
+      if (element != null) {
+        newCustomSubjectColors[newId] = CustomSubjectColor(
+          newId,
+          element.value.color,
+          element.value.textColor,
         );
       }
     });
