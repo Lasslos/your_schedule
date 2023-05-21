@@ -36,7 +36,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
   //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
-    migrate(await SharedPreferences.getInstance(), ref, context);
+    getLogger().i("Loading screen started");
+    await migrate(await SharedPreferences.getInstance(), ref, context);
 
     List<Session> sessions = [];
 

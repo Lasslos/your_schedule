@@ -16,6 +16,7 @@ import 'package:your_schedule/migration_core/custom_subject_colors.dart' as old_
 import 'package:your_schedule/migration_core/filter.dart';
 import 'package:your_schedule/migration_core/timetable_period_subject_information.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart';
+import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/secure_storage_util.dart';
 
 //The current version of the app. Change this constant if the SharedPreferences should be migrated.
@@ -23,6 +24,7 @@ const String _currentVersion = '1.3.*';
 
 Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext context) async {
   String? version = prefs.getString('version');
+  getLogger().i("Migrating from version $version to $_currentVersion");
   if (version == _currentVersion) {
     return;
   }
@@ -50,18 +52,24 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     username: username,
     password: password,
   );
+  getLogger().i("Session $session created");
 
   var connectionState = await ref.read(connectivityProvider.future);
   if (connectionState == ConnectivityResult.none) {
+    getLogger().i("Migration failed due to connection error");
     return;
   }
 
+  getLogger().i("Migrating");
   try {
     session = await activateSession(ref, session);
+    getLogger().i("Session activated");
+    ref.read(sessionsProvider.notifier).addSession(session);
+
     var subjects = session.userData!.subjects;
     Set<int> newFilters = {};
     subjects.forEach((key, value) {
-      if (filterItems.any((element) => element.name == value.name)) {
+      if (!filterItems.any((element) => element.name == value.name)) {
         newFilters.add(key);
       }
     });
@@ -78,7 +86,10 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
       }
     });
     ref.read(customSubjectColorsProvider.notifier).addAll(newCustomSubjectColors);
+
+    getLogger().i("Migration successful");
   } on RPCError catch (e, s) {
+    getLogger().e("Migration failed", e, s);
     if (e.code == badCredentials) {
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
     } else {
@@ -86,9 +97,9 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
     }
   } catch (e, s) {
+    getLogger().e("Migration failed", e, s);
     Sentry.captureException(e, stackTrace: s);
     return;
   }
-  ref.read(sessionsProvider.notifier).addSession(session);
   prefs.setString("version", _currentVersion);
 }
