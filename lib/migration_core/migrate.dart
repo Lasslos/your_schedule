@@ -25,7 +25,6 @@ const String _currentVersion = '1.3.*';
 
 Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext context) async {
   String? version = prefs.getString('version');
-  getLogger().i("Migrating from version $version to $_currentVersion");
   if (version == _currentVersion) {
     return;
   }
@@ -53,18 +52,14 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     username: username,
     password: password,
   );
-  getLogger().i("Session $session created");
 
   var connectionState = await ref.read(connectivityProvider.future);
   if (connectionState == ConnectivityResult.none) {
-    getLogger().i("Migration failed due to connection error");
     return;
   }
 
-  getLogger().i("Migrating");
   try {
     session = await activateSession(ref, session);
-    getLogger().i("Session activated");
     ref.read(sessionsProvider.notifier).addSession(session);
 
     var subjects = session.userData!.subjects;
@@ -89,7 +84,6 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     });
     ref.read(customSubjectColorsProvider.notifier).addAll(newCustomSubjectColors);
 
-    getLogger().i("Migration successful");
   } on RPCError catch (e, s) {
     getLogger().e("Migration failed", e, s);
     if (e.code == badCredentials) {

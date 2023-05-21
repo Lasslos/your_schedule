@@ -38,9 +38,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
       statusColor = irregularColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.regular)) {
       isRegularStatusColor = true;
-      statusColor =
-          ref.watch(customSubjectColorsProvider)[period.subject?.id] ??
-              regularColor;
+      statusColor = ref.watch(customSubjectColorsProvider)[period.subject?.id] ?? regularColor;
     } else {
       statusColor = emptyColor;
     }
@@ -49,9 +47,20 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     Room? room = userData.rooms[period.room?.id];
     Teacher? teacher = userData.teachers[period.teacher?.id];
 
+    Color textColor = periodStatuses.contains(TimeTablePeriodStatus.cancelled) ? Theme.of(context).textTheme.bodyLarge!.color! : statusColor.textColor;
+
     return Card(
       margin: const EdgeInsets.all(2),
-      color: statusColor.color,
+      color: periodStatuses.contains(TimeTablePeriodStatus.cancelled) ? Theme.of(context).cardColor : statusColor.color,
+      shape: periodStatuses.contains(TimeTablePeriodStatus.cancelled)
+          ? RoundedRectangleBorder(
+              side: BorderSide(
+                color: statusColor.color,
+                width: 3,
+              ),
+              borderRadius: BorderRadius.circular(12),
+            )
+          : null,
       clipBehavior: Clip.hardEdge,
       child: InkWell(
         onTap: () {
@@ -67,7 +76,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             bool useShortText = constraints.maxWidth < 100;
-            String? subjectText = useShortText ? subject?.name ?? period.lessonText : period.lessonText;
+            String? subjectText = (useShortText ? subject?.name : subject?.longName) ?? period.lessonText;
             if (subjectText.isEmpty) {
               subjectText = null;
             }
@@ -83,10 +92,10 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                       subjectText,
                       style: TextStyle(
                         fontSize: fontSize,
-                        color: statusColor.textColor,
+                        color: textColor,
                       ),
                       maxLines: 1,
-                      overflow: TextOverflow.clip,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
                 if (teacherText != null)
@@ -95,10 +104,10 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                       teacherText,
                       style: TextStyle(
                         fontSize: fontSize,
-                        color: statusColor.textColor,
+                        color: textColor,
                       ),
                       maxLines: 1,
-                      overflow: TextOverflow.clip,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
                 if (roomText != null)
@@ -107,10 +116,10 @@ class TimeTablePeriodWidget extends ConsumerWidget {
                       roomText,
                       style: TextStyle(
                         fontSize: fontSize,
-                        color: statusColor.textColor,
+                        color: textColor,
                       ),
                       maxLines: 1,
-                      overflow: TextOverflow.clip,
+                      overflow: TextOverflow.visible,
                     ),
                   ),
               ],
