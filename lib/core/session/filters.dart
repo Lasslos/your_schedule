@@ -14,6 +14,11 @@ class FiltersNotifier extends StateNotifier<Set<int>> {
     saveToPrefs();
   }
 
+  void addAll(List<int> ids) {
+    state = Set.unmodifiable(Set.from(state)..addAll(ids));
+    saveToPrefs();
+  }
+
   void remove(int id) {
     state = Set.unmodifiable(Set.from(state)..remove(id));
     saveToPrefs();

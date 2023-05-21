@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/session/custom_subject_colors.dart';
 import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/migration_core/migrate.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -34,6 +36,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
   //Hier wird der login mit gespeicherten Daten versucht
   Future<void> login() async {
+    migrate(await SharedPreferences.getInstance(), ref, context);
+
     List<Session> sessions = [];
 
     try {

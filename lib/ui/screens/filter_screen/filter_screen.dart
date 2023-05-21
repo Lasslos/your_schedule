@@ -29,8 +29,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     super.initState();
     searchFocusNode = FocusNode();
     searchController = TextEditingController();
-    periods =
-        ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
+    periods = ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
     _filterPeriods();
     _sortPeriods();
   }

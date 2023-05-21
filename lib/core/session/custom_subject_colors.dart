@@ -16,6 +16,11 @@ class CustomSubjectColorsNotifier
     saveToPrefs();
   }
 
+  void addAll(Map<int, CustomSubjectColor> colors) {
+    state = Map.unmodifiable(Map.from(state)..addAll(colors));
+    saveToPrefs();
+  }
+
   void remove(int id) {
     state = Map.unmodifiable(Map.from(state)..remove(id));
     saveToPrefs();

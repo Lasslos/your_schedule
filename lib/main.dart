@@ -8,7 +8,6 @@ import 'package:your_schedule/settings/theme/theme_provider.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
 
 void main() async {
-  //TODO: Add migration option from 1.2.* to 1.3.*
   //TODO: Connection banner to show last fetch
   Intl.defaultLocale = 'de';
   initializeDateFormatting('de_DE', null);
