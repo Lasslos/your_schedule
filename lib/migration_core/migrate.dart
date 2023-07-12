@@ -90,6 +90,7 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
     } else {
       Sentry.captureException(e, stackTrace: s);
+      getLogger().e("Migration failed", e, s);
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
     }
   } catch (e, s) {

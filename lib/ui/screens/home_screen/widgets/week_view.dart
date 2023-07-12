@@ -9,6 +9,7 @@ import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/week.dart';
 
 class WeekView extends ConsumerStatefulWidget {
@@ -132,6 +133,7 @@ class _Page extends ConsumerWidget {
         timeTableAsync.error,
         stackTrace: timeTableAsync.stackTrace,
       );
+      getLogger().e("Error while loading timetable", timeTableAsync.error, timeTableAsync.stackTrace);
       return Center(child: Text(timeTableAsync.error.toString()));
     } else if (timeTableAsync.isLoading) {
       for (var i = 0; i < 5; i++) {

@@ -120,10 +120,11 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                       curve: Curves.easeInOut,
                     );
                   } on RPCError catch (e, s) {
-                    if (e.code != tooManyResults) {
+                    if (e.code == tooManyResults) {
                       return;
                     }
                     Sentry.captureException(e, stackTrace: s);
+                    getLogger().e("Error while requesting school list", e, s);
                     setState(() {
                       _errorMessage = e.message;
                     });
@@ -342,10 +343,12 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
         ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
       } else {
         Sentry.captureException(e, stackTrace: s);
+        getLogger().e("RPCError while logging in", e, s);
         ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
       }
     } catch (e, s) {
       Sentry.captureException(e, stackTrace: s);
+      getLogger().e("Unknown Error while logging in", e, s);
     } finally {
       setState(() {
         isLoading = false;

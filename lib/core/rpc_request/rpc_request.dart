@@ -69,6 +69,7 @@ Future<RPCResponse> rpcRequest({
         },
       ),
     );
+    getLogger().e("Error while performing rpcRequest $method to server $serverUrl", e, s);
     rethrow;
   }
 
@@ -77,6 +78,14 @@ Future<RPCResponse> rpcRequest({
       var rpcResponse = RPCResponse.fromJson(jsonDecode(response.body));
       if (rpcResponse.id != id.toString()) {
         getLogger().wtf('id of response does not match id of request');
+        Sentry.captureException(
+          'id of response does not match id of request',
+          hint: Hint.withMap({
+            'serverUrl': serverUrl.toString(),
+            'method': method,
+            'params': params,
+          }),
+        );
         throw Exception('id of response does not match id of request');
       }
       getLogger().i("Successful RPC Request: $method"
@@ -105,6 +114,7 @@ Future<RPCResponse> rpcRequest({
         },
       ),
     );
+    getLogger().e("Error while performing rpcRequest $method to server $serverUrl", e, s);
     rethrow;
   }
 }

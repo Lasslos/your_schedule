@@ -63,6 +63,7 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
         (e) => e == oldSession ? newSession : e,
       ),
     );
+    saveToSharedPrefs();
   }
 
   set currentlyUsedSession(Session session) {

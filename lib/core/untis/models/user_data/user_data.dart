@@ -30,21 +30,10 @@ class UserData with _$UserData {
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
       json['masterData']['timeStamp'] as int,
-      {
-        for (var e in json['masterData']['holidays'])
-          e['id'] as int: Holiday.fromJson(e)
-      },
-      {
-        for (var e in json['masterData']['klassen'])
-          e['id'] as int: Klasse.fromJson(e)
-      },
-      {
-        for (var e in json['masterData']['rooms'])
-          e['id'] as int: Room.fromJson(e)
-      },
-      {
-        for (var e in json['masterData']['subjects'])
-          e['id'] as int: Subject.fromJson(e)
+      {for (var e in json['masterData']['holidays'] ?? []) e['id'] as int: Holiday.fromJson(e)},
+      {for (var e in json['masterData']['klassen']) e['id'] as int: Klasse.fromJson(e)},
+      {for (var e in json['masterData']['rooms']) e['id'] as int: Room.fromJson(e)},
+      {for (var e in json['masterData']['subjects']) e['id'] as int: Subject.fromJson(e)
       },
       {
         for (var e in json['masterData']['teachers'])
