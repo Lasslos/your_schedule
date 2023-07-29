@@ -15,12 +15,12 @@ Stundenplan correctly reads the timetable from the Untis API and displays it to 
 
 ### Screenshots
 
-| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/1.jpg" alt="Screenshot 1" width="256">
-| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/2.jpg" alt="Screenshot 2" width="256">
-| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/3.jpg" alt="Screenshot 3" width="256">
-| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/4.jpg" alt="Screenshot 4" width="256">
-| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/5.jpg" alt="Screenshot 5" width="256">
-| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/6.jpg" alt="Screenshot 6" width="256"> |
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/1.jpg" alt="Screenshot 1" height="512">
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/2.jpg" alt="Screenshot 2" height="512">
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/3.jpg" alt="Screenshot 3" height="512">
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/4.jpg" alt="Screenshot 4" height="512">
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/5.jpg" alt="Screenshot 5" height="512">
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/6.jpg" alt="Screenshot 6" height="512">
 
 ### Documentation
 
