@@ -1,14 +1,39 @@
-# your_schedule - Stundenplan
+<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/school_blue.png" alt="Icon" width="256">
 
-Filter your Untis Schedule by classes you have chosen.
+# Stundenplan
 
-### How it works
+Stundenplan is a third-party mobile client for the Untis timetable.
 
-I reverse-engineered the Untis-Mobile App and created a Flutter App that does the same thing,
-with an important addition: It asks you what classes you are signed up for, and filters the
-timetable accordingly.
+<a href="https://play.google.com/store/apps/details?id=eu.laslo_hauschild.your_schedule&utm_source=github&utm_campaign=badge"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80"/></a>
 
-### Pull requests and Issues
+### Features
 
-are welcome, if your school also uses Untis but does not filter the classes for their students,
-this app should work for you too. If it doesn't, file an issue!
+Stundenplan correctly reads the timetable from the Untis API and displays it to you - customizable.
+
+- Filter by class - No need to look endlessly for your classes, as only your classes are displayed.
+- Change color of classes - Capture everything with a quick glance - Due to customizable colors.
+
+### Screenshots
+
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/1.jpg" alt="Screenshot 1" width="256">
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/2.jpg" alt="Screenshot 2" width="256">
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/3.jpg" alt="Screenshot 3" width="256">
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/4.jpg" alt="Screenshot 4" width="256">
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/5.jpg" alt="Screenshot 5" width="256">
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/6.jpg" alt="Screenshot 6" width="256"> |
+
+### Documentation
+
+I documented the whole process in my thesis, which you can find on
+my [website](https://laslo-hauschild.eu/facharbeit/Facharbeit.pdf).
+Note that this document is in German. Basically, I reverse-engineered the Untis API with HTTP-Toolkit and wrote a
+Flutter app to display the data.
+
+### Testing
+
+If your school uses Untis and doesn't provide individual credentials, I'd be glad to support you to get the app running
+for you school as well!
+It should, in theory, already work, but you never know. If you need credentials to test the app yourself, please contact
+me.
+
+Pull requests and issues are always welcome.
