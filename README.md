@@ -8,19 +8,16 @@ Stundenplan is a third-party mobile client for the Untis timetable.
 
 ### Features
 
-Stundenplan correctly reads the timetable from the Untis API and displays it to you - customizable.
+Stundenplan correctly restore_listing the timetable from the Untis API and displays it to you - customizable.
 
 - Filter by class - No need to look endlessly for your classes, as only your classes are displayed.
 - Change color of classes - Capture everything with a quick glance - Due to customizable colors.
 
 ### Screenshots
 
-<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/1.jpg" alt="Screenshot 1" height="512">
-<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/2.jpg" alt="Screenshot 2" height="512">
-<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/3.jpg" alt="Screenshot 3" height="512">
-<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/4.jpg" alt="Screenshot 4" height="512">
-<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/5.jpg" alt="Screenshot 5" height="512">
-<img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/ads/screenshots/6.jpg" alt="Screenshot 6" height="512">
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/store_listing/screenshots/1.jpg" alt="Screenshot 1"> | <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/store_listing/screenshots/2.jpg" alt="Screenshot 2"> | <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/store_listing/screenshots/3.jpg" alt="Screenshot 3"> |
+|------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/store_listing/screenshots/4.jpg" alt="Screenshot 4"> | <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/store_listing/screenshots/5.jpg" alt="Screenshot 5"> | <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/store_listing/screenshots/6.jpg" alt="Screenshot 6"> |
 
 ### Documentation
 
