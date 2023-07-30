@@ -8,7 +8,7 @@ Stundenplan is a third-party mobile client for the Untis timetable.
 
 ### Features
 
-Stundenplan correctly restore_listing the timetable from the Untis API and displays it to you - customizable.
+Stundenplan correctly reads the timetable from the Untis API and displays it to you - customizable.
 
 - Filter by class - No need to look endlessly for your classes, as only your classes are displayed.
 - Change color of classes - Capture everything with a quick glance - Due to customizable colors.
