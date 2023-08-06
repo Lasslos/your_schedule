@@ -48,24 +48,34 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       },
     );
 
-    var timeTableAsync = ref.watch(timeTableProvider(Week.now()));
+    for (var i = -2; i < 3; i++) {
+      ref.listen(
+        timeTableProvider(Week.relative(i)),
+        (previous, next) {
+          setState(() {
+            periods = ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
+            _filterPeriods();
+            _sortPeriods();
+          });
+        },
+      );
+    }
+    var timeTableAsyncS = [for (var i = -2; i < 3; i++) ref.watch(timeTableProvider(Week.relative(i)))];
 
-    if (ref
-            .watch(
-              selectedSessionProvider.select((value) => value.userData!.subjects),
-            )
-            .isEmpty ||
-        timeTableAsync.isLoading) {
+    if (ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects)).isEmpty || timeTableAsyncS.any((e) => e.isLoading)) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
-    if (timeTableAsync.hasError) {
+    for (var timeTableAsync in timeTableAsyncS) {
+      if (!timeTableAsync.hasError) {
+        continue;
+      }
       Sentry.captureException(
-        timeTableAsync.error,
-        stackTrace: timeTableAsync.stackTrace,
+        timeTableAsync.hasError,
+        stackTrace: timeTableAsync.hasError,
       );
       getLogger().e(
         "Error while loading timetable",
@@ -79,9 +89,15 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       );
     }
 
-    var timeTable = timeTableAsync.requireValue.values.fold(
+    var timeTable = timeTableAsyncS.fold(
       <TimeTablePeriod>[],
-      (previousValue, element) => previousValue..addAll(element),
+      (previousValue, element) => previousValue
+        ..addAll(
+          element.requireValue.values.fold(
+            <TimeTablePeriod>[],
+            (previousValue, element) => previousValue.toList()..addAll(element),
+          ),
+        ),
     );
 
     var filters = ref.watch(filtersProvider);
@@ -253,11 +269,20 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   }
 
   void _filterPeriods() {
-    var timeTableAsync = ref.read(timeTableProvider(Week.now()));
-    var timeTable = timeTableAsync.requireValue.values.fold(
+    var timeTableAsyncS = [for (var i = -2; i < 3; i++) ref.read(timeTableProvider(Week.relative(i)))];
+
+    var timeTable = timeTableAsyncS.fold(
       <TimeTablePeriod>[],
-      (previousValue, element) => previousValue..addAll(element),
+      (previousValue, element) => previousValue
+        ..addAll(
+          element.value?.values.fold(
+                <TimeTablePeriod>[],
+                (previousValue, element) => previousValue?.toList()?..addAll(element),
+              ) ??
+              previousValue.toList(),
+        ),
     );
+
     var subjects = ref.read(
       selectedSessionProvider.select((value) => value.userData!.subjects),
     );

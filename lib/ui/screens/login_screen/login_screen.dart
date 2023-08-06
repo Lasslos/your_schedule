@@ -9,6 +9,7 @@ import 'package:your_schedule/core/session/custom_subject_colors.dart';
 import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart';
 import 'package:your_schedule/ui/screens/login_screen/welcome_widget.dart';
@@ -337,6 +338,11 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
+      //ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const FilterScreen()),
       );
     } on RPCError catch (e, s) {
       if (e.code == badCredentials) {

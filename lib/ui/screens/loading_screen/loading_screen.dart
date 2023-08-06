@@ -15,6 +15,7 @@ import 'package:your_schedule/core/session/filters.dart';
 import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
 import 'package:your_schedule/migration_core/migrate.dart';
+import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -137,6 +138,8 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       });
     }
 
+    var filters = ref.read(filtersProvider);
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -145,6 +148,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         },
       ),
     );
+    if (filters.isEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const FilterScreen()),
+      );
+    }
   }
 
   Future<void> _onRPCError(List<Session> sessions, RPCError e, StackTrace s) async {
@@ -228,6 +237,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       return;
     }
     getLogger().i("Reauthenticated");
+    var filters = ref.read(filtersProvider);
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -236,6 +246,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         },
       ),
     );
+    if (filters.isEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const FilterScreen()),
+      );
+    }
     return;
   }
 
