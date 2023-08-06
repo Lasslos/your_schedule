@@ -21,7 +21,7 @@ Stundenplan correctly reads the timetable from the Untis API and displays it to 
 
 ### Documentation
 
-I documented the whole process in my thesis, which you can find on
+I documented the whole process in my high school research paper, which you can find on
 my [website](https://laslo-hauschild.eu/facharbeit/Facharbeit.pdf).
 Note that this document is in German. Basically, I reverse-engineered the Untis API with HTTP-Toolkit and wrote a
 Flutter app to display the data.
