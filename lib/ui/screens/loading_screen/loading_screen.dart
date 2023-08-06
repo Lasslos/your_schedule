@@ -53,7 +53,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       sessions = ref.read(sessionsProvider);
     } catch (e, s) {
       await Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while parsing session json", e, s);
+      getLogger().e("Error while parsing session json", error: e, stackTrace: s);
     }
     if (sessions.isEmpty) {
       setState(() {
@@ -79,7 +79,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       await ref.read(customSubjectColorsProvider.notifier).initializeFromPrefs();
     } catch (e, s) {
       await Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while parsing json", e, s);
+      getLogger().e("Error while parsing json", error: e, stackTrace: s);
     }
 
     //Load data from untis
@@ -94,7 +94,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         await _onRPCError(sessions, e, s);
         return;
       } on SocketException catch (e, s) {
-        getLogger().w("SocketException while refreshing session", e, s);
+        getLogger().w("SocketException while refreshing session", error: e, stackTrace: s);
         setState(() {
           _message = "No internet connection, using cached data";
         });
@@ -113,7 +113,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         );
       } on TimeoutException catch (e, s) {
         _message = "No internet connection, using cached data";
-        getLogger().w("TimeoutException while refreshing session", e, s);
+        getLogger().w("TimeoutException while refreshing session", error: e, stackTrace: s);
         Sentry.captureEvent(
           SentryEvent(
             message: const SentryMessage("TimeoutException while refreshing session"),
@@ -129,7 +129,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         );
       } catch (e, s) {
         await Sentry.captureException(e, stackTrace: s);
-        getLogger().e("Error while refreshing session", e, s);
+        getLogger().e("Error while refreshing session", error: e, stackTrace: s);
         setState(() {});
       }
     } else {
@@ -159,7 +159,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   Future<void> _onRPCError(List<Session> sessions, RPCError e, StackTrace s) async {
     if (e.code != badCredentials) {
       await Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while refreshing session", e, s);
+      getLogger().e("Error while refreshing session", error: e, stackTrace: s);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -212,7 +212,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
       //A different RPCError occurred while reauthenticating
       Sentry.captureException(e, stackTrace: s);
-      getLogger().e("RPCError while reauthenticating", e, s);
+      getLogger().e("RPCError while reauthenticating", error: e, stackTrace: s);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -225,7 +225,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     } catch (e, s) {
       //An unknown error occurred while reauthenticating
       Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Unknown Error while reauthenticating", e, s);
+      getLogger().e("Unknown Error while reauthenticating", error: e, stackTrace: s);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

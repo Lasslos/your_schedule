@@ -125,7 +125,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                       return;
                     }
                     Sentry.captureException(e, stackTrace: s);
-                    getLogger().e("Error while requesting school list", e, s);
+                    getLogger().e("Error while requesting school list", error: e, stackTrace: s);
                     setState(() {
                       _errorMessage = e.message;
                     });
@@ -331,7 +331,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
             .initializeFromPrefs();
       } catch (e, s) {
         await Sentry.captureException(e, stackTrace: s);
-        getLogger().e("Error while parsing json", e, s);
+        getLogger().e("Error while parsing json", error: e, stackTrace: s);
       }
 
       //ignore: use_build_context_synchronously
@@ -349,12 +349,12 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
         ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
       } else {
         Sentry.captureException(e, stackTrace: s);
-        getLogger().e("RPCError while logging in", e, s);
+        getLogger().e("RPCError while logging in", error: e, stackTrace: s);
         ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
       }
     } catch (e, s) {
       Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Unknown Error while logging in", e, s);
+      getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
     } finally {
       setState(() {
         isLoading = false;

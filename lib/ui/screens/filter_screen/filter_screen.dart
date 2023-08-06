@@ -79,8 +79,8 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       );
       getLogger().e(
         "Error while loading timetable",
-        timeTableAsync.error,
-        timeTableAsync.stackTrace,
+        error: timeTableAsync.error,
+        stackTrace: timeTableAsync.stackTrace,
       );
       return const Scaffold(
         body: Center(

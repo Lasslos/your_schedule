@@ -68,7 +68,7 @@ Map<TimeTablePeriodSubjectInformation, CustomSubjectColor> initializeCustomSubje
         )
         .toList();
   } catch (e, s) {
-    getLogger().w("JSON Parsing of CustomSubjectColors failed!", e, s);
+    getLogger().w("JSON Parsing of CustomSubjectColors failed!", error: e, stackTrace: s);
     return {};
   }
   //Hier wird der state auf die CustomSubjectColorItems gesetzt.

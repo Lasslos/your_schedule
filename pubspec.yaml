@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.1.0
-  logger: ^1.4.0
+  logger: ^2.0.1
   flutter_material_color_picker: ^1.2.0
   flutter_riverpod: ^2.3.6
   flutter_secure_storage: ^8.0.0

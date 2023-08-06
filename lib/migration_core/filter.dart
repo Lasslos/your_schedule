@@ -18,7 +18,7 @@ Set<TimeTablePeriodSubjectInformation> initializeFilters(SharedPreferences prefs
         )
         .toList();
   } catch (e, s) {
-    getLogger().w("JSON Parsing of FilterItems failed!", e, s);
+    getLogger().w("JSON Parsing of FilterItems failed!", error: e, stackTrace: s);
     return {};
   }
   return Set.unmodifiable(items);

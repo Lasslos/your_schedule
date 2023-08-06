@@ -124,7 +124,7 @@ class _Page extends ConsumerWidget {
         timeTableAsync.error,
         stackTrace: timeTableAsync.stackTrace,
       );
-      getLogger().e("Error while loading timetable", timeTableAsync.error, timeTableAsync.stackTrace);
+      getLogger().e("Error while loading timetable", error: timeTableAsync.error, stackTrace: timeTableAsync.stackTrace);
       return Center(child: Text(timeTableAsync.error.toString()));
     } else if (timeTableAsync.isLoading) {
       timeTable = [];

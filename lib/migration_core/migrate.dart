@@ -85,16 +85,16 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     ref.read(customSubjectColorsProvider.notifier).addAll(newCustomSubjectColors);
 
   } on RPCError catch (e, s) {
-    getLogger().e("Migration failed", e, s);
+    getLogger().e("Migration failed", error: e, stackTrace: s);
     if (e.code == badCredentials) {
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
     } else {
       Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Migration failed", e, s);
+      getLogger().e("Migration failed", error: e, stackTrace: s);
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
     }
   } catch (e, s) {
-    getLogger().e("Migration failed", e, s);
+    getLogger().e("Migration failed", error: e, stackTrace: s);
     Sentry.captureException(e, stackTrace: s);
     return;
   }
