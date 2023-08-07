@@ -74,17 +74,30 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         continue;
       }
       Sentry.captureException(
-        timeTableAsync.hasError,
-        stackTrace: timeTableAsync.hasError,
+        timeTableAsync.error,
+        stackTrace: timeTableAsync.stackTrace,
       );
       getLogger().e(
         "Error while loading timetable",
         error: timeTableAsync.error,
         stackTrace: timeTableAsync.stackTrace,
       );
-      return const Scaffold(
-        body: Center(
-          child: Text('Fehler beim Laden des Stundenplans'),
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Fehler'),
+        ),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Fehler beim Laden des Stundenplans', style: TextStyle(fontSize: 20)),
+                Text('Die möglichen Filter werden aus Stunden aus den letzten zwei und dne nächsten zwei Wochen erstellt.'
+                    'Mindestens eine dieser Wochen konnte nicht richtig geladen werden. Versuche, alle Wochen neu zu laden oder die App zu schließen und zu öffnen, um es erneut zu versuchen. Wenn das Problem weiter auftritt, kannst du dich gerne an mich wenden.')
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -275,11 +288,13 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       <TimeTablePeriod>[],
       (previousValue, element) => previousValue
         ..addAll(
-          element.value?.values.fold(
-                <TimeTablePeriod>[],
-                (previousValue, element) => previousValue?.toList()?..addAll(element),
-              ) ??
-              previousValue.toList(),
+          (element.hasError
+                  ? null
+                  : element.value?.values.fold(
+                      <TimeTablePeriod>[],
+                      (previousValue, element) => previousValue?.toList()?..addAll(element),
+                    )) ??
+              [],
         ),
     );
 
