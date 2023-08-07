@@ -93,8 +93,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text('Fehler beim Laden des Stundenplans', style: TextStyle(fontSize: 20)),
-                Text('Die möglichen Filter werden aus Stunden aus den letzten zwei und dne nächsten zwei Wochen erstellt.'
-                    'Mindestens eine dieser Wochen konnte nicht richtig geladen werden. Versuche, alle Wochen neu zu laden oder die App zu schließen und zu öffnen, um es erneut zu versuchen. Wenn das Problem weiter auftritt, kannst du dich gerne an mich wenden.')
+                SizedBox(height: 16),
+                Text('Die möglichen Filter werden aus Stunden aus den letzten zwei und den nächsten zwei Wochen erstellt. '
+                    'Mindestens eine dieser Wochen konnte nicht richtig geladen werden, zum Beispiel, weil der Untis-Server überlastet ist. Versuche, alle Wochen neu zu laden oder die App zu schließen und zu öffnen, um es erneut zu versuchen. Wenn das Problem weiter auftritt, kannst du dich gerne an mich wenden.')
               ],
             ),
           ),
