@@ -26,16 +26,28 @@ import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_wi
 // Das vereinfacht den Code und macht ihn ohne Funktionseinbußen verständlicher.
 Iterable<List<List<TimeTablePeriod>>> periodsToTimeTableGrid(
   List<TimeTablePeriod> periods,
+  Map<int, Subject> subjects,
 ) sync* {
   // Das Raster ist eine Liste von Spalten, jede Spalte ist eine Liste von "Zeilen", die eigentlich nur Stunden sind.
   List<List<TimeTablePeriod>> grid = [];
   DateTime? lastEndTime;
 
-  periods.sort(
-    (a, b) => !a.startTime.isAtSameMomentAs(b.startTime)
-        ? a.startTime.compareTo(b.startTime)
-        : a.endTime.compareTo(b.endTime),
-  );
+  periods.sort((a, b) {
+    var startCompare = a.startTime.compareTo(b.startTime);
+    if (startCompare != 0) {
+      return startCompare;
+    }
+    var endCompare = a.endTime.compareTo(b.endTime);
+    if (endCompare != 0) {
+      return endCompare;
+    }
+    Subject? aSubject = subjects[a.subject?.id ?? -1];
+    Subject? bSubject = subjects[b.subject?.id ?? -1];
+    if (aSubject != null && bSubject != null) {
+      return aSubject.name.compareTo(bSubject.name);
+    }
+    return 0;
+  });
 
   // Wir gehen jede Stunde in der Reihenfolge ihrer Startzeit durch.
   for (TimeTablePeriod period in periods) {
@@ -94,6 +106,9 @@ class PeriodLayout extends ConsumerWidget {
     return CustomMultiChildLayout(
       delegate: _PeriodLayoutDelegate(
         periods: periods,
+        subjects: ref.watch(
+          selectedSessionProvider.select((value) => value.userData!.subjects),
+        ),
         startOfDay: startOfDay,
         endOfDay: endOfDay,
       ),
@@ -114,19 +129,20 @@ class PeriodLayout extends ConsumerWidget {
 
 class _PeriodLayoutDelegate extends MultiChildLayoutDelegate {
   final List<TimeTablePeriod> periods;
+  final Map<int, Subject> subjects;
   final TimeOfDay startOfDay;
   final TimeOfDay endOfDay;
 
   _PeriodLayoutDelegate({
     required this.periods,
+    required this.subjects,
     required this.startOfDay,
     required this.endOfDay,
   });
 
   @override
   void performLayout(Size size) {
-    for (List<List<TimeTablePeriod>> gridPart
-        in periodsToTimeTableGrid(periods)) {
+    for (List<List<TimeTablePeriod>> gridPart in periodsToTimeTableGrid(periods, subjects)) {
       /// Als erstes berechnen wir den Offset für jede Stunde.
       double columnWidth = size.width / gridPart.length;
 

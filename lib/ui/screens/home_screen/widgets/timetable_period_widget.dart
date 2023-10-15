@@ -1,3 +1,4 @@
+import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,9 +33,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     } else if (periodStatuses.contains(TimeTablePeriodStatus.cancelled)) {
       statusColor = cancelledColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.irregular) ||
-        period.subject == null ||
-        period.room == null ||
-        period.teacher == null) {
+        (period.subject?.let((self) => self.id != self.orgId) ?? false) ||
+        (period.room?.let((self) => self.id != self.orgId) ?? false) ||
+        (period.teacher?.let((self) => self.id != self.orgId) ?? false)) {
       statusColor = irregularColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.regular)) {
       isRegularStatusColor = true;
@@ -46,6 +47,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     Subject? subject = userData.subjects[period.subject?.id];
     Room? room = userData.rooms[period.room?.id];
     Teacher? teacher = userData.teachers[period.teacher?.id];
+    Subject? orgSubject = userData.subjects[period.subject?.orgId];
+    Room? orgRoom = userData.rooms[period.room?.orgId];
+    Teacher? orgTeacher = userData.teachers[period.teacher?.orgId];
 
     Color textColor = periodStatuses.contains(TimeTablePeriodStatus.cancelled) ? Theme.of(context).textTheme.bodyLarge!.color! : statusColor.textColor;
 
@@ -71,52 +75,98 @@ class TimeTablePeriodWidget extends ConsumerWidget {
             subject,
             teacher,
             room,
+            orgSubject,
+            orgTeacher,
+            orgRoom,
           );
         },
         child: LayoutBuilder(
           builder: (context, constraints) {
-            bool useShortText = constraints.maxWidth < 100;
-            String? subjectText = (useShortText ? subject?.name : subject?.longName) ?? period.lessonText;
-            if (subjectText.isEmpty) {
-              subjectText = null;
-            }
-            String? teacherText = useShortText ? teacher?.shortName : teacher?.longName;
-            String? roomText = room?.name;
+            bool useShortText = constraints.maxWidth < 100 || orgSubject != subject || orgTeacher != teacher || orgRoom != room;
+            String subjectText = (useShortText ? subject?.name : subject?.longName) ?? period.lessonText;
+            String teacherText = (useShortText ? teacher?.shortName : teacher?.longName) ?? "";
+            String roomText = room?.name ?? "";
+
+            String? orgSubjectText = orgSubject != subject ? orgSubject?.name : "";
+            String? orgTeacherText = orgTeacher != teacher ? orgTeacher?.shortName : "";
+            String? orgRoomText = orgRoom != room ? orgRoom?.name : "";
 
             return Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                if (subjectText != null)
+                if (subjectText.isNotEmpty || orgSubjectText.isNotNullOrEmpty())
                   Flexible(
-                    child: Text(
-                      subjectText,
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        color: textColor,
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "$orgSubjectText",
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                          if (orgSubjectText.isNotNullOrEmpty() && subjectText.isNotNullOrEmpty()) const TextSpan(text: " "),
+                          TextSpan(
+                            text: subjectText,
+                          ),
+                        ],
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          color: textColor,
+                        ),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.visible,
                     ),
                   ),
-                if (teacherText != null)
+                if (teacherText.isNotEmpty || orgTeacherText.isNotNullOrEmpty())
                   Flexible(
-                    child: Text(
-                      teacherText,
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        color: textColor,
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "$orgTeacherText",
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                          if (orgTeacherText.isNotNullOrEmpty() && teacherText.isNotNullOrEmpty()) const TextSpan(text: " "),
+                          TextSpan(
+                            text: teacherText,
+                          ),
+                        ],
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          color: textColor,
+                        ),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.visible,
                     ),
                   ),
-                if (roomText != null)
+                if (roomText.isNotEmpty || orgRoomText.isNotNullOrEmpty())
                   Flexible(
-                    child: Text(
-                      roomText,
-                      style: TextStyle(
-                        fontSize: fontSize,
-                        color: textColor,
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "$orgRoomText",
+                            style: const TextStyle(
+                              color: Colors.white60,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                          if (orgRoomText.isNotNullOrEmpty() && roomText.isNotNullOrEmpty()) const TextSpan(text: " "),
+                          TextSpan(
+                            text: roomText,
+                          ),
+                        ],
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          color: textColor,
+                        ),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.visible,
@@ -137,6 +187,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     Subject? subject,
     Teacher? teacher,
     Room? room,
+    Subject? orgSubject,
+    Teacher? orgTeacher,
+    Room? orgRoom,
   ) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -146,6 +199,9 @@ class TimeTablePeriodWidget extends ConsumerWidget {
           subject: subject,
           teacher: teacher,
           room: room,
+          orgSubject: orgSubject,
+          orgTeacher: orgTeacher,
+          orgRoom: orgRoom,
         ),
         fullscreenDialog: true,
       ),
@@ -158,6 +214,9 @@ class PeriodDetailsView extends ConsumerWidget {
   final Subject? subject;
   final Teacher? teacher;
   final Room? room;
+  final Subject? orgSubject;
+  final Teacher? orgTeacher;
+  final Room? orgRoom;
   final CustomSubjectColor? statusColor;
 
   const PeriodDetailsView({
@@ -166,6 +225,9 @@ class PeriodDetailsView extends ConsumerWidget {
     this.subject,
     this.teacher,
     this.room,
+    this.orgSubject,
+    this.orgTeacher,
+    this.orgRoom,
     super.key,
   });
 
@@ -211,10 +273,23 @@ class PeriodDetailsView extends ConsumerWidget {
                   color: statusColor?.color ?? customSubjectColor.color,
                 ),
                 ListTile(
-                  title: Text(
-                    (subject?.longName ?? period.subject?.id.toString()) ??
-                        period.lessonText,
-                    style: const TextStyle(fontSize: 20),
+                  title: Text.rich(
+                    TextSpan(
+                      children: [
+                        if (orgSubject != subject)
+                          TextSpan(
+                            text: orgSubject?.longName ?? period.subject?.id.toString() ?? period.lessonText,
+                            style: TextStyle(
+                              color: Theme.of(context).disabledColor,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                        if (orgSubject != subject) const TextSpan(text: " "),
+                        TextSpan(
+                          text: subject?.longName ?? period.subject?.id.toString() ?? period.lessonText,
+                        ),
+                      ],
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   subtitle: Text(
@@ -231,15 +306,45 @@ class PeriodDetailsView extends ConsumerWidget {
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: const Text("Lehrer"),
-            subtitle: Text(
-              teacher?.longName ?? "Kein Lehrer",
+            subtitle: Text.rich(
+              TextSpan(
+                children: [
+                  if (orgTeacher != teacher)
+                    TextSpan(
+                      text: orgTeacher?.longName ?? "Kein Lehrer",
+                      style: TextStyle(
+                        color: Theme.of(context).disabledColor,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  if (orgTeacher != teacher) const TextSpan(text: " "),
+                  TextSpan(
+                    text: teacher?.longName ?? "Kein Lehrer",
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(
             leading: const Icon(Icons.location_on_outlined),
             title: const Text("Raum"),
-            subtitle: Text(
-              room?.name ?? "Kein Raum",
+            subtitle: Text.rich(
+              TextSpan(
+                children: [
+                  if (orgRoom != room)
+                    TextSpan(
+                      text: orgRoom?.name ?? "Kein Raum",
+                      style: TextStyle(
+                        color: Theme.of(context).disabledColor,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
+                  if (orgRoom != room) const TextSpan(text: " "),
+                  TextSpan(
+                    text: room?.name ?? "Kein Raum",
+                  ),
+                ],
+              ),
             ),
           ),
           ListTile(
@@ -320,7 +425,7 @@ class PeriodDetailsView extends ConsumerWidget {
                           Navigator.of(context).pop();
                         },
                         child: const Text("Ok"),
-                      )
+                      ),
                     ],
                   ),
                 );

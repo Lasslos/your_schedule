@@ -136,12 +136,14 @@ class _Page extends ConsumerWidget {
       getLogger().e("Error while loading timetable", error: timeTableAsync.error, stackTrace: timeTableAsync.stackTrace);
       return Center(child: Text(timeTableAsync.error.toString()));
     } else if (timeTableAsync.isLoading) {
-      for (var i = 0; i < 5; i++) {
+      //Note: Week starts on Saturday to show next week after Friday
+      for (var i = 2; i < 7; i++) {
         days.add([]);
       }
     } else {
       var timeTable = timeTableAsync.requireValue;
-      for (var i = 0; i < 5; i++) {
+      //Note: Week starts on Saturday to show next week after Friday
+      for (var i = 2; i < 7; i++) {
         days.add(
           timeTable[currentWeek.startDate.add(Duration(days: i))]!.where(
             (element) {
@@ -161,7 +163,8 @@ class _Page extends ConsumerWidget {
           height: 42,
           child: Row(
             children: [
-              for (var i = 0; i < 5; i++)
+              //Note: Week starts on Saturday to show next week after Friday
+              for (var i = 2; i < 7; i++)
                 Flexible(
                   child: InkWell(
                     onTap: () {
@@ -249,7 +252,7 @@ class _Page extends ConsumerWidget {
               if (index == 0) const TimeIndicator(),
             ],
           ),
-        )
+        ),
       ],
     );
   }

@@ -69,7 +69,7 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
   set currentlyUsedSession(Session session) {
     state = List.unmodifiable([
       session,
-      ...[...state]..remove(session)
+      ...[...state]..remove(session),
     ]);
     saveToSharedPrefs();
   }

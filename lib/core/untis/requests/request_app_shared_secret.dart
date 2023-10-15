@@ -9,7 +9,7 @@ Future<String> requestAppSharedSecret(
   var response = await rpcRequest(
     method: 'getAppSharedSecret',
     params: [
-      AppSharedSecretParams(username: username, password: password).toJson()
+      AppSharedSecretParams(username: username, password: password).toJson(),
     ],
     serverUrl: Uri.parse(apiBaseUrl),
   );

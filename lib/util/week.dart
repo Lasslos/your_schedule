@@ -43,8 +43,9 @@ class Week {
   }
 }
 
+//Note: Week starts on Saturday to show next week after Friday
 extension WeekUtils on DateTime {
-  DateTime startOfWeek() => normalized().subtract(Duration(days: weekday - 1));
+  DateTime startOfWeek() => normalized().subtract(Duration(days: (weekday - 6) % 7));
 
-  DateTime endOfWeek() => normalized().add(Duration(days: 7 - weekday));
+  DateTime endOfWeek() => normalized().add(Duration(days: (5 - weekday) % 7));
 }

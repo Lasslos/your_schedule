@@ -47,8 +47,7 @@ class CustomSubjectColorsNotifier
         prefs.getString('$_userId.custom_subject_colors');
     if (customSubjectColors != null) {
       state = Map.unmodifiable({
-        for (var e in jsonDecode(customSubjectColors) as List)
-          e['subjectId'] as int: CustomSubjectColor.fromJson(e)
+        for (var e in jsonDecode(customSubjectColors) as List) e['subjectId'] as int: CustomSubjectColor.fromJson(e),
       });
     }
   }

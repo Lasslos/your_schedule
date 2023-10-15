@@ -12,7 +12,7 @@ Future<UserData> requestUserData(
         'elementId': 0,
         'deviceOs': 'AND',
         'deviceOsVersion': '',
-        ...authParams.toJson()
+        ...authParams.toJson(),
       }
     ],
     serverUrl: Uri.parse(apiBaseUrl),

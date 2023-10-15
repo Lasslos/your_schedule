@@ -30,7 +30,7 @@ class AuthParams with _$AuthParams {
             isGoogle: true,
           ),
           'clientTime': DateTime.now().millisecondsSinceEpoch,
-        }
+        },
       };
 }
 

@@ -22,7 +22,7 @@ Future<Map<DateTime, List<TimeTablePeriod>>> requestTimeTable(
         'masterDataTimestamp': userData.timeStamp,
         'timetableTimestamp': 0,
         'timetableTimestamps': [],
-        ...authParams.toJson()
+        ...authParams.toJson(),
       }
     ],
     serverUrl: Uri.parse(apiBaseUrl),
