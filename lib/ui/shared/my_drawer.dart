@@ -7,8 +7,8 @@ import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
 
 class MyDrawer extends ConsumerWidget {
   const MyDrawer({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

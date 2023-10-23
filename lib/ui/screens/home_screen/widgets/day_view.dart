@@ -8,14 +8,12 @@ import 'package:your_schedule/core/untis/models/timetable/timetable_period.dart'
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
-import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/week.dart';
 
 class DayView extends ConsumerStatefulWidget {
-  const DayView({
-    Key? key,
-  }) : super(key: key);
+  const DayView({super.key});
 
   @override
   ConsumerState<DayView> createState() => _DayViewState();
@@ -23,31 +21,25 @@ class DayView extends ConsumerStatefulWidget {
 
 class _DayViewState extends ConsumerState<DayView> {
   late PageController _pageController;
-  late DateTime _currentDate;
-
-  DateTime get currentDate => _currentDate;
-
-  set currentDate(DateTime value) {
-    _currentDate = value.normalized();
-  }
+  late Date currentDate;
 
   @override
   void initState() {
     super.initState();
     currentDate = ref.read(homeScreenStateProvider).currentDate;
-    var index = currentDate.difference(DateTime.now().normalized()).inDays;
+    var index = currentDate.differenceInDays(Date.now());
     _pageController = PageController(initialPage: index);
 
     //Pre-load next and previous week
     ref
       ..read(
         timeTableProvider(
-          Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+          Week.fromDate(currentDate.addWeeks(1)),
         ),
       )
       ..read(
         timeTableProvider(
-          Week.fromDateTime(currentDate.subtract(const Duration(days: 7))),
+          Week.fromDate(currentDate.subtractWeeks(1)),
         ),
       );
   }
@@ -60,12 +52,12 @@ class _DayViewState extends ConsumerState<DayView> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<DateTime>(
+    ref.listen<Date>(
       homeScreenStateProvider.select((value) => value.currentDate),
       (previous, next) {
         if (currentDate != next) {
           _pageController.animateToPage(
-            next.difference(currentDate).inDays,
+            next.differenceInDays(currentDate),
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
           );
@@ -75,13 +67,13 @@ class _DayViewState extends ConsumerState<DayView> {
         ref
           ..read(
             timeTableProvider(
-              Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+              Week.fromDate(currentDate.addWeeks(1)),
             ),
           )
           ..read(
             timeTableProvider(
-              Week.fromDateTime(
-                currentDate.subtract(const Duration(days: 7)),
+              Week.fromDate(
+                currentDate.subtractWeeks(1),
               ),
             ),
           );
@@ -91,7 +83,7 @@ class _DayViewState extends ConsumerState<DayView> {
     return PageView.builder(
       controller: _pageController,
       onPageChanged: (index) {
-        currentDate = DateTime.now().add(Duration(days: index));
+        currentDate = Date.now().addDays(index);
         if (currentDate != ref.read(homeScreenStateProvider).currentDate) {
           ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
         }
@@ -104,18 +96,13 @@ class _DayViewState extends ConsumerState<DayView> {
 class _Page extends ConsumerWidget {
   final int index;
 
-  const _Page({
-    required this.index,
-    Key? key,
-  }) : super(key: key);
+  const _Page({required this.index});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DateTime currentDate =
-        DateTime.now().add(Duration(days: index)).normalized();
+    Date currentDate = Date.now().addDays(index);
 
-    var timeTableAsync =
-        ref.watch(timeTableProvider(Week.fromDateTime(currentDate)));
+    var timeTableAsync = ref.watch(timeTableProvider(Week.fromDate(currentDate)));
     List<TimeTablePeriod> timeTable;
     var filters = ref.watch(filtersProvider);
 
@@ -145,11 +132,11 @@ class _Page extends ConsumerWidget {
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    text: DateFormat('EEEE\n').format(currentDate),
+                    text: currentDate.format(DateFormat("EEEE")),
                     style: Theme.of(context).textTheme.bodyLarge,
                     children: [
                       TextSpan(
-                        text: DateFormat("d. MMMM").format(currentDate),
+                        text: currentDate.format(DateFormat("d. MMMM")),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],

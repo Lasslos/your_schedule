@@ -6,7 +6,7 @@ import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/util/date_utils.dart';
 
 class TimeIndicator extends ConsumerWidget {
-  const TimeIndicator({Key? key}) : super(key: key);
+  const TimeIndicator({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => TimedRefresh(

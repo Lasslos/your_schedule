@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/date.dart';
 
 enum ViewMode {
   week("Wochenansicht", Icons.calendar_view_week),
@@ -21,16 +21,15 @@ enum ViewMode {
 //Hier wird gespeichert, welche Ansicht gerade angezeigt wird und welcher Tag ausgewählt ist.
 @immutable
 class HomeScreenState {
-  final DateTime currentDate;
+  final Date currentDate;
   final ViewMode viewMode;
 
-  HomeScreenState(
-    DateTime currentDate,
-    this.viewMode,
-  ) : currentDate = currentDate.normalized();
+  const HomeScreenState(
+    this.currentDate,
+    this.viewMode,);
 
   HomeScreenState copyWith({
-    DateTime? currentDate,
+    Date? currentDate,
     ViewMode? viewMode,
   }) {
     return HomeScreenState(
@@ -44,7 +43,7 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
   HomeScreenStateNotifier()
       : super(
           HomeScreenState(
-            DateTime.now(),
+            Date.now(),
             ViewMode.day,
           ),
         ) {
@@ -63,7 +62,7 @@ class HomeScreenStateNotifier extends StateNotifier<HomeScreenState> {
     await prefs.setInt("viewMode", state.viewMode.index);
   }
 
-  set currentDate(DateTime date) => state = state.copyWith(currentDate: date);
+  set currentDate(Date date) => state = state.copyWith(currentDate: date);
 
   void switchView() {
     state = state.copyWith(viewMode: -state.viewMode);

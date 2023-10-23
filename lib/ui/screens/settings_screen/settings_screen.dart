@@ -4,7 +4,7 @@ import 'package:your_schedule/core/session/custom_subject_colors.dart';
 import 'package:your_schedule/settings/theme/theme_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(

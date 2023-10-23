@@ -22,8 +22,8 @@ import 'package:your_schedule/util/logger.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   ConsumerState createState() => _LoadingScreenState();

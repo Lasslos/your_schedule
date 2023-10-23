@@ -7,10 +7,10 @@ import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc_request.dart';
 import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/week.dart';
 
-class ExamsNotifier
-    extends StateNotifier<AsyncValue<Map<DateTime, List<Exam>>>> {
+class ExamsNotifier extends StateNotifier<AsyncValue<Map<Date, List<Exam>>>> {
   final Session _session;
   final Week _week;
   final AsyncValue<ConnectivityResult> _connectivityResult;
@@ -28,15 +28,12 @@ class ExamsNotifier
           jsonDecode(prefs.getString("${_session.userData?.id}.exams.$_week")!);
       state = AsyncData(
         {
-          for (var entry in json.entries)
-            DateTime.fromMillisecondsSinceEpoch(int.parse(entry.key)):
-                entry.value.map<Exam>((e) => Exam.fromJson(e)).toList(),
+          for (var entry in json.entries) Date.fromMillisecondsSinceEpoch(int.parse(entry.key)): entry.value.map<Exam>((e) => Exam.fromJson(e)).toList(),
         },
       );
     } else {
       state = AsyncData({
-        for (var i = 0; i < 7; i++)
-          _week.startDate.add(Duration(days: i)): const <Exam>[],
+        for (var i = 0; i < 7; i++) _week.startDate.addDays(i): const <Exam>[],
       });
     }
   }

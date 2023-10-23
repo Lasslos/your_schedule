@@ -2,10 +2,11 @@ import 'package:intl/intl.dart';
 import 'package:your_schedule/core/rpc_request/rpc_request.dart';
 import 'package:your_schedule/core/untis/models/timetable/timetable_period.dart';
 import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
+import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
 
-Future<Map<DateTime, List<TimeTablePeriod>>> requestTimeTable(
+Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(
   String apiBaseUrl,
   UserData userData,
   AuthParams authParams,
@@ -17,8 +18,8 @@ Future<Map<DateTime, List<TimeTablePeriod>>> requestTimeTable(
       {
         'id': userData.id,
         'type': userData.type,
-        'startDate': DateFormat('yyyy-MM-dd').format(week.startDate),
-        'endDate': DateFormat('yyyy-MM-dd').format(week.endDate),
+        'startDate': week.startDate.format(DateFormat('yyyy-MM-dd')),
+        'endDate': week.endDate.format(DateFormat('yyyy-MM-dd')),
         'masterDataTimestamp': userData.timeStamp,
         'timetableTimestamp': 0,
         'timetableTimestamps': [],
@@ -34,17 +35,16 @@ Future<Map<DateTime, List<TimeTablePeriod>>> requestTimeTable(
           (result.result['timetable']['periods'] as List<dynamic>)
               .map((e) => TimeTablePeriod.fromJson(e))
               .toList();
-      var timeTablePeriodMap = <DateTime, List<TimeTablePeriod>>{};
+      var timeTablePeriodMap = <Date, List<TimeTablePeriod>>{};
       for (var i = 0; i < 7; i++) {
-        timeTablePeriodMap[week.startDate.add(Duration(days: i))] = [];
+        timeTablePeriodMap[week.startDate.addDays(i)] = [];
       }
       for (var timeTablePeriod in timeTablePeriodList) {
         timeTablePeriodMap[timeTablePeriod.startTime.normalized()]!
             .add(timeTablePeriod);
       }
       for (var i = 0; i < 7; i++) {
-        timeTablePeriodMap[week.startDate.add(Duration(days: i))]!
-            .sort((a, b) => a.startTime.compareTo(b.startTime));
+        timeTablePeriodMap[week.startDate.addDays(i)]!.sort((a, b) => a.startTime.compareTo(b.startTime));
       }
       return timeTablePeriodMap;
     },

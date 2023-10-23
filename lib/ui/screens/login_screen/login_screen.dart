@@ -17,8 +17,8 @@ import 'package:your_schedule/util/logger.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Scaffold(
@@ -48,9 +48,7 @@ class LoginScreen extends ConsumerWidget {
 }
 
 class _SelectSchoolScreen extends ConsumerStatefulWidget {
-  const _SelectSchoolScreen({
-    Key? key,
-  }) : super(key: key);
+  const _SelectSchoolScreen();
 
   @override
   ConsumerState createState() => _SelectSchoolScreenState();
@@ -160,9 +158,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
 }
 
 class _LoginScreen extends ConsumerStatefulWidget {
-  const _LoginScreen({
-    Key? key,
-  }) : super(key: key);
+  const _LoginScreen();
 
   @override
   ConsumerState createState() => _LoginScreenState();

@@ -8,14 +8,12 @@ import 'package:your_schedule/core/untis/untis_api.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
-import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/week.dart';
 
 class WeekView extends ConsumerStatefulWidget {
-  const WeekView({
-    Key? key,
-  }) : super(key: key);
+  const WeekView({super.key});
 
   @override
   ConsumerState createState() => _WeekViewState();
@@ -23,31 +21,25 @@ class WeekView extends ConsumerStatefulWidget {
 
 class _WeekViewState extends ConsumerState<WeekView> {
   late PageController _pageController;
-  late DateTime _currentDate;
-
-  DateTime get currentDate => _currentDate;
-
-  set currentDate(DateTime value) {
-    _currentDate = value.normalized();
-  }
+  late Date currentDate;
 
   @override
   void initState() {
     super.initState();
     currentDate = ref.read(homeScreenStateProvider).currentDate;
-    var index = currentDate.difference(Week.now().startDate).inDays ~/ 7;
+    var index = currentDate.differenceInDays(Week.now().startDate) ~/ 7;
     _pageController = PageController(initialPage: index);
 
     //Pre-load next and previous week
     ref
       ..read(
         timeTableProvider(
-          Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+          Week.fromDate(currentDate.addWeeks(1)),
         ),
       )
       ..read(
         timeTableProvider(
-          Week.fromDateTime(currentDate.subtract(const Duration(days: 7))),
+          Week.fromDate(currentDate.subtractWeeks(1)),
         ),
       );
   }
@@ -60,14 +52,14 @@ class _WeekViewState extends ConsumerState<WeekView> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<DateTime>(
+    ref.listen<Date>(
       homeScreenStateProvider.select((value) => value.currentDate),
       (previous, next) {
-        var normalizedCurrentDate = Week.fromDateTime(currentDate).startDate;
-        var normalizedNext = Week.fromDateTime(next).startDate;
+        var normalizedCurrentDate = Week.fromDate(currentDate).startDate;
+        var normalizedNext = Week.fromDate(next).startDate;
         if (normalizedCurrentDate != normalizedNext) {
           _pageController.animateToPage(
-            Week.now().startDate.difference(normalizedNext).inDays ~/ 7,
+            Week.now().startDate.differenceInDays(normalizedNext) ~/ 7,
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
           );
@@ -77,13 +69,13 @@ class _WeekViewState extends ConsumerState<WeekView> {
         ref
           ..read(
             timeTableProvider(
-              Week.fromDateTime(currentDate.add(const Duration(days: 7))),
+              Week.fromDate(currentDate.addWeeks(1)),
             ),
           )
           ..read(
             timeTableProvider(
-              Week.fromDateTime(
-                currentDate.subtract(const Duration(days: 7)),
+              Week.fromDate(
+                currentDate.subtractWeeks(1),
               ),
             ),
           );
@@ -94,12 +86,9 @@ class _WeekViewState extends ConsumerState<WeekView> {
       controller: _pageController,
       onPageChanged: (index) {
         var oldDate = ref.read(homeScreenStateProvider).currentDate;
-        var durationRelativeToStartOfWeek =
-            oldDate.difference(Week.fromDateTime(oldDate).startDate);
+        var daysRelativeToStartOfWeek = oldDate.differenceInDays(Week.fromDate(oldDate).startDate);
         currentDate = Week.now()
-            .startDate
-            .add(Duration(days: index * 7))
-            .add(durationRelativeToStartOfWeek);
+            .startDate.addDays(index * 7 + daysRelativeToStartOfWeek);
         ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
       },
       itemBuilder: (BuildContext context, int index) {
@@ -114,18 +103,15 @@ class _Page extends ConsumerWidget {
 
   const _Page({
     required this.index,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DateTime currentDate =
-        DateTime.now().add(Duration(days: index * 7)).normalized();
-    Week currentWeek = Week.fromDateTime(currentDate);
+    Date currentDate = Date.now().addWeeks(index);
+    Week currentWeek = Week.fromDate(currentDate);
     List<List<TimeTablePeriod>?> days = [];
 
-    var timeTableAsync =
-        ref.watch(timeTableProvider(Week.fromDateTime(currentDate)));
+    var timeTableAsync = ref.watch(timeTableProvider(Week.fromDate(currentDate)));
     var filters = ref.watch(filtersProvider);
 
     if (timeTableAsync.hasError) {
@@ -145,7 +131,7 @@ class _Page extends ConsumerWidget {
       //Note: Week starts on Saturday to show next week after Friday
       for (var i = 2; i < 7; i++) {
         days.add(
-          timeTable[currentWeek.startDate.add(Duration(days: i))]!.where(
+          timeTable[currentWeek.startDate.addDays(i)]!.where(
             (element) {
               if (element.subject == null) {
                 return true;
@@ -168,10 +154,9 @@ class _Page extends ConsumerWidget {
                 Flexible(
                   child: InkWell(
                     onTap: () {
-                      var possibleNewDate =
-                          currentWeek.startDate.add(Duration(days: i));
+                      var possibleNewDate = currentWeek.startDate.addDays(i);
                       if (possibleNewDate.isBefore(
-                        DateTime.now().normalized(),
+                        Date.now(),
                       )) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -206,15 +191,11 @@ class _Page extends ConsumerWidget {
                       child: RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          text: DateFormat('E\n').format(
-                            currentWeek.startDate.add(Duration(days: i)),
-                          ),
+                          text: currentWeek.startDate.addDays(i).format(DateFormat('E\n')),
                           style: Theme.of(context).textTheme.bodyLarge,
                           children: [
                             TextSpan(
-                              text: DateFormat("d. MMM").format(
-                                currentWeek.startDate.add(Duration(days: i)),
-                              ),
+                              text: currentWeek.startDate.addDays(i).format(DateFormat("d. MMM")),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],

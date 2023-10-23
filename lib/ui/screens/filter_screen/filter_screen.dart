@@ -10,7 +10,7 @@ import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/week.dart';
 
 class FilterScreen extends ConsumerStatefulWidget {
-  const FilterScreen({Key? key}) : super(key: key);
+  const FilterScreen({super.key});
 
   @override
   ConsumerState<FilterScreen> createState() => _FilterScreenState();
@@ -365,8 +365,8 @@ class Selectable extends StatelessWidget {
     required this.onChanged,
     required this.selected,
     required this.child,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

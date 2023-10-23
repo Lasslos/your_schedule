@@ -135,7 +135,7 @@ class TimeGridColumnElement extends StatelessWidget {
               children: [
                 const SizedBox(width: 8),
                 Text(
-                  entry.startTime.toMyString(),
+                  entry.startTime.toHHMM(),
                   style: theme.textTheme.labelSmall?.copyWith(
                     fontSize: 8,
                   ),
@@ -159,7 +159,7 @@ class TimeGridColumnElement extends StatelessWidget {
               children: [
                 const Spacer(),
                 Text(
-                  entry.endTime.toMyString(),
+                  entry.endTime.toHHMM(),
                   style: theme.textTheme.labelSmall?.copyWith(
                     fontSize: 8,
                   ),

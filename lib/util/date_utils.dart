@@ -1,34 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:your_schedule/util/date.dart';
 
 extension DateUtils on DateTime {
-  String convertToUntisDate() {
-    return (year >= 1000 ? year.toString() : "1970") +
-        (month < 10 ? '0$month' : month.toString()) +
-        (day < 10 ? '0$day' : day.toString()).toString();
-  }
-
-  int daysSinceEpoch() => difference(DateTime(1970)).inDays;
-
-  bool dayIsInBetweenTwoOtherDays(DateTime before, DateTime after) =>
-      daysSinceEpoch() > before.daysSinceEpoch() &&
-      daysSinceEpoch() < after.daysSinceEpoch();
-
-  bool isInBetweenTwoOther(DateTime before, DateTime after) =>
-      difference(before).inMilliseconds > 0 &&
-      difference(after).inMilliseconds < 0;
-
-  bool isSameDay(DateTime other) => daysSinceEpoch() == other.daysSinceEpoch();
-
-  bool isGreaterOrEqual(DateTime other) =>
-      daysSinceEpoch() >= other.daysSinceEpoch();
-
-  DateTime normalized() => DateTime(year, month, day);
-
-  String toDDMMYY() =>
-      "${day.toString().padLeft(2, "0")}${month.toString().padLeft(2, "0")}${year.toString().substring(2, 4)}";
-
-  String toDDMM() =>
-      "${day.toString().padLeft(2, "0")}.${month.toString().padLeft(2, "0")}";
+  Date normalized() => Date(this);
 }
 
 extension DateUtilsOnString on String {
@@ -50,5 +24,5 @@ extension TimeOfDayUtils on TimeOfDay {
     );
   }
 
-  String toMyString() => "$hour:$minute";
+  String toHHMM() => "$hour:$minute";
 }

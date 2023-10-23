@@ -7,10 +7,11 @@ import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc_request.dart';
 import 'package:your_schedule/core/session/session.dart';
 import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/week.dart';
 
 typedef TimeTableDay = List<TimeTablePeriod>;
-typedef TimeTableWeek = Map<DateTime, TimeTableDay>;
+typedef TimeTableWeek = Map<Date, TimeTableDay>;
 
 class TimeTableNotifier extends StateNotifier<AsyncValue<TimeTableWeek>> {
   final Session _session;
@@ -32,16 +33,14 @@ class TimeTableNotifier extends StateNotifier<AsyncValue<TimeTableWeek>> {
       state = AsyncData(
         {
           for (var entry in json.entries)
-            DateTime.fromMillisecondsSinceEpoch(int.parse(entry.key)): entry
-                .value
+            Date.fromMillisecondsSinceEpoch(int.parse(entry.key)): entry.value
                 .map<TimeTablePeriod>((e) => TimeTablePeriod.fromJson(e))
                 .toList(),
         },
       );
     } else {
       state = AsyncData({
-        for (var i = 0; i < 7; i++)
-          _week.startDate.add(Duration(days: i)): const [],
+        for (var i = 0; i < 7; i++) _week.startDate.addDays(i): const [],
       });
       return;
     }

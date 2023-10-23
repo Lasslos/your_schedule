@@ -3,9 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_view.dart';
 import 'package:your_schedule/ui/shared/my_drawer.dart';
+import 'package:your_schedule/util/date.dart';
 
 class HomeScreen extends ConsumerWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,8 +20,7 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {
-              ref.read(homeScreenStateProvider.notifier).currentDate =
-                  DateTime.now();
+              ref.read(homeScreenStateProvider.notifier).currentDate = Date.now();
             },
             tooltip: "Zur jetzigen Woche springen",
           ),

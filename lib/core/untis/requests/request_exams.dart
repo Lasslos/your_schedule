@@ -2,10 +2,11 @@ import 'package:intl/intl.dart';
 import 'package:your_schedule/core/rpc_request/rpc_request.dart';
 import 'package:your_schedule/core/untis/models/exams/exam.dart';
 import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
+import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
 
-Future<Map<DateTime, List<Exam>>> requestExams(
+Future<Map<Date, List<Exam>>> requestExams(
   String apiBaseUrl,
   UserData userData,
   AuthParams authParams,
@@ -17,8 +18,8 @@ Future<Map<DateTime, List<Exam>>> requestExams(
       {
         'id': userData.id,
         'type': userData.type,
-        'startDate': DateFormat("yyyy-MM-dd").format(week.startDate),
-        'endDate': DateFormat("yyyy-MM-dd").format(week.endDate),
+        'startDate': week.startDate.format(DateFormat('yyyy-MM-dd')),
+        'endDate': week.endDate.format(DateFormat('yyyy-MM-dd')),
         ...authParams.toJson(),
       }
     ],
@@ -30,16 +31,15 @@ Future<Map<DateTime, List<Exam>>> requestExams(
       var examSet = (result.result['exams'] as List<dynamic>)
           .map((e) => Exam.fromJson(e))
           .toSet();
-      var examMap = <DateTime, List<Exam>>{};
+      var examMap = <Date, List<Exam>>{};
       for (var i = 0; i < 7; i++) {
-        examMap[week.startDate.add(Duration(days: i))] = [];
+        examMap[week.startDate.addDays(i)] = [];
       }
       for (var exam in examSet) {
         examMap[exam.startDateTime.normalized()]!.add(exam);
       }
       for (var i = 0; i < 7; i++) {
-        examMap[week.startDate.add(Duration(days: i))]!
-            .sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
+        examMap[week.startDate.addDays(i)]!.sort((a, b) => a.startDateTime.compareTo(b.startDateTime));
       }
       return examMap;
     },

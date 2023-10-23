@@ -39,7 +39,7 @@ void main() async {
 class MyApp extends ConsumerStatefulWidget {
   final ThemeMode initialThemeMode;
 
-  const MyApp({required this.initialThemeMode, Key? key}) : super(key: key);
+  const MyApp({required this.initialThemeMode, super.key});
 
   @override
   ConsumerState<MyApp> createState() => _MyAppState();
