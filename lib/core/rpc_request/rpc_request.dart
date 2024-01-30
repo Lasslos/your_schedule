@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -43,6 +42,17 @@ Future<RPCResponse> rpcRequest({
   dynamic params = const {},
 }) async {
   int id = _id++;
+  Sentry.addBreadcrumb(
+    Breadcrumb(
+      message: 'Performing rpc request $method to $serverUrl',
+      category: 'rpc.info',
+      data: {
+        'id': id,
+        'method': method,
+      },
+      level: SentryLevel.info,
+    ),
+  );
   http.Response response;
   try {
     response = await http.post(
@@ -73,48 +83,47 @@ Future<RPCResponse> rpcRequest({
     rethrow;
   }
 
-  try {
-    if (response.statusCode == 200) {
-      var rpcResponse = RPCResponse.fromJson(jsonDecode(response.body));
-      if (rpcResponse.id != id.toString()) {
-        getLogger().f('id of response does not match id of request');
-        Sentry.captureException(
-          'id of response does not match id of request',
-          hint: Hint.withMap({
-            'serverUrl': serverUrl.toString(),
-            'method': method,
-            'params': params,
-          }),
-        );
-        throw Exception('id of response does not match id of request');
-      }
-      getLogger().i("Successful RPC Request: $method"
-          "\n${rpcResponse.toStringNoResult()}");
-      return rpcResponse;
-    } else {
-      getLogger().e(
-        'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
-        error: response,
-        stackTrace: StackTrace.current,
-      );
-      throw HttpException(
-        'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
-        uri: serverUrl,
-      );
+  if (response.statusCode == 200) {
+    var rpcResponse = RPCResponse.fromJson(jsonDecode(response.body));
+    if (rpcResponse.id != id.toString()) {
+      getLogger().f('id of response does not match id of request');
+      throw const IllegalIdTokenException();
     }
-  } catch (e, s) {
-    Sentry.captureException(
-      e,
-      stackTrace: s,
-      hint: Hint.withMap(
-        {
-          'serverUrl': serverUrl.toString(),
-          'method': method,
-          'params': params,
-        },
-      ),
+    getLogger().i("Successful RPC Request: $method"
+        "\n${rpcResponse.toStringNoResult()}");
+    return rpcResponse;
+  } else {
+    getLogger().e(
+      'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
+      error: response,
+      stackTrace: StackTrace.current,
     );
-    getLogger().e("Error while performing rpcRequest $method to server $serverUrl", error: e, stackTrace: s);
-    rethrow;
+    throw HttpException(
+      response.statusCode,
+      response.reasonPhrase.toString(),
+      uri: serverUrl,
+    );
+  }
+}
+
+class IllegalIdTokenException implements Exception {
+  const IllegalIdTokenException();
+
+  @override
+  String toString() {
+    return 'IllegalIdTokenException: id of response does not match id of request';
+  }
+}
+
+class HttpException implements Exception {
+  final int statusCode;
+  final String message;
+  final Uri? uri;
+
+  const HttpException(this.statusCode, this.message, {this.uri});
+
+  @override
+  String toString() {
+    return 'HttpException: $message';
   }
 }

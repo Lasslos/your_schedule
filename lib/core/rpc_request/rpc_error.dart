@@ -14,7 +14,10 @@ class RPCError with _$RPCError {
 
   factory RPCError.fromJson(Map<String, dynamic> json) =>
       _$RPCErrorFromJson(json);
-}
 
-const badCredentials = -8504;
-const tooManyResults = -6003;
+  @Deprecated('Use authenticationFailed instead')
+  static const badCredentials = -8504;
+  static const tooManyResults = -6003;
+  static const invalidClientTime = -8524;
+  static const authenticationFailed = -8998;
+}

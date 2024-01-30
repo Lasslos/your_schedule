@@ -2,7 +2,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
@@ -37,7 +36,13 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     return;
   }
 
-  School? school = (await requestSchoolList(schoolName)).firstOrNull;
+  School? school;
+  try {
+    school = (await requestSchoolList(schoolName)).firstOrNull;
+  } catch (e, s) {
+    logRequestError("Error while fetching school list", e, s);
+    rethrow;
+  }
   if (school == null) {
     return;
   }
@@ -81,16 +86,11 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
 
   } on RPCError catch (e, s) {
     getLogger().e("Migration failed", error: e, stackTrace: s);
-    if (e.code == badCredentials) {
-      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
-    } else {
-      Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Migration failed", error: e, stackTrace: s);
-      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
-    }
+    ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
+          message: e.code == RPCError.authenticationFailed ? "Falsches Passwort" : e.message,
+        );
   } catch (e, s) {
     getLogger().e("Migration failed", error: e, stackTrace: s);
-    Sentry.captureException(e, stackTrace: s);
     return;
   }
   prefs.setString("version", _currentVersion);

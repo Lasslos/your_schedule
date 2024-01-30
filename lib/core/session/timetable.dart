@@ -7,8 +7,7 @@ import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/util/date.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/utils.dart';
 
 typedef TimeTableDay = List<TimeTablePeriod>;
 typedef TimeTableWeek = Map<Date, TimeTableDay>;
@@ -85,6 +84,7 @@ class TimeTableNotifier extends StateNotifier<AsyncValue<TimeTableWeek>> {
           _saveToPrefs();
         } catch (e, s) {
           state = AsyncError(e, s);
+          logRequestError("Error while requesting timetable data", e, s);
         }
       },
     );

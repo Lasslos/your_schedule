@@ -1,7 +1,6 @@
 import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
@@ -70,15 +69,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       if (!timeTableAsync.hasError) {
         continue;
       }
-      Sentry.captureException(
-        timeTableAsync.error,
-        stackTrace: timeTableAsync.stackTrace,
-      );
-      getLogger().e(
-        "Error while loading timetable",
-        error: timeTableAsync.error,
-        stackTrace: timeTableAsync.stackTrace,
-      );
+
       return Scaffold(
         appBar: AppBar(
           title: const Text('Fehler'),

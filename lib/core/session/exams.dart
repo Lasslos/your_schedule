@@ -7,8 +7,7 @@ import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/util/date.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/utils.dart';
 
 class ExamsNotifier extends StateNotifier<AsyncValue<Map<Date, List<Exam>>>> {
   final Session _session;
@@ -73,14 +72,14 @@ class ExamsNotifier extends StateNotifier<AsyncValue<Map<Date, List<Exam>>>> {
           _saveToPrefs();
         } catch (e, s) {
           state = AsyncError(e, s);
+          logRequestError("Error while requesting exam data", e, s);
         }
       },
     );
   }
 }
 
-final examsProvider = StateNotifierProvider.family<ExamsNotifier,
-    AsyncValue<Map<DateTime, List<Exam>>>, Week>((ref, week) {
+final examsProvider = StateNotifierProvider.family<ExamsNotifier, AsyncValue<Map<Date, List<Exam>>>, Week>((ref, week) {
   return ExamsNotifier(
     ref.watch(selectedSessionProvider),
     week,

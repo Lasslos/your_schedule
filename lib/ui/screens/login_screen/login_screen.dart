@@ -117,11 +117,10 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                       curve: Curves.easeInOut,
                     );
                   } on RPCError catch (e, s) {
-                    if (e.code == tooManyResults) {
+                    if (e.code == RPCError.tooManyResults) {
                       return;
                     }
-                    Sentry.captureException(e, stackTrace: s);
-                    getLogger().e("Error while requesting school list", error: e, stackTrace: s);
+                    logRequestError("Error while requesting school list", e, s);
                     setState(() {
                       _errorMessage = e.message;
                     });
@@ -326,6 +325,9 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       } catch (e, s) {
         await Sentry.captureException(e, stackTrace: s);
         getLogger().e("Error while parsing json", error: e, stackTrace: s);
+        ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
+              message: "Error while parsing json",
+            );
       }
 
       //ignore: use_build_context_synchronously
@@ -338,17 +340,16 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
         context,
         MaterialPageRoute(builder: (_) => const FilterScreen()),
       );
-    } on RPCError catch (e, s) {
-      if (e.code == badCredentials) {
-        ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: "Falsches Passwort");
-      } else {
-        Sentry.captureException(e, stackTrace: s);
-        getLogger().e("RPCError while logging in", error: e, stackTrace: s);
-        ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(message: e.message);
-      }
+    } on RPCError catch (e) {
+      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
+            message: e.code == RPCError.authenticationFailed ? "Falsches Passwort" : e.message,
+          );
+      getLogger().d("RPCError!");
     } catch (e, s) {
-      Sentry.captureException(e, stackTrace: s);
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
+      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
+            message: "Unbekannter Fehler",
+          );
     } finally {
       setState(() {
         isLoading = false;

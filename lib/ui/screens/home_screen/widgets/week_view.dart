@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
@@ -112,11 +111,6 @@ class _Page extends ConsumerWidget {
     var filters = ref.watch(filtersProvider);
 
     if (timeTableAsync.hasError) {
-      Sentry.captureException(
-        timeTableAsync.error,
-        stackTrace: timeTableAsync.stackTrace,
-      );
-      getLogger().e("Error while loading timetable", error: timeTableAsync.error, stackTrace: timeTableAsync.stackTrace);
       return Center(child: Text(timeTableAsync.error.toString()));
     } else if (timeTableAsync.isLoading) {
       //Note: Week starts on Saturday to show next week after Friday

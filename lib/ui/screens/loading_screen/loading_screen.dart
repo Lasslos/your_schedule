@@ -90,44 +90,10 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       } on RPCError catch (e, s) {
         await _onRPCError(sessions, e, s);
         return;
-      } on SocketException catch (e, s) {
-        getLogger().w("SocketException while refreshing session", error: e, stackTrace: s);
+      } on (SocketException, TimeoutException) {
         setState(() {
           _message = "No internet connection, using cached data";
         });
-        Sentry.captureEvent(
-          SentryEvent(
-            message: const SentryMessage("SocketException while refreshing session"),
-            level: SentryLevel.warning,
-            exceptions: [
-              SentryException(
-                type: e.runtimeType.toString(),
-                value: e.toString(),
-                throwable: e,
-              ),
-            ],
-          ),
-        );
-      } on TimeoutException catch (e, s) {
-        _message = "No internet connection, using cached data";
-        getLogger().w("TimeoutException while refreshing session", error: e, stackTrace: s);
-        Sentry.captureEvent(
-          SentryEvent(
-            message: const SentryMessage("TimeoutException while refreshing session"),
-            level: SentryLevel.warning,
-            exceptions: [
-              SentryException(
-                type: e.runtimeType.toString(),
-                value: e.toString(),
-                throwable: e,
-              ),
-            ],
-          ),
-        );
-      } catch (e, s) {
-        await Sentry.captureException(e, stackTrace: s);
-        getLogger().e("Error while refreshing session", error: e, stackTrace: s);
-        setState(() {});
       }
     } else {
       setState(() {
@@ -154,48 +120,82 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
   }
 
   Future<void> _onRPCError(List<Session> sessions, RPCError e, StackTrace s) async {
-    if (e.code != badCredentials) {
-      await Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while refreshing session", error: e, stackTrace: s);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return const LoginScreen();
-          },
-        ),
-      );
-      return;
-    }
-
-    getLogger().w("Bad credentials, reauthenticating");
-    setState(() {
-      _message = "Bad credentials, reauthenticating";
-    });
-    var session = sessions.first;
-    var newSession = Session.inactive(
-      username: session.username,
-      password: session.password,
-      school: session.school,
-    );
-    try {
-      //Trying to reauthenticate
-      ref.read(sessionsProvider.notifier).updateSession(session, await activateSession(ref, newSession));
-    } on RPCError catch (e, s) {
-      //Reauthentication failed, deleting session
-      if (e.code == badCredentials) {
+    switch (e.code) {
+      case RPCError.invalidClientTime:
         setState(() {
-          _message = "Bad credentials, deleting session";
+          _message = "Invalid client time, please check your system time";
         });
-        getLogger().w("Bad credentials, deleting session");
-        ref.read(sessionsProvider.notifier).removeSession(session);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            behavior: SnackBarBehavior.floating,
-            content: Text("Deine Anmeldedaten sind ungültig, bitte melde dich erneut an.", style: TextStyle(color: Colors.white)),
-            backgroundColor: Colors.red,
+        break;
+      case RPCError.authenticationFailed:
+        getLogger().w("Bad credentials, reauthenticating");
+        setState(() {
+          _message = "Bad credentials, reauthenticating";
+        });
+        var session = sessions.first;
+        var newSession = Session.inactive(
+          username: session.username,
+          password: session.password,
+          school: session.school,
+        );
+        try {
+          //Trying to reauthenticate
+          ref.read(sessionsProvider.notifier).updateSession(session, await activateSession(ref, newSession));
+        } on RPCError catch (e) {
+          //Reauthentication failed, deleting session
+          if (e.code == RPCError.authenticationFailed) {
+            setState(() {
+              _message = "Bad credentials, deleting session";
+            });
+            getLogger().w("Bad credentials, deleting session");
+            ref.read(sessionsProvider.notifier).removeSession(session);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                content: Text("Deine Anmeldedaten sind ungültig, bitte melde dich erneut an.", style: TextStyle(color: Colors.white)),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return const LoginScreen();
+              },
+            ),
+          );
+          return;
+        } catch (e) {
+          //An unknown error occurred while reauthenticating
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return const LoginScreen();
+              },
+            ),
+          );
+          return;
+        }
+        getLogger().i("Reauthenticated");
+        var filters = ref.read(filtersProvider);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return const HomeScreen();
+            },
           ),
         );
+        if (filters.isEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FilterScreen()),
+          );
+        }
+        break;
+      default:
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -204,52 +204,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
             },
           ),
         );
-        return;
-      }
-
-      //A different RPCError occurred while reauthenticating
-      Sentry.captureException(e, stackTrace: s);
-      getLogger().e("RPCError while reauthenticating", error: e, stackTrace: s);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return const LoginScreen();
-          },
-        ),
-      );
-      return;
-    } catch (e, s) {
-      //An unknown error occurred while reauthenticating
-      Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Unknown Error while reauthenticating", error: e, stackTrace: s);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) {
-            return const LoginScreen();
-          },
-        ),
-      );
-      return;
     }
-    getLogger().i("Reauthenticated");
-    var filters = ref.read(filtersProvider);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return const HomeScreen();
-        },
-      ),
-    );
-    if (filters.isEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const FilterScreen()),
-      );
-    }
-    return;
   }
 
   @override
