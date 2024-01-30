@@ -15,3 +15,6 @@ class RPCError with _$RPCError {
   factory RPCError.fromJson(Map<String, dynamic> json) =>
       _$RPCErrorFromJson(json);
 }
+
+const badCredentials = -8504;
+const tooManyResults = -6003;

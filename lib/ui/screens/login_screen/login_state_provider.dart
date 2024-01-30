@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/core/untis.dart';
 
 part 'login_state_provider.freezed.dart';
 

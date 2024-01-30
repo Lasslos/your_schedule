@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:your_schedule/util/time_of_day_serializer.dart';
+import 'package:your_schedule/utils.dart';
 
 part 'time_grid_entry.freezed.dart';
 part 'time_grid_entry.g.dart';

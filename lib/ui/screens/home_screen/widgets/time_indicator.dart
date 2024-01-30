@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/util/date_utils.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/utils.dart';
 
 class TimeIndicator extends ConsumerWidget {
   const TimeIndicator({super.key});

@@ -1,4 +1,4 @@
-import 'package:your_schedule/core/rpc_request/rpc_request.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis/models/school_search/school.dart';
 
 Future<List<School>> requestSchoolList(String query) async {
@@ -21,5 +21,3 @@ Future<List<School>> requestSchoolList(String query) async {
     },
   );
 }
-
-const tooManyResults = -6003;

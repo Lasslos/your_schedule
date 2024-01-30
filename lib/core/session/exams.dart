@@ -4,9 +4,9 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
-import 'package:your_schedule/core/rpc_request/rpc_request.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/week.dart';
 

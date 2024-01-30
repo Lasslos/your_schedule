@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:your_schedule/util/date.dart';
 
+/// Week starts on **saturday**, as the user is interested in the next week starting from saturday.
 @immutable
 class Week {
   final Date startDate;

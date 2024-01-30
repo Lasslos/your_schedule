@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_schedule/core/rpc_request/rpc_request.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/logger.dart';
 
 part 'session.freezed.dart';

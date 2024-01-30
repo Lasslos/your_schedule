@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session/timetable.dart';
+import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/day_view.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timegrid_widget.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/week_view.dart';
-import 'package:your_schedule/util/date.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/utils.dart';
 
 class TimeTableView extends ConsumerWidget {
   const TimeTableView({super.key});

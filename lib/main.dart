@@ -14,11 +14,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   var prefs = await SharedPreferences.getInstance();
   var darkMode = prefs.getBool('darkMode');
-  var theme = darkMode == true
-      ? ThemeMode.dark
-      : darkMode != null
-          ? ThemeMode.light
-          : ThemeMode.system;
+  ThemeMode? theme = switch (darkMode) { true => ThemeMode.dark, false => ThemeMode.light, null => ThemeMode.system };
 
   await SentryFlutter.init(
     (options) {
@@ -50,13 +46,13 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      ref.read(themeProvider.notifier).setTheme(widget.initialThemeMode);
+      ref.read(themeSettingProvider.notifier).setTheme(widget.initialThemeMode);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    var theme = ref.watch(themeProvider);
+    var theme = ref.watch(themeSettingProvider);
     return MaterialApp(
       title: 'Stundenplan',
       //Erster Screen: LoadingScreen
@@ -64,12 +60,10 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: ThemeData(
         colorSchemeSeed: Colors.lightBlue,
         brightness: Brightness.light,
-        useMaterial3: true,
       ),
       darkTheme: ThemeData(
         colorSchemeSeed: Colors.lightBlue,
         brightness: Brightness.dark,
-        useMaterial3: true,
       ),
       themeMode: theme,
     );

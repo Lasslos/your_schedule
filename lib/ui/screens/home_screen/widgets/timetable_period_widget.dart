@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:your_schedule/core/session/custom_subject_colors.dart';
-import 'package:your_schedule/core/session/filters.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
 
 class TimeTablePeriodWidget extends ConsumerWidget {
@@ -29,19 +27,19 @@ class TimeTablePeriodWidget extends ConsumerWidget {
     List<TimeTablePeriodStatus> periodStatuses = period.periodStatus;
 
     if (periodStatuses.contains(TimeTablePeriodStatus.exam)) {
-      statusColor = examColor;
+      statusColor = CustomSubjectColor.examColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.cancelled)) {
-      statusColor = cancelledColor;
+      statusColor = CustomSubjectColor.cancelledColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.irregular) ||
         (period.subject?.let((self) => self.id != self.orgId) ?? false) ||
         (period.room?.let((self) => self.id != self.orgId) ?? false) ||
         (period.teacher?.let((self) => self.id != self.orgId) ?? false)) {
-      statusColor = irregularColor;
+      statusColor = CustomSubjectColor.irregularColor;
     } else if (periodStatuses.contains(TimeTablePeriodStatus.regular)) {
       isRegularStatusColor = true;
-      statusColor = ref.watch(customSubjectColorsProvider)[period.subject?.id] ?? regularColor;
+      statusColor = ref.watch(customSubjectColorsProvider)[period.subject?.id] ?? CustomSubjectColor.regularColor;
     } else {
-      statusColor = emptyColor;
+      statusColor = CustomSubjectColor.emptyColor;
     }
 
     Subject? subject = userData.subjects[period.subject?.id];
@@ -234,8 +232,7 @@ class PeriodDetailsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var customSubjectColor =
-        ref.watch(customSubjectColorsProvider)[period.subject?.id] ??
-            regularColor;
+        ref.watch(customSubjectColorsProvider)[period.subject?.id] ?? CustomSubjectColor.regularColor;
 
     return Scaffold(
       appBar: AppBar(

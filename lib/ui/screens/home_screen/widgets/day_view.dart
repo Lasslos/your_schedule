@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/session/filters.dart';
-import 'package:your_schedule/core/session/timetable.dart';
-import 'package:your_schedule/core/untis/models/timetable/timetable_period.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
-import 'package:your_schedule/util/date.dart';
-import 'package:your_schedule/util/logger.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/utils.dart';
 
 class DayView extends ConsumerStatefulWidget {
   const DayView({super.key});

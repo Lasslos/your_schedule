@@ -2,12 +2,9 @@ import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/session/filters.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/session/timetable.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
-import 'package:your_schedule/util/logger.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
+import 'package:your_schedule/utils.dart';
 
 class FilterScreen extends ConsumerStatefulWidget {
   const FilterScreen({super.key});

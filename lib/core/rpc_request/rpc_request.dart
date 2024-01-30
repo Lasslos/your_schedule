@@ -6,8 +6,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:http/http.dart' as http;
 import 'package:otp/otp.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/core/rpc_request/rpc_response.dart';
-import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
+import 'package:your_schedule/utils.dart';
 
 part 'rpc_request.freezed.dart';
 

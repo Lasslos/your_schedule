@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/migration_core/timetable_period_subject_information.dart';
-import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/utils.dart';
 
 class CustomSubjectColor {
   final TimeTablePeriodSubjectInformation subject;

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:your_schedule/util/string_utils.dart';
+import 'package:your_schedule/utils.dart';
 
 part 'teacher.freezed.dart';
 part 'teacher.g.dart';

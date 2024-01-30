@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_view.dart';
 import 'package:your_schedule/ui/shared/my_drawer.dart';
-import 'package:your_schedule/util/date.dart';
+import 'package:your_schedule/utils.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

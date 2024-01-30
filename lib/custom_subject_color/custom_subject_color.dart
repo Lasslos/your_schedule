@@ -15,33 +15,33 @@ class CustomSubjectColor with _$CustomSubjectColor {
 
   factory CustomSubjectColor.fromJson(Map<String, dynamic> json) =>
       _$CustomSubjectColorFromJson(json);
-}
 
-const CustomSubjectColor regularColor = CustomSubjectColor(
-  -1,
-  Colors.lightGreen,
-  Colors.white,
-);
-final CustomSubjectColor examColor = CustomSubjectColor(
-  -1,
-  Colors.red[900]!,
-  Colors.white,
-);
-const CustomSubjectColor irregularColor = CustomSubjectColor(
-  -1,
-  Colors.orange,
-  Colors.white,
-);
-const CustomSubjectColor cancelledColor = CustomSubjectColor(
-  -1,
-  Colors.red,
-  Colors.white,
-);
-const CustomSubjectColor emptyColor = CustomSubjectColor(
-  -1,
-  Colors.grey,
-  Colors.black,
-);
+  static const CustomSubjectColor regularColor = CustomSubjectColor(
+    -1,
+    Colors.lightGreen,
+    Colors.white,
+  );
+  static final CustomSubjectColor examColor = CustomSubjectColor(
+    -1,
+    Colors.red[900]!,
+    Colors.white,
+  );
+  static const CustomSubjectColor irregularColor = CustomSubjectColor(
+    -1,
+    Colors.orange,
+    Colors.white,
+  );
+  static const CustomSubjectColor cancelledColor = CustomSubjectColor(
+    -1,
+    Colors.red,
+    Colors.white,
+  );
+  static const CustomSubjectColor emptyColor = CustomSubjectColor(
+    -1,
+    Colors.grey,
+    Colors.black,
+  );
+}
 
 class ColorConverter extends JsonConverter<Color, int> {
   const ColorConverter();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session/session.dart';
+import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';

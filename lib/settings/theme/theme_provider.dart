@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-StateNotifierProvider<ThemeProvider, ThemeMode> themeProvider =
-    StateNotifierProvider<ThemeProvider, ThemeMode>((ref) => ThemeProvider());
+part 'theme_provider.g.dart';
 
-class ThemeProvider extends StateNotifier<ThemeMode> {
-  ThemeProvider() : super(ThemeMode.system);
+@riverpod
+class ThemeSetting extends _$ThemeSetting {
+  @override
+  ThemeMode build() {
+    return ThemeMode.system;
+  }
 
-  void setTheme(ThemeMode theme) {
-    if (theme != ThemeMode.system) {
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setBool('darkMode', theme == ThemeMode.dark);
-      });
-    } else {
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.remove('darkMode');
-      });
+  Future<void> setTheme(ThemeMode theme) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (theme == ThemeMode.system) {
+      prefs.remove('darkMode');
+      return;
     }
-    state = theme;
+
+    prefs.setBool('darkMode', theme == ThemeMode.dark);
   }
 }

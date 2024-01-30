@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session/custom_subject_colors.dart';
+import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/settings/theme/theme_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -33,7 +33,7 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               title: const Text("Design"),
               subtitle: Text(() {
-                switch (ref.watch(themeProvider)) {
+                switch (ref.watch(themeSettingProvider)) {
                   case ThemeMode.system:
                     return "Systemvorgabe";
                   case ThemeMode.light:
@@ -53,27 +53,27 @@ class SettingsScreen extends ConsumerWidget {
                         RadioListTile<ThemeMode>(
                           title: const Text("Hell"),
                           value: ThemeMode.light,
-                          groupValue: ref.watch(themeProvider),
+                          groupValue: ref.watch(themeSettingProvider),
                           onChanged: (value) {
-                            ref.read(themeProvider.notifier).setTheme(value!);
+                            ref.read(themeSettingProvider.notifier).setTheme(value!);
                             Navigator.of(context).pop();
                           },
                         ),
                         RadioListTile<ThemeMode>(
                           title: const Text("Dunkel"),
                           value: ThemeMode.dark,
-                          groupValue: ref.watch(themeProvider),
+                          groupValue: ref.watch(themeSettingProvider),
                           onChanged: (value) {
-                            ref.read(themeProvider.notifier).setTheme(value!);
+                            ref.read(themeSettingProvider.notifier).setTheme(value!);
                             Navigator.of(context).pop();
                           },
                         ),
                         RadioListTile<ThemeMode>(
                           title: const Text("Systemvorgabe"),
                           value: ThemeMode.system,
-                          groupValue: ref.watch(themeProvider),
+                          groupValue: ref.watch(themeSettingProvider),
                           onChanged: (value) {
-                            ref.read(themeProvider.notifier).setTheme(value!);
+                            ref.read(themeSettingProvider.notifier).setTheme(value!);
                             Navigator.of(context).pop();
                           },
                         ),

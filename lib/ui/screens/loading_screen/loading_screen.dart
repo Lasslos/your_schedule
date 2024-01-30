@@ -9,16 +9,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
-import 'package:your_schedule/core/rpc_request/rpc_error.dart';
-import 'package:your_schedule/core/session/custom_subject_colors.dart';
-import 'package:your_schedule/core/session/filters.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
+import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/migration_core/migrate.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
-import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/utils.dart';
 
 class LoadingScreen extends ConsumerStatefulWidget {
   const LoadingScreen({

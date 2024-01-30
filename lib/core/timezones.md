@@ -1,7 +1,7 @@
 # Timezones
 
 Time and date objects have caused issues here in the past. This is meant to
-support you if you ever get issues
+support you if you ever get issues.
 
 ### Server
 

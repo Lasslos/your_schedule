@@ -5,20 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
-import 'package:your_schedule/core/rpc_request/rpc_error.dart';
-import 'package:your_schedule/core/session/custom_subject_colors.dart';
-import 'package:your_schedule/core/session/filters.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/untis/models/school_search/school.dart';
-import 'package:your_schedule/core/untis/requests/request_app_shared_secret.dart';
-import 'package:your_schedule/core/untis/requests/request_school_list.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
 import 'package:your_schedule/migration_core/custom_subject_colors.dart' as old_custom_subject_colors;
 import 'package:your_schedule/migration_core/filter.dart';
 import 'package:your_schedule/migration_core/timetable_period_subject_information.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart';
-import 'package:your_schedule/util/logger.dart';
-import 'package:your_schedule/util/secure_storage_util.dart';
+import 'package:your_schedule/utils.dart';
 
 //The current version of the app. Change this constant if the SharedPreferences should be migrated.
 const String _currentVersion = '1.3.*';

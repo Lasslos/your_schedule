@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:your_schedule/core/rpc_request/rpc_request.dart';
-import 'package:your_schedule/core/untis/models/exams/exam.dart';
-import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';

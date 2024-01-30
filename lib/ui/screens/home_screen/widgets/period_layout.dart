@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_widget.dart';
 
 /// Ein Widget, das die Stunden in einer Tagesansicht anzeigt.

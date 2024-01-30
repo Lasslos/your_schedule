@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_schedule/util/date.dart';
+import 'package:your_schedule/utils.dart';
 
 enum ViewMode {
   week("Wochenansicht", Icons.calendar_view_week),

@@ -1,4 +1,4 @@
-import 'package:your_schedule/core/rpc_request/rpc_request.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
 
 Future<UserData> requestUserData(

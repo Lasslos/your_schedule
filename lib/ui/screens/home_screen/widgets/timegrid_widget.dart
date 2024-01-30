@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session/session.dart';
-import 'package:your_schedule/core/untis/untis_api.dart';
-import 'package:your_schedule/util/date_utils.dart';
-import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis.dart';
+import 'package:your_schedule/utils.dart';
 
 class TimeGridWidget extends ConsumerStatefulWidget {
   const TimeGridWidget({

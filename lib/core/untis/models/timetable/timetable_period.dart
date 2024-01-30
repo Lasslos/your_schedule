@@ -1,10 +1,7 @@
 import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:your_schedule/core/untis/models/timetable/internal_period_text.dart';
-import 'package:your_schedule/core/untis/models/timetable/timetable_exam_information.dart';
-import 'package:your_schedule/core/untis/models/timetable/timetable_period_element.dart';
-import 'package:your_schedule/core/untis/models/timetable/timetable_period_status.dart';
+import 'package:your_schedule/core/untis.dart';
 
 part 'timetable_period.freezed.dart';
 part 'timetable_period.g.dart';
