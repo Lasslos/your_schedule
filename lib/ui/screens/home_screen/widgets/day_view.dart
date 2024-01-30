@@ -132,7 +132,7 @@ class _Page extends ConsumerWidget {
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    text: currentDate.format(DateFormat("EEEE")),
+                    text: currentDate.format(DateFormat("EEEE\n")),
                     style: Theme.of(context).textTheme.bodyLarge,
                     children: [
                       TextSpan(
