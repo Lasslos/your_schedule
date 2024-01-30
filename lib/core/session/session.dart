@@ -123,9 +123,7 @@ Future<Session> activateSession(WidgetRef ref, Session session) async {
       ),
     );
   } catch (e, s) {
-    getLogger().d("Lets log!");
     logRequestError("Error while requesting session data", e, s);
-    getLogger().d("Done!");
     rethrow;
   }
   return Session.active(

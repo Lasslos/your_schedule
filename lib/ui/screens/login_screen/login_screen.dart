@@ -344,7 +344,6 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
             message: e.code == RPCError.authenticationFailed ? "Falsches Passwort" : e.message,
           );
-      getLogger().d("RPCError!");
     } catch (e, s) {
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
