@@ -49,6 +49,11 @@ Future<RPCResponse> rpcRequest({
       data: {
         'id': id,
         'method': method,
+        if (params is List && params[0] is Map)
+          'params': [...params][0]
+            ..['auth'] = 'scrubbed'
+            ..['password'] = "scrubbed"
+            ..['userName'] = 'scrubbed',
       },
       level: SentryLevel.info,
     ),
