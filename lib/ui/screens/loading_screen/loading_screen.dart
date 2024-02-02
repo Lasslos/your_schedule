@@ -67,18 +67,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       return;
     }
 
-    //Load filters and custom subject colors from shared prefs
-    setState(() {
-      _message = "Loading data";
-    });
-    try {
-      await ref.read(filtersProvider.notifier).initializeFromPrefs();
-      await ref.read(customSubjectColorsProvider.notifier).initializeFromPrefs();
-    } catch (e, s) {
-      await Sentry.captureException(e, stackTrace: s);
-      getLogger().e("Error while parsing json", error: e, stackTrace: s);
-    }
-
     //Load data from untis
     setState(() {
       _message = "Refreshing session";
@@ -101,8 +89,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
       });
     }
 
-    var filters = ref.read(filtersProvider);
-
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -111,12 +97,6 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         },
       ),
     );
-    if (filters.isEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const FilterScreen()),
-      );
-    }
   }
 
   Future<void> _onRPCError(List<Session> sessions, RPCError e, StackTrace s) async {

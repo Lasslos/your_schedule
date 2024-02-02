@@ -1,13 +1,28 @@
 import 'dart:convert';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/util/logger.dart';
 
-class FiltersNotifier extends StateNotifier<Set<int>> {
-  final int _userId;
+part 'filters.g.dart';
 
-  FiltersNotifier(this._userId) : super({});
+@riverpod
+class Filters extends _$Filters {
+  late final int _userId;
+
+  @override
+  Set<int> build() {
+    _userId = ref.watch(selectedSessionProvider.select((value) => value.userData!.id));
+    try {
+      initializeFromPrefs();
+    } catch (e, s) {
+      Sentry.captureException(e, stackTrace: s);
+      getLogger().e("Error while parsing json", error: e, stackTrace: s);
+    }
+    return {};
+  }
 
   void add(int id) {
     state = Set.unmodifiable(Set.from(state)..add(id));
@@ -44,10 +59,3 @@ class FiltersNotifier extends StateNotifier<Set<int>> {
     }
   }
 }
-
-final filtersProvider = StateNotifierProvider<FiltersNotifier, Set<int>>(
-  (ref) {
-    int userId = ref.watch(selectedSessionProvider.select((value) => value.userData!.id));
-    return FiltersNotifier(userId);
-  },
-);

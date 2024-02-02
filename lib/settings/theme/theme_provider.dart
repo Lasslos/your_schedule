@@ -19,5 +19,6 @@ class ThemeSetting extends _$ThemeSetting {
     }
 
     prefs.setBool('darkMode', theme == ThemeMode.dark);
+    state = theme;
   }
 }

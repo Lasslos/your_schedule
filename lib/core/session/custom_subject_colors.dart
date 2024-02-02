@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
+import 'package:your_schedule/util/logger.dart';
 
 part 'custom_subject_colors.g.dart';
 
@@ -14,6 +16,12 @@ class CustomSubjectColors extends _$CustomSubjectColors {
   @override
   Map<int, CustomSubjectColor> build() {
     _userId = ref.watch(selectedSessionProvider.select((value) => value.userData!.id));
+    try {
+      initializeFromPrefs();
+    } catch (e, s) {
+      Sentry.captureException(e, stackTrace: s);
+      getLogger().e("Error while parsing json", error: e, stackTrace: s);
+    }
     return {};
   }
 

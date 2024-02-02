@@ -317,19 +317,6 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       session = await activateSession(ref, session);
       ref.read(sessionsProvider.notifier).addSession(session);
 
-      try {
-        await ref.read(filtersProvider.notifier).initializeFromPrefs();
-        await ref
-            .read(customSubjectColorsProvider.notifier)
-            .initializeFromPrefs();
-      } catch (e, s) {
-        await Sentry.captureException(e, stackTrace: s);
-        getLogger().e("Error while parsing json", error: e, stackTrace: s);
-        ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
-              message: "Error while parsing json",
-            );
-      }
-
       //ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
