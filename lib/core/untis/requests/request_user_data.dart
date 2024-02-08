@@ -1,10 +1,14 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
+
+part 'request_user_data.g.dart';
 
 /// Requests the user data for the given user in [authParams].
 ///
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
-Future<UserData> requestUserData(
+@riverpod
+Future<UserData> requestUserData(RequestUserDataRef ref,
   String apiBaseUrl,
   AuthParams authParams,
 ) async {
@@ -20,12 +24,9 @@ Future<UserData> requestUserData(
     ],
     serverUrl: Uri.parse(apiBaseUrl),
   );
-  return response.map(
-    result: (result) {
-      return UserData.fromJson(result.result);
-    },
-    error: (error) {
-      throw error.error;
-    },
-  );
+
+  return switch (response) {
+    RPCResponseResult() => UserData.fromJson(response.result),
+    RPCResponseError() => throw response.error,
+  };
 }

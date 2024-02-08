@@ -1,10 +1,14 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis/models/school_search/school.dart';
+
+part 'request_school_list.g.dart';
 
 /// Requests a list of schools for the given [query].
 ///
 /// The request is send to the schoolsearch server and uses the [query] to search for schools.
-Future<List<School>> requestSchoolList(String query) async {
+@riverpod
+Future<List<School>> requestSchoolList(RequestSchoolListRef ref, String query) async {
   final response = await rpcRequest(
     serverUrl: Uri.parse("https://schoolsearch.webuntis.com/schoolquery2"),
     method: "searchSchool",
@@ -15,12 +19,8 @@ Future<List<School>> requestSchoolList(String query) async {
     ],
   );
 
-  return response.map(
-    result: (result) {
-      return result.result['schools'].map<School>((school) => School.fromJson(school)).toList();
-    },
-    error: (error) {
-      throw error.error;
-    },
-  );
+  return switch (response) {
+    RPCResponseResult() => response.result['schools'].map<School>((school) => School.fromJson(school)).toList(),
+    RPCResponseError() => throw response.error,
+  };
 }

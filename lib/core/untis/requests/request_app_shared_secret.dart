@@ -1,12 +1,16 @@
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
+
+part 'request_app_shared_secret.g.dart';
 
 /// Requests the shared secret for the app.
 ///
 /// The shared secret is used to authenticate the app with the server.
 /// Returns a [Future] with the shared secret. If authentication fails, a [RPCError] is thrown.
 /// See [RPCError.authenticationFailed].
-Future<String> requestAppSharedSecret(
+@riverpod
+Future<String> requestAppSharedSecret(RequestAppSharedSecretRef ref,
   UntisSession session,
 ) async {
   var response = await rpcRequest(
@@ -16,12 +20,9 @@ Future<String> requestAppSharedSecret(
     ],
     serverUrl: Uri.parse(session.school.rpcUrl),
   );
-  return response.map(
-    result: (result) {
-      return result.result;
-    },
-    error: (error) {
-      throw error.error;
-    },
-  );
+
+  return switch (response) {
+    RPCResponseResult() => response.result,
+    RPCResponseError() => throw response.error,
+  };
 }
