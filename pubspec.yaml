@@ -38,6 +38,7 @@ dev_dependencies:
   riverpod_generator: ^2.3.11
   custom_lint: ^0.6.0
   riverpod_lint: ^2.3.9
+  freezed_lint: ^0.0.1
 
 flutter_icons:
   android: true

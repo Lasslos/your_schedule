@@ -13,6 +13,8 @@ class CustomSubjectColor with _$CustomSubjectColor {
     @ColorConverter() Color textColor,
   ) = _CustomSubjectColor;
 
+  const CustomSubjectColor._();
+
   factory CustomSubjectColor.fromJson(Map<String, dynamic> json) =>
       _$CustomSubjectColorFromJson(json);
 

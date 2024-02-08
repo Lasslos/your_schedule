@@ -12,6 +12,8 @@ class RPCError with _$RPCError {
     dynamic data,
   ) = _RPCError;
 
+  const RPCError._();
+
   factory RPCError.fromJson(Map<String, dynamic> json) =>
       _$RPCErrorFromJson(json);
 
