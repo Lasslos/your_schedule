@@ -10,7 +10,9 @@ part 'cached_timetable.g.dart';
 @riverpod
 class CachedTimeTable extends _$CachedTimeTable {
   @override
-  TimeTableWeek build(ActiveUntisSession session, Week week) {
+  TimeTableWeek build(UntisSession activeSession, Week week) {
+    assert(activeSession is ActiveUntisSession, "Session must be active!");
+    ActiveUntisSession session = activeSession as ActiveUntisSession;
     if (!sharedPreferences.containsKey("${session.userData.id}.timetable.$week")) {
       return {
         for (var i = 0; i < 7; i++) week.startDate.addDays(i): const [],
@@ -33,7 +35,7 @@ class CachedTimeTable extends _$CachedTimeTable {
     };
 
     await sharedPreferences.setString(
-      "${session.userData.id}.timetable.$week",
+      "${(activeSession as ActiveUntisSession).userData.id}.timetable.$week",
       jsonEncode(json),
     );
 

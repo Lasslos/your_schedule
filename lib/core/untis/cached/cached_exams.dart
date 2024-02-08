@@ -10,7 +10,9 @@ part 'cached_exams.g.dart';
 @riverpod
 class CachedExams extends _$CachedExams {
   @override
-  Map<Date, List<Exam>> build(ActiveUntisSession session, Week week) {
+  Map<Date, List<Exam>> build(UntisSession activeSession, Week week) {
+    assert(activeSession is ActiveUntisSession, "Session must be active");
+    ActiveUntisSession session = activeSession as ActiveUntisSession;
     if (!sharedPreferences.containsKey("${session.userData.id}.exams.$week")) {
       return {
         for (var i = 0; i < 7; i++) week.startDate.addDays(i): const <Exam>[],
@@ -28,7 +30,7 @@ class CachedExams extends _$CachedExams {
     Map<String, dynamic> json = {
       for (var entry in exams.entries) entry.key.millisecondsSinceEpoch.toString(): entry.value.map((e) => e.toJson()).toList(),
     };
-    await sharedPreferences.setString("${session.userData.id}.exams.$week", jsonEncode(json));
+    await sharedPreferences.setString("${(activeSession as ActiveUntisSession).userData.id}.exams.$week", jsonEncode(json));
     state = exams;
   }
 }

@@ -11,12 +11,14 @@ part 'request_timetable.g.dart';
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
 /// Returns a [Future] with a [Map] of [Date]s and [List]s of [TimeTablePeriod]s.
 /// All [Date]s are normalized to the start of the day.
-@riverpod
+@Riverpod(keepAlive: true)
 Future<TimeTableWeek> requestTimeTable(
   RequestTimeTableRef ref,
-  ActiveUntisSession session,
+  UntisSession activeSession,
   Week week,
 ) async {
+  assert(activeSession is ActiveUntisSession, "Session must be active!");
+  ActiveUntisSession session = activeSession as ActiveUntisSession;
   // Cache/Log results by listening for changes
   ref.listenSelf((_, data) {
     data.when(

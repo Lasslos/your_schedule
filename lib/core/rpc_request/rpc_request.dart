@@ -106,7 +106,7 @@ Future<RPCResponse> rpcRequest({
       throw const IllegalIdTokenException();
     }
     getLogger().i("Successful RPC Request: $method"
-        "\n${rpcResponse.toStringNoResult()}");
+        "\n${rpcResponse.toString()}");
     return rpcResponse;
   } else {
     getLogger().e(

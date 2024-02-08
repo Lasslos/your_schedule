@@ -17,6 +17,13 @@ class TimeTableView extends ConsumerWidget {
     var viewMode = ref.watch(viewModeSettingProvider);
     var date = ref.watch(homeScreenDateProvider);
 
+    // Eager initialization of the time table providers
+    var session = ref.watch(selectedUntisSessionProvider);
+    ref
+      ..watch(timeTableProvider(session, Week.fromDate(date)))
+      ..watch(timeTableProvider(session, Week.fromDate(date.addWeeks(1))))
+      ..watch(timeTableProvider(session, Week.fromDate(date.addWeeks(-1))));
+
     return RefreshIndicator(
       onRefresh: () async {
         var session = ref.read(selectedUntisSessionProvider);

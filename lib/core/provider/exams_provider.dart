@@ -8,7 +8,8 @@ part 'exams_provider.g.dart';
 @riverpod
 class Exams extends _$Exams {
   @override
-  Map<Date, List<Exam>> build(ActiveUntisSession session, Week week) {
+  Map<Date, List<Exam>> build(UntisSession session, Week week) {
+    assert(session is ActiveUntisSession, "Session must be active");
     if (ref.watch(canMakeRequestProvider)) {
       var exams = ref.watch(requestExamsProvider(session, week));
       if (exams.hasValue) {

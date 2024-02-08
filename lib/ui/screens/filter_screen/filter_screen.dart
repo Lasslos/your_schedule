@@ -195,14 +195,15 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   }
 
   void _initPeriods() {
-    var userData = ref.read(selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData));
+    var session = ref.read(selectedUntisSessionProvider) as ActiveUntisSession;
+    var userData = session.userData;
     periods = userData.subjects.keys.toList();
 
     var filters = ref.read(filtersProvider);
     var subjects = userData.subjects;
     var teachers = userData.teachers;
     var rooms = userData.rooms;
-    var timeTableWeeks = [for (var i = -2; i < 3; i++) ref.read(timeTableProvider(userData, Week.relative(i)))];
+    var timeTableWeeks = [for (var i = -2; i < 3; i++) ref.read(timeTableProvider(session, Week.relative(i)))];
     var timeTablePeriods = _getRelevantTimeTablePeriods(timeTableWeeks);
 
     _sortPeriods(periods, filters, subjects);
