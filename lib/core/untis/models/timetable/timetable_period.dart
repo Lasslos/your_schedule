@@ -2,9 +2,13 @@ import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:your_schedule/core/untis.dart';
+import 'package:your_schedule/utils.dart';
 
 part 'timetable_period.freezed.dart';
 part 'timetable_period.g.dart';
+
+typedef TimeTableDay = List<TimeTablePeriod>;
+typedef TimeTableWeek = Map<Date, TimeTableDay>;
 
 @freezed
 class TimeTablePeriod with _$TimeTablePeriod {

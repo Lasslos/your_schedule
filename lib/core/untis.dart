@@ -1,3 +1,5 @@
+export 'untis/cached/cached_exams.dart';
+export 'untis/cached/cached_timetable.dart';
 export 'untis/models/app_shared_secret/app_shared_secret_params.dart';
 export 'untis/models/exams/exam.dart';
 export 'untis/models/exams/invigilators.dart';

@@ -2,9 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/util/date.dart';
-import 'package:your_schedule/util/date_utils.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/utils.dart';
 
 part 'request_timetable.g.dart';
 
@@ -14,10 +12,24 @@ part 'request_timetable.g.dart';
 /// Returns a [Future] with a [Map] of [Date]s and [List]s of [TimeTablePeriod]s.
 /// All [Date]s are normalized to the start of the day.
 @riverpod
-Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(RequestTimeTableRef ref,
+Future<TimeTableWeek> requestTimeTable(
+  RequestTimeTableRef ref,
   ActiveUntisSession session,
   Week week,
 ) async {
+  // Cache/Log results by listening for changes
+  ref.listenSelf((_, data) {
+    data.when(
+      data: (data) {
+        ref.read(cachedTimeTableProvider(session, week).notifier).setCachedTimeTable(data);
+      },
+      error: (error, stackTrace) {
+        logRequestError("Error while requesting timetable for $week", error, stackTrace);
+      },
+      loading: () {},
+    );
+  });
+
   var authParams = AuthParams(user: session.username, appSharedSecret: session.appSharedSecret);
   var response = await rpcRequest(
     method: 'getTimetable2017',

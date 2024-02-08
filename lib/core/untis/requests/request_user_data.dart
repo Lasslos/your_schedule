@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
-import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
+import 'package:your_schedule/core/untis.dart';
 
 part 'request_user_data.g.dart';
 
@@ -9,9 +9,10 @@ part 'request_user_data.g.dart';
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
 @riverpod
 Future<UserData> requestUserData(RequestUserDataRef ref,
-  String apiBaseUrl,
-  AuthParams authParams,
+  UntisSession session,
+  String appSharedSecret,
 ) async {
+  var authParams = AuthParams(user: session.username, appSharedSecret: appSharedSecret);
   var response = await rpcRequest(
     method: 'getUserData2017',
     params: [
@@ -22,7 +23,7 @@ Future<UserData> requestUserData(RequestUserDataRef ref,
         ...authParams.toJson(),
       }
     ],
-    serverUrl: Uri.parse(apiBaseUrl),
+    serverUrl: Uri.parse(session.school.rpcUrl),
   );
 
   return switch (response) {

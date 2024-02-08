@@ -2,9 +2,7 @@ import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/util/date.dart';
-import 'package:your_schedule/util/date_utils.dart';
-import 'package:your_schedule/util/week.dart';
+import 'package:your_schedule/utils.dart';
 
 part 'request_exams.g.dart';
 
@@ -17,6 +15,19 @@ Future<Map<Date, List<Exam>>> requestExams(RequestExamsRef ref,
   ActiveUntisSession session,
   Week week,
 ) async {
+  // Cache/Log results by listening for changes
+  ref.listenSelf((_, data) {
+    data.when(
+      data: (data) {
+        ref.read(cachedExamsProvider(session, week).notifier).setCachedExams(data);
+      },
+      error: (error, stackTrace) {
+        logRequestError("Error while requesting exams for $week", error, stackTrace);
+      },
+      loading: () {},
+    );
+  });
+
   var authParams = AuthParams(user: session.username, appSharedSecret: session.appSharedSecret);
   var response = await rpcRequest(
     method: 'getExams2017',

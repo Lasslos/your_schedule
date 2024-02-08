@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
 import 'package:your_schedule/util/logger.dart';
 
@@ -15,7 +16,11 @@ class CustomSubjectColors extends _$CustomSubjectColors {
 
   @override
   Map<int, CustomSubjectColor> build() {
-    _userId = ref.watch(selectedSessionProvider.select((value) => value.userData!.id));
+    if (ref.watch(untisSessionsProvider.select((value) => value.isEmpty || value.first is InactiveUntisSession))) {
+      return {};
+    }
+    _userId = ref.watch(selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.id));
+
     try {
       initializeFromPrefs();
     } catch (e, s) {

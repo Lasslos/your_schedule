@@ -1,11 +1,17 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-//TODO: Add possibility to request something as soon as there is a connection
-//TODO: Catch connection error and don't report them more reliably
+part 'connectivity_provider.g.dart';
+
 final connectivityProvider = StreamProvider<ConnectivityResult>(
   (ref) async* {
     yield await Connectivity().checkConnectivity();
     yield* Connectivity().onConnectivityChanged;
   },
 );
+
+@riverpod
+bool canMakeRequest(CanMakeRequestRef ref) {
+  var connectivity = ref.watch(connectivityProvider);
+  return connectivity.hasValue && connectivity.requireValue != ConnectivityResult.none;
+}

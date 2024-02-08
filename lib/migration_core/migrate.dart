@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
+import 'package:your_schedule/core/provider/custom_subject_colors.dart';
+import 'package:your_schedule/core/provider/filters.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
-import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
 import 'package:your_schedule/migration_core/custom_subject_colors.dart' as old_custom_subject_colors;
@@ -38,7 +40,7 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
 
   School? school;
   try {
-    school = (await requestSchoolList(schoolName)).firstOrNull;
+    school = (await ref.read(requestSchoolListProvider(schoolName).future)).firstOrNull;
   } catch (e, s) {
     logRequestError("Error while fetching school list", e, s);
     rethrow;
@@ -59,10 +61,10 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
   }
 
   try {
-    session = await activateSession(ref, session);
-    ref.read(sessionsProvider.notifier).addSession(session);
+    ref.read(untisSessionsProvider.notifier).addSession(session);
+    var activeSession = await activateSession(ref, session);
 
-    var subjects = session.userData!.subjects;
+    var subjects = activeSession.userData.subjects;
     Set<int> newFilters = {};
     subjects.forEach((key, value) {
       if (!filterItems.any((element) => element.name == value.name)) {
