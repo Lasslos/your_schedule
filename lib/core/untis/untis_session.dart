@@ -12,7 +12,8 @@ sealed class UntisSession with _$UntisSession {
     String username,
     String password,
     String appSharedSecret,
-    UserData userData,) = ActiveUntisSession;
+    UserData userData,
+  ) = ActiveUntisSession;
 
   const factory UntisSession.inactive({
     required School school,
