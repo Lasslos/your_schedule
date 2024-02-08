@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/filters.dart';
+import 'package:your_schedule/core/provider/timetable_provider.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:your_schedule/settings/view_mode_provider.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_date_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/utils.dart';
@@ -22,22 +25,9 @@ class _WeekViewState extends ConsumerState<WeekView> {
   @override
   void initState() {
     super.initState();
-    currentDate = ref.read(homeScreenStateProvider).currentDate;
+    currentDate = ref.read(homeScreenDateProvider);
     var index = currentDate.differenceInDays(Week.now().startDate) ~/ 7;
     _pageController = PageController(initialPage: index);
-
-    //Pre-load next and previous week
-    ref
-      ..read(
-        timeTableProvider(
-          Week.fromDate(currentDate.addWeeks(1)),
-        ),
-      )
-      ..read(
-        timeTableProvider(
-          Week.fromDate(currentDate.subtractWeeks(1)),
-        ),
-      );
   }
 
   @override
@@ -49,7 +39,7 @@ class _WeekViewState extends ConsumerState<WeekView> {
   @override
   Widget build(BuildContext context) {
     ref.listen<Date>(
-      homeScreenStateProvider.select((value) => value.currentDate),
+      homeScreenDateProvider,
       (previous, next) {
         var normalizedCurrentDate = Week.fromDate(currentDate).startDate;
         var normalizedNext = Week.fromDate(next).startDate;
@@ -60,32 +50,17 @@ class _WeekViewState extends ConsumerState<WeekView> {
             curve: Curves.easeInOut,
           );
         }
-
-        //Pre-load next and previous week
-        ref
-          ..read(
-            timeTableProvider(
-              Week.fromDate(currentDate.addWeeks(1)),
-            ),
-          )
-          ..read(
-            timeTableProvider(
-              Week.fromDate(
-                currentDate.subtractWeeks(1),
-              ),
-            ),
-          );
       },
     );
 
     return PageView.builder(
       controller: _pageController,
       onPageChanged: (index) {
-        var oldDate = ref.read(homeScreenStateProvider).currentDate;
+        var oldDate = ref.read(homeScreenDateProvider);
         var daysRelativeToStartOfWeek = oldDate.differenceInDays(Week.fromDate(oldDate).startDate);
         currentDate = Week.now()
             .startDate.addDays(index * 7 + daysRelativeToStartOfWeek);
-        ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
+        ref.read(homeScreenDateProvider.notifier).date = currentDate;
       },
       itemBuilder: (BuildContext context, int index) {
         return _Page(index: index);
@@ -107,31 +82,22 @@ class _Page extends ConsumerWidget {
     Week currentWeek = Week.fromDate(currentDate);
     List<List<TimeTablePeriod>?> days = [];
 
-    var timeTableAsync = ref.watch(timeTableProvider(Week.fromDate(currentDate)));
     var filters = ref.watch(filtersProvider);
 
-    if (timeTableAsync.hasError) {
-      return Center(child: Text(timeTableAsync.error.toString()));
-    } else if (timeTableAsync.isLoading) {
-      //Note: Week starts on Saturday to show next week after Friday
-      for (var i = 2; i < 7; i++) {
-        days.add([]);
-      }
-    } else {
-      var timeTable = timeTableAsync.requireValue;
-      //Note: Week starts on Saturday to show next week after Friday
-      for (var i = 2; i < 7; i++) {
-        days.add(
-          timeTable[currentWeek.startDate.addDays(i)]!.where(
-            (element) {
-              if (element.subject == null) {
-                return true;
-              }
-              return filters.contains(element.subject!.id);
-            },
-          ).toList(),
-        );
-      }
+    var session = ref.read(selectedUntisSessionProvider);
+    var timeTable = ref.watch(timeTableProvider(session, Week.fromDate(currentDate)));
+    //Note: Week starts on Saturday to show next week after Friday
+    for (var i = 2; i < 7; i++) {
+      days.add(
+        timeTable[currentWeek.startDate.addDays(i)]!.where(
+          (element) {
+            if (element.subject == null) {
+              return true;
+            }
+            return filters.contains(element.subject!.id);
+          },
+        ).toList(),
+      );
     }
 
     return Column(
@@ -174,9 +140,8 @@ class _Page extends ConsumerWidget {
                         );
                         return;
                       }
-                      ref.read(homeScreenStateProvider.notifier)
-                        ..currentDate = possibleNewDate
-                        ..switchView();
+                      ref.read(homeScreenDateProvider.notifier).date = possibleNewDate;
+                      ref.read(viewModeSettingProvider.notifier).switchViewMode();
                     },
                     child: Center(
                       child: RichText(

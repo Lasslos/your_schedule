@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:your_schedule/util/shared_preferences.dart';
 
 part 'theme_provider.g.dart';
 
@@ -12,13 +12,12 @@ class ThemeSetting extends _$ThemeSetting {
   }
 
   Future<void> setTheme(ThemeMode theme) async {
-    final prefs = await SharedPreferences.getInstance();
+    state = theme;
     if (theme == ThemeMode.system) {
-      prefs.remove('darkMode');
+      await sharedPreferences.remove('darkMode');
       return;
     }
 
-    prefs.setBool('darkMode', theme == ThemeMode.dark);
-    state = theme;
+    await sharedPreferences.setBool('darkMode', theme == ThemeMode.dark);
   }
 }

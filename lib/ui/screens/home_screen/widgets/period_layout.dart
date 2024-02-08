@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_period_widget.dart';
 
@@ -98,7 +98,7 @@ class PeriodLayout extends ConsumerWidget {
     late TimeOfDay endOfDay;
 
     var timeGrid = ref.watch(
-      selectedSessionProvider.select((value) => value.userData!.timeGrid),
+      selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.timeGrid),
     );
     startOfDay = timeGrid.first.startTime;
     endOfDay = timeGrid.last.endTime;
@@ -107,7 +107,7 @@ class PeriodLayout extends ConsumerWidget {
       delegate: _PeriodLayoutDelegate(
         periods: periods,
         subjects: ref.watch(
-          selectedSessionProvider.select((value) => value.userData!.subjects),
+          selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.subjects),
         ),
         startOfDay: startOfDay,
         endOfDay: endOfDay,

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:your_schedule/core/session.dart';
-import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:your_schedule/core/provider/filters.dart';
+import 'package:your_schedule/core/provider/timetable_provider.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
+import 'package:your_schedule/settings/view_mode_provider.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_date_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/period_layout.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/time_indicator.dart';
 import 'package:your_schedule/utils.dart';
@@ -22,22 +24,9 @@ class _DayViewState extends ConsumerState<DayView> {
   @override
   void initState() {
     super.initState();
-    currentDate = ref.read(homeScreenStateProvider).currentDate;
+    currentDate = ref.read(homeScreenDateProvider);
     var index = currentDate.differenceInDays(Date.now());
     _pageController = PageController(initialPage: index);
-
-    //Pre-load next and previous week
-    ref
-      ..read(
-        timeTableProvider(
-          Week.fromDate(currentDate.addWeeks(1)),
-        ),
-      )
-      ..read(
-        timeTableProvider(
-          Week.fromDate(currentDate.subtractWeeks(1)),
-        ),
-      );
   }
 
   @override
@@ -49,7 +38,7 @@ class _DayViewState extends ConsumerState<DayView> {
   @override
   Widget build(BuildContext context) {
     ref.listen<Date>(
-      homeScreenStateProvider.select((value) => value.currentDate),
+      homeScreenDateProvider,
       (previous, next) {
         if (currentDate != next) {
           _pageController.animateToPage(
@@ -58,21 +47,6 @@ class _DayViewState extends ConsumerState<DayView> {
             curve: Curves.easeInOut,
           );
         }
-
-        //Pre-load next and previous week
-        ref
-          ..read(
-            timeTableProvider(
-              Week.fromDate(currentDate.addWeeks(1)),
-            ),
-          )
-          ..read(
-            timeTableProvider(
-              Week.fromDate(
-                currentDate.subtractWeeks(1),
-              ),
-            ),
-          );
       },
     );
 
@@ -80,8 +54,8 @@ class _DayViewState extends ConsumerState<DayView> {
       controller: _pageController,
       onPageChanged: (index) {
         currentDate = Date.now().addDays(index);
-        if (currentDate != ref.read(homeScreenStateProvider).currentDate) {
-          ref.read(homeScreenStateProvider.notifier).currentDate = currentDate;
+        if (currentDate != ref.read(homeScreenDateProvider)) {
+          ref.read(homeScreenDateProvider.notifier).date = currentDate;
         }
       },
       itemBuilder: (BuildContext context, int index) => _Page(index: index),
@@ -98,17 +72,9 @@ class _Page extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Date currentDate = Date.now().addDays(index);
 
-    var timeTableAsync = ref.watch(timeTableProvider(Week.fromDate(currentDate)));
-    List<TimeTablePeriod> timeTable;
+    var session = ref.watch(selectedUntisSessionProvider);
+    var timeTable = ref.watch(timeTableProvider(session, Week.fromDate(currentDate)))[currentDate]!;
     var filters = ref.watch(filtersProvider);
-
-    if (timeTableAsync.hasError) {
-      return Center(child: Text(timeTableAsync.error.toString()));
-    } else if (timeTableAsync.isLoading) {
-      timeTable = [];
-    } else {
-      timeTable = timeTableAsync.requireValue[currentDate]!;
-    }
 
     return Center(
       child: Column(
@@ -117,7 +83,7 @@ class _Page extends ConsumerWidget {
             height: 42,
             child: InkWell(
               onTap: () {
-                ref.read(homeScreenStateProvider.notifier).switchView();
+                ref.read(viewModeSettingProvider.notifier).switchViewMode();
               },
               child: Center(
                 child: RichText(

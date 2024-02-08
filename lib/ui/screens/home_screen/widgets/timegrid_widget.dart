@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
 
@@ -47,7 +47,7 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
 
   Widget _buildTimeGridWidget(BuildContext context) {
     var timeGrid = ref.watch(
-      selectedSessionProvider.select((value) => value.userData!.timeGrid),
+      selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.timeGrid),
     );
     TimeOfDay startTime = timeGrid.first.startTime;
     TimeOfDay endTime = timeGrid.last.endTime;
@@ -65,7 +65,7 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
       var entry = timeGrid[i];
       TimeOfDay? nextStartTime =
           timeGridLength - 1 != i ? timeGrid[i + 1].startTime : null;
-      int difference = nextStartTime.difference(entry.endTime).inMinutes;
+      int? difference = nextStartTime?.difference(entry.endTime).inMinutes;
 
       children.addAll([
         if (children.isEmpty || children.last.runtimeType != Divider)
@@ -83,13 +83,13 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
         ),
       ]);
 
-      if (difference > 1) {
+      if (difference != null && difference > 1) {
         children.addAll([
           Spacer(
             flex: difference,
           ),
         ]);
-      } else if (difference < 0) {
+      } else if (difference != null && difference < 0) {
         getLogger().w(
           "Difference between consecutive period schedule entries is smaller than 0"
           " (difference: $difference, entry: $entry, nextStartTime: $nextStartTime)",

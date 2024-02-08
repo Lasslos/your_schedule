@@ -9,8 +9,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
+import 'package:your_schedule/core/provider/filters.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
-import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis/untis_session.dart';
 import 'package:your_schedule/migration_core/migrate.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
@@ -47,12 +48,12 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
 
     //Load sessions from shared prefs
     try {
-      await ref.read(sessionsProvider.notifier).initializeFromSharedPrefs();
-      sessions = ref.read(sessionsProvider);
+      sessions = ref.read(untisSessionsProvider);
     } catch (e, s) {
       await Sentry.captureException(e, stackTrace: s);
       getLogger().e("Error while parsing session json", error: e, stackTrace: s);
     }
+
     if (sessions.isEmpty) {
       setState(() {
         _message = "No sessions found";
@@ -75,7 +76,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     final connectivityResult = await ref.read(connectivityProvider.future);
     if (connectivityResult != ConnectivityResult.none) {
       try {
-        await refreshSession(ref, sessions.first);
+        await refreshSession(ref, sessions.first as ActiveUntisSession);
       } on RPCError catch (e, s) {
         await _onRPCError(sessions, e, s);
         return;
@@ -120,7 +121,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
         );
         try {
           //Trying to reauthenticate
-          ref.read(sessionsProvider.notifier).updateSession(session, await activateSession(ref, newSession));
+          ref.read(untisSessionsProvider.notifier).updateSession(session, await activateSession(ref, newSession));
         } on RPCError catch (e) {
           //Reauthentication failed, deleting session
           if (e.code == RPCError.authenticationFailed) {
@@ -128,7 +129,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
               _message = "Bad credentials, deleting session";
             });
             getLogger().w("Bad credentials, deleting session");
-            ref.read(sessionsProvider.notifier).removeSession(session);
+            ref.read(untisSessionsProvider.notifier).removeSession(session);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 behavior: SnackBarBehavior.floating,

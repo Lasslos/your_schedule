@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/custom_subject_colors.dart';
+import 'package:your_schedule/core/provider/filters.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/custom_subject_color/custom_subject_color.dart';
 
@@ -19,8 +21,7 @@ class TimeTablePeriodWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    UserData userData =
-        ref.watch(selectedSessionProvider.select((value) => value.userData!));
+    UserData userData = ref.watch(selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData));
 
     CustomSubjectColor statusColor;
     bool isRegularStatusColor = false;

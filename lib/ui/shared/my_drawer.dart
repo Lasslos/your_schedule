@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
@@ -13,8 +14,8 @@ class MyDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final session = ref.watch(selectedSessionProvider);
-    final userData = session.userData!;
+    final session = ref.watch(selectedUntisSessionProvider) as ActiveUntisSession;
+    final userData = session.userData;
 
     return Drawer(
       child: Column(
@@ -66,14 +67,13 @@ class MyDrawer extends ConsumerWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                ),
-              );
-              ref.read(sessionsProvider.notifier).removeSessionWhenDone(
-                    Future.delayed(const Duration(milliseconds: 500)),
+              ref.read(untisSessionsProvider.notifier).removeSessionWhenDone(
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                    ),
                     session,
                   );
             },

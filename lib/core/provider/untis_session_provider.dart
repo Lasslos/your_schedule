@@ -27,6 +27,10 @@ class UntisSessions extends _$UntisSessions {
     state = List.unmodifiable([...state]..remove(session));
   }
 
+  void removeSessionWhenDone(Future f, UntisSession session) {
+    f.whenComplete(() => removeSession(session));
+  }
+
   void updateSession(UntisSession oldSession, UntisSession newSession) {
     //places the new session in the list at the same index as the old session
     //index of session is preserved

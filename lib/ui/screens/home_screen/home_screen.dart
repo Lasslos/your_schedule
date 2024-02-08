@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/ui/screens/home_screen/home_screen_state_provider.dart';
+import 'package:your_schedule/settings/view_mode_provider.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_date_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/timetable_view.dart';
 import 'package:your_schedule/ui/shared/my_drawer.dart';
 import 'package:your_schedule/utils.dart';
@@ -10,8 +11,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var viewMode =
-        ref.watch(homeScreenStateProvider.select((value) => value.viewMode));
+    var viewMode = ref.watch(viewModeSettingProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,13 +20,13 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.today),
             onPressed: () {
-              ref.read(homeScreenStateProvider.notifier).currentDate = Date.now();
+              ref.read(homeScreenDateProvider.notifier).date = Date.now();
             },
             tooltip: "Zur jetzigen Woche springen",
           ),
           IconButton(
             onPressed: () {
-              ref.read(homeScreenStateProvider.notifier).switchView();
+              ref.read(viewModeSettingProvider.notifier).switchViewMode();
             },
             icon: Icon((-viewMode).icon),
             tooltip: "Zu ${(-viewMode).readableName} wechseln",

@@ -3,8 +3,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
-import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
@@ -104,7 +104,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                   }
 
                   try {
-                    var schools = await requestSchoolList(s);
+                    var schools = await ref.read(requestSchoolListProvider(s).future);
                     setState(() {
                       showSchoolList = true;
                       _possibleSchools = schools;
@@ -314,7 +314,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
 
     try {
       session = await activateSession(ref, session);
-      ref.read(sessionsProvider.notifier).addSession(session);
+      ref.read(untisSessionsProvider.notifier).addSession(session);
 
       //ignore: use_build_context_synchronously
       Navigator.pushReplacement(

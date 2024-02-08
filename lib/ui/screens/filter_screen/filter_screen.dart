@@ -1,7 +1,9 @@
 import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/filters.dart';
+import 'package:your_schedule/core/provider/timetable_provider.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
 
@@ -18,108 +20,59 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   bool showSearch = false;
   String searchQuery = "";
 
-  late List<int> periods;
+  List<int> periods = [];
 
   @override
   void initState() {
     super.initState();
     searchFocusNode = FocusNode();
     searchController = TextEditingController();
-    periods = ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
-    _filterPeriods();
-    _sortPeriods();
+
+    _initPeriods();
   }
 
   @override
   Widget build(BuildContext context) {
+    // We don't want to rebuild the periods in certain scenarios, such as the search query being appended.
+    // Since build must be called regardless, we can't compute the list in here. To still apply updates from other providers, we listen and rebuild in case.
+
     ref.listen(
-      selectedSessionProvider
-          .select((value) => value.userData!.subjects.keys.toList()),
-      (previous, next) {
+      selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData),
+      (_, next) {
         setState(() {
-          periods = next;
-          _filterPeriods();
-          _sortPeriods();
+          _initPeriods();
         });
       },
     );
 
+    var session = ref.watch(selectedUntisSessionProvider) as ActiveUntisSession;
     for (var i = -2; i < 3; i++) {
       ref.listen(
-        timeTableProvider(Week.relative(i)),
-        (previous, next) {
+        timeTableProvider(session, Week.relative(i)),
+        (_, next) {
           setState(() {
-            periods = ref.read(selectedSessionProvider).userData!.subjects.keys.toList();
-            _filterPeriods();
-            _sortPeriods();
+            _initPeriods();
           });
         },
       );
     }
-    var timeTableAsyncS = [for (var i = -2; i < 3; i++) ref.watch(timeTableProvider(Week.relative(i)))];
 
-    if (ref.watch(selectedSessionProvider.select((value) => value.userData!.subjects)).isEmpty || timeTableAsyncS.any((e) => e.isLoading)) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-    for (var timeTableAsync in timeTableAsyncS) {
-      if (!timeTableAsync.hasError) {
-        continue;
-      }
-
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Fehler'),
-        ),
-        body: const Center(
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Fehler beim Laden des Stundenplans', style: TextStyle(fontSize: 20)),
-                SizedBox(height: 16),
-                Text('Die möglichen Filter werden aus Stunden aus den letzten zwei und den nächsten zwei Wochen erstellt. '
-                    'Mindestens eine dieser Wochen konnte nicht richtig geladen werden, zum Beispiel, weil der Untis-Server überlastet ist. Versuche, alle Wochen neu zu laden oder die App zu schließen und zu öffnen, um es erneut zu versuchen. Wenn das Problem weiter auftritt, kannst du dich gerne an mich wenden.'),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    var timeTable = timeTableAsyncS.fold(
-      <TimeTablePeriod>[],
-      (previousValue, element) => previousValue
-        ..addAll(
-          element.requireValue.values.fold(
-            <TimeTablePeriod>[],
-            (previousValue, element) => previousValue.toList()..addAll(element),
-          ),
-        ),
-    );
+    // Start of real build logic
 
     var filters = ref.watch(filtersProvider);
+    var timeTableWeeks = [for (var i = -2; i < 3; i++) ref.watch(timeTableProvider(session, Week.relative(i)))];
+    var timeTablePeriods = _getRelevantTimeTablePeriods(timeTableWeeks);
 
-    var subjects = ref.watch(
-      selectedSessionProvider.select((value) => value.userData!.subjects),
-    );
-    var teachers = ref.watch(
-      selectedSessionProvider.select((value) => value.userData!.teachers),
-    );
-    var rooms = ref.watch(
-      selectedSessionProvider.select((value) => value.userData!.rooms),
-    );
+    var subjects = session.userData.subjects;
+    var teachers = session.userData.teachers;
+    var rooms = session.userData.rooms;
 
     final gridChildren = periods.map<Widget>(
       (e) {
-        TimeTablePeriod? examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+        TimeTablePeriod examplePeriod = timeTablePeriods.firstWhere((element) => e == element.subject?.id);
         Subject? subject = subjects[e];
-        Teacher? teacher = teachers[examplePeriod?.teacher?.id];
-        Room? room = rooms[examplePeriod?.room?.id];
+        Teacher? teacher = teachers[examplePeriod.teacher?.id];
+        Room? room = rooms[examplePeriod.room?.id];
 
         return Padding(
           key: ValueKey(e),
@@ -135,9 +88,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             },
             child: Center(
               child: FilterGridTile(
-                subject: subject.name,
-                teacher: teacher.shortName,
-                room: room.name,
+                subject: subject?.name ?? "Kein Fach",
+                teacher: teacher?.shortName ?? "Kein Lehrer",
+                room: room?.name ?? "Kein Raum",
               ),
             ),
           ),
@@ -188,17 +141,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                       onChanged: (value) {
                         setState(() {
                           if (!value.startsWith(searchQuery)) {
-                            periods = ref.read(
-                              selectedSessionProvider.select(
-                                (value) => value.userData!.subjects.keys.toList(),
-                              ),
-                            );
                             searchQuery = value;
-                            _filterPeriods();
-                            _sortPeriods();
+                            _initPeriods();
                           } else {
                             searchQuery = value;
-                            _filterPeriods();
+                            _filterPeriods(periods, filters, subjects, teachers, rooms, timeTablePeriods);
                           }
                         });
                       },
@@ -218,13 +165,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                             setState(() {
                               searchController.clear();
                               searchQuery = "";
-                              periods = ref.read(
-                                selectedSessionProvider.select(
-                                  (value) => value.userData!.subjects.keys.toList(),
-                                ),
-                              );
-                              _filterPeriods();
-                              _sortPeriods();
+                              _initPeriods();
                             });
                           },
                         ),
@@ -253,74 +194,76 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     );
   }
 
-  void _sortPeriods() {
-    final filters = ref.read(filtersProvider);
+  void _initPeriods() {
+    var userData = ref.read(selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData));
+    periods = userData.subjects.keys.toList();
 
+    var filters = ref.read(filtersProvider);
+    var subjects = userData.subjects;
+    var teachers = userData.teachers;
+    var rooms = userData.rooms;
+    var timeTableWeeks = [for (var i = -2; i < 3; i++) ref.read(timeTableProvider(userData, Week.relative(i)))];
+    var timeTablePeriods = _getRelevantTimeTablePeriods(timeTableWeeks);
+
+    _sortPeriods(periods, filters, subjects);
+    _filterPeriods(periods, filters, subjects, teachers, rooms, timeTablePeriods);
+  }
+
+  List<TimeTablePeriod> _getRelevantTimeTablePeriods(List<TimeTableWeek> timeTableWeeks) {
+    return timeTableWeeks.fold<List<TimeTablePeriod>>(
+      [],
+      (list, element) => list
+        ..addAll(
+          element.values.fold<List<TimeTablePeriod>>(
+            [],
+            (list, element) => list..addAll(element),
+          ),
+        ),
+    );
+  }
+
+  void _sortPeriods(List<int> periods, Set<int> filters, Map<int, Subject> subjects) {
     periods.sort((a, b) {
       if (filters.contains(a) && !filters.contains(b)) {
         return -1;
       } else if (!filters.contains(a) && filters.contains(b)) {
         return 1;
       } else {
-        final subjects = ref.read(
-          selectedSessionProvider.select((value) => value.userData!.subjects),
-        );
         return subjects[a]?.name.compareTo(subjects[b]?.name ?? '') ?? 0;
       }
     });
   }
 
-  void _filterPeriods() {
-    var timeTableAsyncS = [for (var i = -2; i < 3; i++) ref.read(timeTableProvider(Week.relative(i)))];
-
-    var timeTable = timeTableAsyncS.fold(
-      <TimeTablePeriod>[],
-      (previousValue, element) => previousValue
-        ..addAll(
-          (element.hasError
-                  ? null
-                  : element.value?.values.fold(
-                      <TimeTablePeriod>[],
-                      (previousValue, element) => previousValue?.toList()?..addAll(element),
-                    )) ??
-              [],
-        ),
-    );
-
-    var subjects = ref.read(
-      selectedSessionProvider.select((value) => value.userData!.subjects),
-    );
-    var teachers = ref.read(
-      selectedSessionProvider.select((value) => value.userData!.teachers),
-    );
-    var rooms = ref
-        .read(selectedSessionProvider.select((value) => value.userData!.rooms));
-
+  void _filterPeriods(
+    List<int> periods,
+    Set<int> filters,
+    Map<int, Subject> subjects,
+    Map<int, Teacher> teachers,
+    Map<int, Room> rooms,
+    List<TimeTablePeriod> timeTable,
+  ) {
     // Filter every non-valid class
-    periods = periods.where((e) {
-      var examplePeriod =
-          timeTable.firstWhereOrNull((element) => element.subject?.id == e);
-      if (examplePeriod == null) {
+    periods
+      ..retainWhere((e) {
+        var examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+        if (examplePeriod == null) {
         return false;
       }
       var subjectId = examplePeriod.subject?.id;
       var teacherId = examplePeriod.teacher?.id;
       var roomId = examplePeriod.room?.id;
-      if (subjectId != null && !subjects.containsKey(subjectId)) {
-        return false;
+        if (subjectId != null && !subjects.containsKey(subjectId) ||
+            teacherId != null && !teachers.containsKey(teacherId) ||
+            roomId != null && !rooms.containsKey(roomId)) {
+          return false;
       }
-      if (teacherId != null && !teachers.containsKey(teacherId)) {
-        return false;
-      }
-      if (roomId != null && !rooms.containsKey(roomId)) {
-        return false;
-      }
-      return true;
-    }).toList();
 
-    // Filter by search query
-    periods = periods.where((e) {
-      var examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
+        return true;
+      })
+
+      // Filter by search query
+      ..retainWhere((e) {
+        var examplePeriod = timeTable.firstWhereOrNull((element) => element.subject?.id == e);
       var subject = subjects[e];
       var teacher = teachers[examplePeriod?.teacher?.id];
       var room = rooms[examplePeriod?.room?.id];
@@ -340,7 +283,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         accept = room.longName.toLowerCase().contains(searchQuery.toLowerCase()) || accept;
       }
       return accept;
-    }).toList();
+      });
   }
 }
 

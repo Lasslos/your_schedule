@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
 
 class TimeIndicator extends ConsumerWidget {
@@ -13,7 +14,7 @@ class TimeIndicator extends ConsumerWidget {
         interval: const Duration(seconds: 30),
         builder: (time, context) {
           var timeGrid = ref.watch(
-            selectedSessionProvider.select((value) => value.userData!.timeGrid),
+            selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.timeGrid),
           );
           TimeOfDay startTime = timeGrid.first.startTime;
           TimeOfDay endTime = timeGrid.last.endTime;

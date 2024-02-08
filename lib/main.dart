@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:your_schedule/settings/theme/theme_provider.dart';
+import 'package:your_schedule/settings/theme_provider.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
 import 'package:your_schedule/util/shared_preferences.dart';
 
