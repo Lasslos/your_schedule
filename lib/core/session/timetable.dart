@@ -10,7 +10,7 @@ typedef TimeTableDay = List<TimeTablePeriod>;
 typedef TimeTableWeek = Map<Date, TimeTableDay>;
 
 class TimeTableNotifier extends StateNotifier<AsyncValue<TimeTableWeek>> {
-  final Session _session;
+  final UntisSession _session;
   final Week _week;
   final AsyncValue<ConnectivityResult> _connectivityResult;
 

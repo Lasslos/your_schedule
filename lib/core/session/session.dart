@@ -3,20 +3,20 @@ import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/logger.dart';
 
-class SessionsNotifier extends StateNotifier<List<Session>> {
+class SessionsNotifier extends StateNotifier<List<UntisSession>> {
   SessionsNotifier() : super(List.unmodifiable([]));
 
-  Future<void> addSession(Session session) async {
+  Future<void> addSession(UntisSession session) async {
     state = List.unmodifiable([session, ...state]);
     saveToSharedPrefs();
   }
 
-  void removeSession(Session session) {
+  void removeSession(UntisSession session) {
     state = List.unmodifiable([...state]..remove(session));
     saveToSharedPrefs();
   }
 
-  Future<void> removeSessionWhenDone(Future<dynamic> future, Session session) async {
+  Future<void> removeSessionWhenDone(Future<dynamic> future, UntisSession session) async {
     try {
       await future;
     } catch (e) {
@@ -26,7 +26,7 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
     }
   }
 
-  void updateSession(Session oldSession, Session newSession) {
+  void updateSession(UntisSession oldSession, UntisSession newSession) {
     //places the new session in the list at the same index as the old session
     //index of session is preserved
     state = List.unmodifiable(
@@ -37,7 +37,7 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
     saveToSharedPrefs();
   }
 
-  set currentlyUsedSession(Session session) {
+  set currentlyUsedSession(UntisSession session) {
     state = List.unmodifiable([
       session,
       ...[...state]..remove(session),
@@ -46,14 +46,14 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
   }
 }
 
-final sessionsProvider = StateNotifierProvider<SessionsNotifier, List<Session>>(
+final sessionsProvider = StateNotifierProvider<SessionsNotifier, List<UntisSession>>(
   (ref) => SessionsNotifier(),
 );
-final selectedSessionProvider = Provider<Session>(
+final selectedSessionProvider = Provider<UntisSession>(
   (ref) => ref.watch(sessionsProvider.select((value) => value[0])),
 );
 
-Future<Session> activateSession(WidgetRef ref, Session session) async {
+Future<UntisSession> activateSession(WidgetRef ref, UntisSession session) async {
   if (session is ActiveSession) {
     return session;
   }
@@ -73,7 +73,7 @@ Future<Session> activateSession(WidgetRef ref, Session session) async {
     logRequestError("Error while requesting session data", e, s);
     rethrow;
   }
-  return Session.active(
+  return UntisSession.active(
     session.school,
     session.username,
     session.password,
@@ -82,7 +82,7 @@ Future<Session> activateSession(WidgetRef ref, Session session) async {
   );
 }
 
-Future<void> refreshSession(WidgetRef ref, Session session) async {
+Future<void> refreshSession(WidgetRef ref, UntisSession session) async {
   assert(session is ActiveSession, "Session must be active");
   var activeSession = session as ActiveSession;
 

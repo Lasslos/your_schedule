@@ -306,7 +306,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     }
 
     var school = ref.read(loginStateProvider).school!;
-    Session session = Session.inactive(
+    UntisSession session = UntisSession.inactive(
       school: school,
       username: _usernameFieldController.text,
       password: _passwordFieldController.text,
