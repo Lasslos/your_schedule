@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:your_schedule/core/connectivity_provider.dart';
+import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis/untis_session.dart';

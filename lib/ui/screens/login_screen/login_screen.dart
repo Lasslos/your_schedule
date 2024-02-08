@@ -2,7 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:your_schedule/core/connectivity_provider.dart';
+import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/session.dart';
 import 'package:your_schedule/core/untis.dart';
