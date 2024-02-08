@@ -65,7 +65,7 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
       var entry = timeGrid[i];
       TimeOfDay? nextStartTime =
           timeGridLength - 1 != i ? timeGrid[i + 1].startTime : null;
-      int? difference = nextStartTime?.difference(entry.endTime).inMinutes;
+      int difference = nextStartTime.difference(entry.endTime).inMinutes;
 
       children.addAll([
         if (children.isEmpty || children.last.runtimeType != Divider)
@@ -83,13 +83,13 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
         ),
       ]);
 
-      if (difference != null && difference > 1) {
+      if (difference > 1) {
         children.addAll([
           Spacer(
             flex: difference,
           ),
         ]);
-      } else if (difference != null && difference < 0) {
+      } else if (difference < 0) {
         getLogger().w(
           "Difference between consecutive period schedule entries is smaller than 0"
           " (difference: $difference, entry: $entry, nextStartTime: $nextStartTime)",

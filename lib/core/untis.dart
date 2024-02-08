@@ -20,3 +20,4 @@ export 'untis/requests/request_exams.dart';
 export 'untis/requests/request_school_list.dart';
 export 'untis/requests/request_timetable.dart';
 export 'untis/requests/request_user_data.dart';
+export 'untis/session.dart';

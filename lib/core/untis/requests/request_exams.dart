@@ -7,27 +7,24 @@ import 'package:your_schedule/util/week.dart';
 
 /// Requests the exams for the given [week].
 ///
-/// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
 /// Returns a [Future] with a [Map] of [Date]s and [List]s of [Exam]s.
 /// All [Date]s are normalized to the start of the day.
-Future<Map<Date, List<Exam>>> requestExams(
-  String apiBaseUrl,
-  UserData userData,
-  AuthParams authParams,
+Future<Map<Date, List<Exam>>> requestExams(ActiveSession session,
   Week week,
 ) async {
+  var authParams = AuthParams(user: session.username, appSharedSecret: session.appSharedSecret);
   var response = await rpcRequest(
     method: 'getExams2017',
     params: [
       {
-        'id': userData.id,
-        'type': userData.type,
+        'id': session.userData.id,
+        'type': session.userData.type,
         'startDate': week.startDate.format(DateFormat('yyyy-MM-dd')),
         'endDate': week.endDate.format(DateFormat('yyyy-MM-dd')),
         ...authParams.toJson(),
       }
     ],
-    serverUrl: Uri.parse(apiBaseUrl),
+    serverUrl: Uri.parse(session.school.rpcUrl),
   );
 
   return response.map(

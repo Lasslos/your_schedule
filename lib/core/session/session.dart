@@ -1,36 +1,7 @@
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/logger.dart';
-
-part 'session.freezed.dart';
-part 'session.g.dart';
-
-@freezed
-class Session with _$Session {
-  const factory Session.active(
-    School school,
-    String username,
-    String password,
-    String appSharedSecret,
-    UserData userData,
-  ) = _ActiveSession;
-
-  const factory Session.inactive({
-    required School school,
-    required String username,
-    required String password,
-    @Default(null) UserData? userData,
-  }) = _InactiveSession;
-
-  factory Session.fromJson(Map<String, dynamic> json) =>
-      _$SessionFromJson(json);
-}
 
 class SessionsNotifier extends StateNotifier<List<Session>> {
   SessionsNotifier() : super(List.unmodifiable([]));
@@ -73,26 +44,6 @@ class SessionsNotifier extends StateNotifier<List<Session>> {
     ]);
     saveToSharedPrefs();
   }
-
-  Future<void> initializeFromSharedPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final sessions = prefs.getStringList('sessions');
-    if (sessions != null && sessions.isNotEmpty) {
-      state = List.unmodifiable(
-        sessions.map((e) => Session.fromJson(jsonDecode(e))).toList(),
-      );
-    } else {
-      return;
-    }
-  }
-
-  Future<void> saveToSharedPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(
-      'sessions',
-      state.map((e) => jsonEncode(e.toJson())).toList(),
-    );
-  }
 }
 
 final sessionsProvider = StateNotifierProvider<SessionsNotifier, List<Session>>(
@@ -103,18 +54,14 @@ final selectedSessionProvider = Provider<Session>(
 );
 
 Future<Session> activateSession(WidgetRef ref, Session session) async {
-  if (session is _ActiveSession) {
+  if (session is ActiveSession) {
     return session;
   }
 
   String appSharedSecret;
   UserData userData;
   try {
-    appSharedSecret = await requestAppSharedSecret(
-      session.school.rpcUrl,
-      session.username,
-      session.password,
-    );
+    appSharedSecret = await requestAppSharedSecret(session);
     userData = await requestUserData(
       session.school.rpcUrl,
       AuthParams(
@@ -136,8 +83,8 @@ Future<Session> activateSession(WidgetRef ref, Session session) async {
 }
 
 Future<void> refreshSession(WidgetRef ref, Session session) async {
-  assert(session is _ActiveSession, "Session must be active");
-  var activeSession = session as _ActiveSession;
+  assert(session is ActiveSession, "Session must be active");
+  var activeSession = session as ActiveSession;
 
   UserData userData;
   try {

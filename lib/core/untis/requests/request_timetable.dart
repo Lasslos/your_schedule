@@ -1,7 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
-import 'package:your_schedule/core/untis/models/timetable/timetable_period.dart';
-import 'package:your_schedule/core/untis/models/user_data/user_data.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
@@ -11,27 +10,25 @@ import 'package:your_schedule/util/week.dart';
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
 /// Returns a [Future] with a [Map] of [Date]s and [List]s of [TimeTablePeriod]s.
 /// All [Date]s are normalized to the start of the day.
-Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(
-  String apiBaseUrl,
-  UserData userData,
-  AuthParams authParams,
+Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(ActiveSession session,
   Week week,
 ) async {
+  var authParams = AuthParams(user: session.username, appSharedSecret: session.appSharedSecret);
   var response = await rpcRequest(
     method: 'getTimetable2017',
     params: [
       {
-        'id': userData.id,
-        'type': userData.type,
+        'id': session.userData.id,
+        'type': session.userData.type,
         'startDate': week.startDate.format(DateFormat('yyyy-MM-dd')),
         'endDate': week.endDate.format(DateFormat('yyyy-MM-dd')),
-        'masterDataTimestamp': userData.timeStamp,
+        'masterDataTimestamp': session.userData.timeStamp,
         'timetableTimestamp': 0,
         'timetableTimestamps': [],
         ...authParams.toJson(),
       }
     ],
-    serverUrl: Uri.parse(apiBaseUrl),
+    serverUrl: Uri.parse(session.school.rpcUrl),
   );
 
   return response.map(

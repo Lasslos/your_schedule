@@ -4,20 +4,16 @@ import 'package:your_schedule/core/untis.dart';
 /// Requests the shared secret for the app.
 ///
 /// The shared secret is used to authenticate the app with the server.
-/// The request is send to [apiBaseUrl] and uses the [username] and [password] to authenticate.
 /// Returns a [Future] with the shared secret. If authentication fails, a [RPCError] is thrown.
 /// See [RPCError.authenticationFailed].
-Future<String> requestAppSharedSecret(
-  String apiBaseUrl,
-  String username,
-  String password,
+Future<String> requestAppSharedSecret(Session session,
 ) async {
   var response = await rpcRequest(
     method: 'getAppSharedSecret',
     params: [
-      AppSharedSecretParams(username: username, password: password).toJson(),
+      AppSharedSecretParams(username: session.username, password: session.password).toJson(),
     ],
-    serverUrl: Uri.parse(apiBaseUrl),
+    serverUrl: Uri.parse(session.school.rpcUrl),
   );
   return response.map(
     result: (result) {

@@ -135,9 +135,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             },
             child: Center(
               child: FilterGridTile(
-                subject: subject?.name ?? 'Kein Fach',
-                teacher: teacher?.shortName ?? 'Kein Lehrer',
-                room: room?.name ?? 'Kein Raum',
+                subject: subject.name,
+                teacher: teacher.shortName,
+                room: room.name,
               ),
             ),
           ),

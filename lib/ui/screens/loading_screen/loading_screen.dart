@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/session.dart';
+import 'package:your_schedule/core/untis/session.dart';
 import 'package:your_schedule/migration_core/migrate.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
