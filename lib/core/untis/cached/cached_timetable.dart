@@ -1,37 +1,46 @@
 import 'dart:convert';
 
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/session/timetable.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
 
-Future<TimeTableWeek> getCachedTimeTable(ActiveUntisSession session, Week week) async {
-  final prefs = await SharedPreferences.getInstance();
-  if (!prefs.containsKey("${session.userData.id}.timetable.$week")) {
+part 'cached_timetable.g.dart';
+
+@riverpod
+class CachedTimeTable extends _$CachedTimeTable {
+  @override
+  Future<TimeTableWeek> build(ActiveUntisSession session, Week week) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey("${session.userData.id}.timetable.$week")) {
+      return {
+        for (var i = 0; i < 7; i++) week.startDate.addDays(i): const [],
+      };
+    }
+
+    final json = jsonDecode(
+      prefs.getString("${session.userData.id}.timetable.$week")!,
+    );
+
     return {
-      for (var i = 0; i < 7; i++) week.startDate.addDays(i): const [],
+      for (var entry in json.entries)
+        Date.fromMillisecondsSinceEpoch(int.parse(entry.key)): entry.value.map<TimeTablePeriod>((e) => TimeTablePeriod.fromJson(e)).toList(),
     };
   }
 
-  final json = jsonDecode(
-    prefs.getString("${session.userData.id}.timetable.$week")!,
-  );
+  Future<void> setCachedTimeTable(TimeTableWeek timeTable) async {
+    final prefs = await SharedPreferences.getInstance();
 
-  return {
-    for (var entry in json.entries)
-      Date.fromMillisecondsSinceEpoch(int.parse(entry.key)): entry.value.map<TimeTablePeriod>((e) => TimeTablePeriod.fromJson(e)).toList(),
-  };
-}
+    Map<String, dynamic> json = {
+      for (var entry in timeTable.entries) entry.key.millisecondsSinceEpoch.toString(): entry.value.map((e) => e.toJson()).toList(),
+    };
 
-Future<void> setCachedTimeTable(ActiveUntisSession session, Week week, TimeTableWeek timeTable) async {
-  final prefs = await SharedPreferences.getInstance();
+    prefs.setString(
+      "${session.userData.id}.timetable.$week",
+      jsonEncode(json),
+    );
 
-  Map<String, dynamic> json = {
-    for (var entry in timeTable.entries) entry.key.millisecondsSinceEpoch.toString(): entry.value.map((e) => e.toJson()).toList(),
-  };
-
-  prefs.setString(
-    "${session.userData.id}.timetable.$week",
-    jsonEncode(json),
-  );
+    state = AsyncValue.data(timeTable);
+  }
 }
