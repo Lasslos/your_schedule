@@ -11,7 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/connectivity_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/session.dart';
-import 'package:your_schedule/core/untis/session.dart';
+import 'package:your_schedule/core/untis/untis_session.dart';
 import 'package:your_schedule/migration_core/migrate.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
@@ -43,7 +43,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     getLogger().i("Loading screen started");
     await migrate(await SharedPreferences.getInstance(), ref, context);
 
-    List<Session> sessions = [];
+    List<UntisSession> sessions = [];
 
     //Load sessions from shared prefs
     try {
@@ -100,7 +100,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
     );
   }
 
-  Future<void> _onRPCError(List<Session> sessions, RPCError e, StackTrace s) async {
+  Future<void> _onRPCError(List<UntisSession> sessions, RPCError e, StackTrace s) async {
     switch (e.code) {
       case RPCError.invalidClientTime:
         setState(() {
@@ -113,7 +113,7 @@ class _LoadingScreenState extends ConsumerState<LoadingScreen> {
           _message = "Bad credentials, reauthenticating";
         });
         var session = sessions.first;
-        var newSession = Session.inactive(
+        var newSession = UntisSession.inactive(
           username: session.username,
           password: session.password,
           school: session.school,

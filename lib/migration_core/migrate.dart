@@ -47,7 +47,7 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     return;
   }
 
-  var session = Session.inactive(
+  var session = UntisSession.inactive(
     school: school,
     username: username,
     password: password,

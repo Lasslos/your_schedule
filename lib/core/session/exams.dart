@@ -7,7 +7,7 @@ import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
 
 class ExamsNotifier extends StateNotifier<AsyncValue<Map<Date, List<Exam>>>> {
-  final Session _session;
+  final UntisSession _session;
   final Week _week;
   final AsyncValue<ConnectivityResult> _connectivityResult;
 
