@@ -6,6 +6,11 @@ import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
 
+/// Requests the timetable for the given [week].
+///
+/// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
+/// Returns a [Future] with a [Map] of [Date]s and [List]s of [TimeTablePeriod]s.
+/// All [Date]s are normalized to the start of the day.
 Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(
   String apiBaseUrl,
   UserData userData,

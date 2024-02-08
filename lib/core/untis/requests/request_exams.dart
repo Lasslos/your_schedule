@@ -5,6 +5,11 @@ import 'package:your_schedule/util/date.dart';
 import 'package:your_schedule/util/date_utils.dart';
 import 'package:your_schedule/util/week.dart';
 
+/// Requests the exams for the given [week].
+///
+/// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
+/// Returns a [Future] with a [Map] of [Date]s and [List]s of [Exam]s.
+/// All [Date]s are normalized to the start of the day.
 Future<Map<Date, List<Exam>>> requestExams(
   String apiBaseUrl,
   UserData userData,

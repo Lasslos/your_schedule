@@ -10,6 +10,7 @@ import 'package:your_schedule/utils.dart';
 
 part 'rpc_request.freezed.dart';
 
+/// Authentication parameters for the Untis API
 @Freezed(toJson: false, fromJson: false)
 class AuthParams with _$AuthParams {
   const factory AuthParams({
@@ -33,6 +34,10 @@ class AuthParams with _$AuthParams {
       };
 }
 
+// Identifier counter for RPC requests.
+// The Server MUST reply with the same value in the Response object if included. See [jsonrpc.org](https://www.jsonrpc.org/specification).
+// In the past, the untis server has been known to ignore the id field in the request and respond with a different id.
+// In that case, the response is discarded and an Exception is thrown.
 int _id = 0;
 
 ///Posts a request to the Untis API and returns a Future<RPCResponse> as specified on [jsonrpc.org](https://www.jsonrpc.org/specification).
@@ -41,7 +46,10 @@ Future<RPCResponse> rpcRequest({
   required Uri serverUrl,
   dynamic params = const {},
 }) async {
+  // Set id for current request.
   int id = _id++;
+
+  // Add breadcrumb to Sentry, scrub sensitive data.
   Sentry.addBreadcrumb(
     Breadcrumb(
       message: 'Performing rpc request $method to $serverUrl',
@@ -58,6 +66,8 @@ Future<RPCResponse> rpcRequest({
       level: SentryLevel.info,
     ),
   );
+
+  // Send request to server.
   http.Response response;
   try {
     response = await http.post(
@@ -73,6 +83,7 @@ Future<RPCResponse> rpcRequest({
       },
     );
   } catch (e, s) {
+    // Capture error with Sentry and log it.
     Sentry.captureException(
       e,
       stackTrace: s,
