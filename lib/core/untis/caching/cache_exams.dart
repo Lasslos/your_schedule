@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/utils.dart';
 
-Future<Map<Date, List<Exam>>> getCachedExams(ActiveSession session, Week week) async {
+Future<Map<Date, List<Exam>>> getCachedExams(ActiveUntisSession session, Week week) async {
   final prefs = await SharedPreferences.getInstance();
   if (!prefs.containsKey("${session.userData.id}.exams.$week")) {
     return {
@@ -19,7 +19,7 @@ Future<Map<Date, List<Exam>>> getCachedExams(ActiveSession session, Week week) a
   };
 }
 
-Future<void> setCachedExams(ActiveSession session, Week week, Map<Date, List<Exam>> exams) async {
+Future<void> setCachedExams(ActiveUntisSession session, Week week, Map<Date, List<Exam>> exams) async {
   final prefs = await SharedPreferences.getInstance();
   Map<String, dynamic> json = {
     for (var entry in exams.entries) entry.key.millisecondsSinceEpoch.toString(): entry.value.map((e) => e.toJson()).toList(),

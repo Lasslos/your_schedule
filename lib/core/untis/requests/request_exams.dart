@@ -9,7 +9,8 @@ import 'package:your_schedule/util/week.dart';
 ///
 /// Returns a [Future] with a [Map] of [Date]s and [List]s of [Exam]s.
 /// All [Date]s are normalized to the start of the day.
-Future<Map<Date, List<Exam>>> requestExams(ActiveSession session,
+Future<Map<Date, List<Exam>>> requestExams(
+  ActiveUntisSession session,
   Week week,
 ) async {
   var authParams = AuthParams(user: session.username, appSharedSecret: session.appSharedSecret);

@@ -10,7 +10,8 @@ import 'package:your_schedule/util/week.dart';
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
 /// Returns a [Future] with a [Map] of [Date]s and [List]s of [TimeTablePeriod]s.
 /// All [Date]s are normalized to the start of the day.
-Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(ActiveSession session,
+Future<Map<Date, List<TimeTablePeriod>>> requestTimeTable(
+  ActiveUntisSession session,
   Week week,
 ) async {
   var authParams = AuthParams(user: session.username, appSharedSecret: session.appSharedSecret);
