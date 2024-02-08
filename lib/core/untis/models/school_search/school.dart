@@ -7,6 +7,7 @@ part 'school.g.dart';
 @Freezed()
 class School with _$School {
   const factory School(
+    /// The domain of the server of the school. To send rpc requests to the server, use [rpcUrl] or [serverUrl].
     String server,
     String address,
     String displayName,
