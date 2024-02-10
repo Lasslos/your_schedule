@@ -7,7 +7,7 @@ import 'package:your_schedule/util/shared_preferences.dart';
 part 'untis_session_provider.g.dart';
 
 /// The first session is the currently used session.
-@riverpod
+@Riverpod(keepAlive: true)
 class UntisSessions extends _$UntisSessions {
   @override
   List<UntisSession> build() {
@@ -51,7 +51,7 @@ class UntisSessions extends _$UntisSessions {
   List<UntisSession> _getCachedSessions() {
     final sessions = sharedPreferences.getStringList('sessions');
     if (sessions == null || sessions.isEmpty) {
-      return [];
+      return List.unmodifiable([]);
     }
     return List.unmodifiable(
       sessions.map((e) => UntisSession.fromJson(jsonDecode(e))).toList(),
@@ -63,7 +63,6 @@ class UntisSessions extends _$UntisSessions {
       'sessions',
       sessions.map((e) => jsonEncode(e.toJson())).toList(),
     );
-    state = sessions;
   }
 }
 
