@@ -18,7 +18,10 @@ Future<Map<Date, List<Exam>>> requestExams(RequestExamsRef ref,
   assert(activeSession is ActiveUntisSession, "Session must be active!");
   ActiveUntisSession session = activeSession as ActiveUntisSession;
   // Cache/Log results by listening for changes
-  ref.listenSelf((_, data) {
+  ref.listenSelf((previous, data) {
+    if (previous == data) {
+      return;
+    }
     data.when(
       data: (data) {
         ref.read(cachedExamsProvider(session, week).notifier).setCachedExams(data);

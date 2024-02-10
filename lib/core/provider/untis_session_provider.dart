@@ -11,8 +11,8 @@ part 'untis_session_provider.g.dart';
 class UntisSessions extends _$UntisSessions {
   @override
   List<UntisSession> build() {
-    ref.listenSelf((prev, next) {
-      if (prev != null) {
+    ref.listenSelf((previous, next) {
+      if (previous != null && previous != next) {
         _setCachedSessions(next);
       }
     });

@@ -30,6 +30,10 @@ class CachedTimeTable extends _$CachedTimeTable {
   }
 
   Future<void> setCachedTimeTable(TimeTableWeek timeTable) async {
+    getLogger().d('Caching timetable for $week');
+
+    ref.read(cachedTimeTableTimestampProvider(week).notifier).setCachedTimeTableTimestamp(DateTime.now());
+
     Map<String, dynamic> json = {
       for (var entry in timeTable.entries) entry.key.millisecondsSinceEpoch.toString(): entry.value.map((e) => e.toJson()).toList(),
     };
@@ -40,5 +44,20 @@ class CachedTimeTable extends _$CachedTimeTable {
     );
 
     state = timeTable;
+  }
+}
+
+@riverpod
+class CachedTimeTableTimestamp extends _$CachedTimeTableTimestamp {
+  @override
+  DateTime build(Week week) {
+    return sharedPreferences.containsKey("timetable.$week.timestamp")
+        ? DateTime.parse(sharedPreferences.getString("timetable.$week.timestamp")!)
+        : DateTime.now();
+  }
+
+  Future<void> setCachedTimeTableTimestamp(DateTime timestamp) async {
+    await sharedPreferences.setString("timetable.$week.timestamp", timestamp.toIso8601String());
+    state = timestamp;
   }
 }

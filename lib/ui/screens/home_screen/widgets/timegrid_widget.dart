@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
+import 'package:your_schedule/ui/screens/home_screen/home_screen_date_provider.dart';
 import 'package:your_schedule/utils.dart';
 
 class TimeGridWidget extends ConsumerStatefulWidget {
@@ -19,29 +21,45 @@ class TimeGridWidget extends ConsumerStatefulWidget {
 class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: SizedBox(
-        height: 750,
-        child: Row(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: 42),
-                Expanded(
-                  child: _buildTimeGridWidget(context),
-                ),
-              ],
-            ),
-            const VerticalDivider(
-              width: 1,
-              thickness: 0.7,
-            ),
-            const SizedBox(width: 4),
-            Expanded(child: widget.child),
-            const SizedBox(width: 4),
-          ],
+    Week currentWeek = Week.fromDate(ref.watch(homeScreenDateProvider));
+    DateTime timestamp = ref.watch(cachedTimeTableTimestampProvider(currentWeek));
+
+    return ListView(
+      children: [
+        //Timetable
+        SizedBox(
+          height: 750,
+          child: Row(
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 42),
+                  Expanded(
+                    child: _buildTimeGridWidget(context),
+                  ),
+                ],
+              ),
+              const VerticalDivider(
+                width: 1,
+                thickness: 0.7,
+              ),
+              const SizedBox(width: 4),
+              Expanded(child: widget.child),
+              const SizedBox(width: 4),
+            ],
+          ),
         ),
-      ),
+
+        //Time of last refresh information
+        const Divider(height: 1),
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            "Letztes Update am ${DateFormat.yMMMMd().format(timestamp)} um ${DateFormat.Hms().format(timestamp)}.",
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ],
     );
   }
 

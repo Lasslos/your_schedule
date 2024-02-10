@@ -19,8 +19,14 @@ Future<TimeTableWeek> requestTimeTable(
 ) async {
   assert(activeSession is ActiveUntisSession, "Session must be active!");
   ActiveUntisSession session = activeSession as ActiveUntisSession;
+
+  getLogger().d('Requesting timetable for $week');
+
   // Cache/Log results by listening for changes
-  ref.listenSelf((_, data) {
+  ref.listenSelf((previous, data) {
+    if (previous == data) {
+      return;
+    }
     data.when(
       data: (data) {
         ref.read(cachedTimeTableProvider(session, week).notifier).setCachedTimeTable(data);

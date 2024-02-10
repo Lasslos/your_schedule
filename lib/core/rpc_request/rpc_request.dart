@@ -49,6 +49,8 @@ Future<RPCResponse> rpcRequest({
   // Set id for current request.
   int id = _id++;
 
+  getLogger().d("Performing RPC Request: $method");
+
   // Add breadcrumb to Sentry, scrub sensitive data.
   Sentry.addBreadcrumb(
     Breadcrumb(
@@ -106,7 +108,7 @@ Future<RPCResponse> rpcRequest({
       throw const IllegalIdTokenException();
     }
     getLogger().i("Successful RPC Request: $method"
-        "\n${rpcResponse.toString()}");
+        "\n${rpcResponse.toStringNoResult()}");
     return rpcResponse;
   } else {
     getLogger().e(
