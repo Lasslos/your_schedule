@@ -19,7 +19,7 @@ class UntisSessions extends _$UntisSessions {
     return _getCachedSessions();
   }
 
-  void addSession(UntisSession session) async {
+  void addSession(UntisSession session) {
     state = List.unmodifiable([session, ...state]);
   }
 

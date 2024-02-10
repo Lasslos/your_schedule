@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/provider/timetable_provider.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
+import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/settings/view_mode_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen_date_provider.dart';
 import 'package:your_schedule/ui/screens/home_screen/widgets/day_view.dart';
@@ -27,7 +28,7 @@ class TimeTableView extends ConsumerWidget {
     return RefreshIndicator(
       onRefresh: () async {
         var session = ref.read(selectedUntisSessionProvider);
-        ref.invalidate(timeTableProvider(session, Week.fromDate(date)));
+        ref.invalidate(requestTimeTableProvider(session, Week.fromDate(date)));
       },
       child: TimeGridWidget(
         child: AnimatedSwitcher(
