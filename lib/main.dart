@@ -8,7 +8,6 @@ import 'package:your_schedule/ui/screens/loading_screen/loading_screen.dart';
 import 'package:your_schedule/util/shared_preferences.dart';
 
 void main() async {
-  //TODO: Connection banner to show last fetch
   Intl.defaultLocale = 'de';
   initializeDateFormatting('de_DE', null);
 
