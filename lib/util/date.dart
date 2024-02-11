@@ -38,7 +38,15 @@ class Date implements Comparable<Date> {
     /// This is an extremely lazy solution to leap seconds. It just adds one hour to the difference, which is rounded down to the nearest day.
     /// It solves the problem as UTC is supposed to only have one leap second every 18 months, one hour is more than enough to cover one second.
     /// If we don't do this, in the event of a second being removed, the indexes of the days would be off by one, erasing a day.
-    return (_date.difference(other._date) + const Duration(hours: 1)).inDays;
+    ///
+    /// Assumptions for this to work:
+    /// - .inDays always rounds down.
+    Duration difference = _date.difference(other._date);
+    if (difference.isNegative) {
+      return (difference - const Duration(hours: 1)).inDays;
+    } else {
+      return (difference + const Duration(hours: 1)).inDays;
+    }
   }
 
   bool isBefore(Date other) => _date.isBefore(other._date);

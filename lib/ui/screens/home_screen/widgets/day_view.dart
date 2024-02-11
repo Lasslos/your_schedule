@@ -25,7 +25,7 @@ class _DayViewState extends ConsumerState<DayView> {
   void initState() {
     super.initState();
     currentDate = ref.read(homeScreenDateProvider);
-    var index = currentDate.differenceInDays(Date.now());
+    var index = _dateToIndex(currentDate);
     _pageController = PageController(initialPage: index);
   }
 
@@ -42,7 +42,7 @@ class _DayViewState extends ConsumerState<DayView> {
       (previous, next) {
         if (currentDate != next) {
           _pageController.animateToPage(
-            next.differenceInDays(currentDate),
+            _dateToIndex(next),
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
           );
@@ -53,7 +53,7 @@ class _DayViewState extends ConsumerState<DayView> {
     return PageView.builder(
       controller: _pageController,
       onPageChanged: (index) {
-        currentDate = Date.now().addDays(index);
+        currentDate = _indexToDate(index);
         if (currentDate != ref.read(homeScreenDateProvider)) {
           ref.read(homeScreenDateProvider.notifier).date = currentDate;
         }
@@ -70,7 +70,7 @@ class _Page extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Date currentDate = Date.now().addDays(index);
+    Date currentDate = _indexToDate(index);
 
     var session = ref.watch(selectedUntisSessionProvider);
     var timeTable = ref.watch(timeTableProvider(session, Week.fromDate(currentDate)))[currentDate]!;
@@ -115,7 +115,7 @@ class _Page extends ConsumerWidget {
                       )
                       .toList(),
                 ),
-                if (index == 0) const TimeIndicator(),
+                if (index == _dateToIndex(Date.now())) const TimeIndicator(),
               ],
             ),
           ),
@@ -123,4 +123,13 @@ class _Page extends ConsumerWidget {
       ),
     );
   }
+}
+
+//To allow backwards scrolling, today's index is set to 1 << 30 (Max int32 value / 2)
+int _dateToIndex(Date date) {
+  return date.differenceInDays(Date.now()) + (1 << 30);
+}
+
+Date _indexToDate(int index) {
+  return Date.now().addDays(index - (1 << 30));
 }

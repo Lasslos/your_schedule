@@ -26,7 +26,7 @@ class _WeekViewState extends ConsumerState<WeekView> {
   void initState() {
     super.initState();
     currentDate = ref.read(homeScreenDateProvider);
-    var index = currentDate.differenceInDays(Week.now().startDate) ~/ 7;
+    var index = _dateToIndex(currentDate);
     _pageController = PageController(initialPage: index);
   }
 
@@ -45,7 +45,7 @@ class _WeekViewState extends ConsumerState<WeekView> {
         var normalizedNext = Week.fromDate(next).startDate;
         if (normalizedCurrentDate != normalizedNext) {
           _pageController.animateToPage(
-            Week.now().startDate.differenceInDays(normalizedNext) ~/ 7,
+            _dateToIndex(normalizedNext),
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
           );
@@ -58,8 +58,7 @@ class _WeekViewState extends ConsumerState<WeekView> {
       onPageChanged: (index) {
         var oldDate = ref.read(homeScreenDateProvider);
         var daysRelativeToStartOfWeek = oldDate.differenceInDays(Week.fromDate(oldDate).startDate);
-        currentDate = Week.now()
-            .startDate.addDays(index * 7 + daysRelativeToStartOfWeek);
+        currentDate = _indexToDate(index, daysRelativeToStartOfWeek);
         ref.read(homeScreenDateProvider.notifier).date = currentDate;
       },
       itemBuilder: (BuildContext context, int index) {
@@ -78,7 +77,7 @@ class _Page extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Date currentDate = Date.now().addWeeks(index);
+    Date currentDate = _indexToDate(index, 0);
     Week currentWeek = Week.fromDate(currentDate);
     List<List<TimeTablePeriod>?> days = [];
 
@@ -111,36 +110,7 @@ class _Page extends ConsumerWidget {
                 Flexible(
                   child: InkWell(
                     onTap: () {
-                      var possibleNewDate = currentWeek.startDate.addDays(i);
-                      if (possibleNewDate.isBefore(
-                        Date.now(),
-                      )) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Das liegt in der Vergangenheit!',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: Colors.white,
-                                  ),
-                            ),
-                            backgroundColor: Colors.red,
-                            behavior: SnackBarBehavior.floating,
-                            action: SnackBarAction(
-                              label: 'OK',
-                              textColor: Colors.white,
-                              onPressed: () {
-                                ScaffoldMessenger.of(context)
-                                    .hideCurrentSnackBar();
-                              },
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-                      ref.read(homeScreenDateProvider.notifier).date = possibleNewDate;
+                      ref.read(homeScreenDateProvider.notifier).date = currentWeek.startDate.addDays(i);
                       ref.read(viewModeSettingProvider.notifier).switchViewMode();
                     },
                     child: Center(
@@ -186,11 +156,20 @@ class _Page extends ConsumerWidget {
                   },
                 ),
               ),
-              if (index == 0) const TimeIndicator(),
+              if (index == _dateToIndex(Date.now())) const TimeIndicator(),
             ],
           ),
         ),
       ],
     );
   }
+}
+
+//To allow backwards scrolling, today's index is set to 1 << 30 (Max int32 value / 2)
+int _dateToIndex(Date date) {
+  return (date.differenceInDays(Week.now().startDate) / 7.0).floor() + (1 << 30);
+}
+
+Date _indexToDate(int index, int daysRelativeToStartOfWeek) {
+  return Week.now().startDate.addDays((index - (1 << 30)) * 7 + daysRelativeToStartOfWeek);
 }
