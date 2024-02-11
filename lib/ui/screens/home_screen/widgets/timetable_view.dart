@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:your_schedule/core/provider/timetable_provider.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
@@ -15,9 +16,9 @@ class TimeTableView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var viewMode = ref.watch(viewModeSettingProvider);
-    var date = ref.watch(homeScreenDateProvider);
-
+    ViewMode viewMode = ref.watch(viewModeSettingProvider);
+    Date date = ref.watch(homeScreenDateProvider);
+    DateTime timestamp = ref.watch(cachedTimeTableTimestampProvider(Week.fromDate(date)));
     // Eager initialization of the time table providers
     var session = ref.watch(selectedUntisSessionProvider);
     ref
@@ -30,11 +31,25 @@ class TimeTableView extends ConsumerWidget {
         var session = ref.read(selectedUntisSessionProvider);
         ref.invalidate(requestTimeTableProvider(session, Week.fromDate(date)));
       },
-      child: TimeGridWidget(
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
-        ),
+      child: Stack(
+        children: [
+          TimeGridWidget(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                "Zuletzt aktualisiert am ${DateFormat.Md().format(timestamp)} um ${DateFormat.Hms().format(timestamp)}.",
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
