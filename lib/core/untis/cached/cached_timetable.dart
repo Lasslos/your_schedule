@@ -30,8 +30,6 @@ class CachedTimeTable extends _$CachedTimeTable {
   }
 
   Future<void> setCachedTimeTable(TimeTableWeek timeTable) async {
-    getLogger().d('Caching timetable for $week');
-
     ref.read(cachedTimeTableTimestampProvider(week).notifier).setCachedTimeTableTimestamp(DateTime.now());
 
     Map<String, dynamic> json = {

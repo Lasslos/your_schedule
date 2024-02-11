@@ -19,9 +19,6 @@ Future<TimeTableWeek> requestTimeTable(
 ) async {
   assert(activeSession is ActiveUntisSession, "Session must be active!");
   ActiveUntisSession session = activeSession as ActiveUntisSession;
-
-  getLogger().d('Requesting timetable for $week');
-
   // Cache/Log results by listening for changes
   ref.listenSelf((previous, data) {
     if (previous == data) {

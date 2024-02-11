@@ -48,9 +48,6 @@ Future<RPCResponse> rpcRequest({
 }) async {
   // Set id for current request.
   int id = _id++;
-
-  getLogger().d("Performing RPC Request: $method");
-
   // Add breadcrumb to Sentry, scrub sensitive data.
   Sentry.addBreadcrumb(
     Breadcrumb(
