@@ -27,6 +27,10 @@ class UntisSessions extends _$UntisSessions {
     state = List.unmodifiable([...state]..remove(session));
   }
 
+  void clearSessions() {
+    state = List.unmodifiable([]);
+  }
+
   void removeSessionWhenDone(Future f, UntisSession session) {
     f.whenComplete(() => removeSession(session));
   }

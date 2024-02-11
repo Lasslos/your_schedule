@@ -1,7 +1,7 @@
 name: your_schedule
 description: Filter your Untis Schedule by classes you have chosen.
 
-version: 1.4.1+1401
+version: 1.4.2+1402
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -40,7 +40,7 @@ dev_dependencies:
   riverpod_lint: ^2.3.9
   freezed_lint: ^0.0.1
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/school_padding.png"

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/provider/custom_subject_colors.dart';
+import 'package:your_schedule/settings/sentry_provider.dart';
 import 'package:your_schedule/settings/theme_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -99,6 +100,53 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
+                );
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 16.0,
+                left: 16.0,
+                right: 16.0,
+                bottom: 8.0,
+              ),
+              child: Text(
+                "Sonstiges",
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
+                    ),
+              ),
+            ),
+            ListTile(
+              title: const Text("Fehlerberichte senden"),
+              subtitle: ref.watch(sentrySettingsProvider) == true ? const Text("Aktiviert") : const Text("Deaktiviert"),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Fehlerberichte senden?"),
+                      content: const Text("Stundenplan wird kontinuierlich verbessert. Wir verwenden Sentry, um Fehlerberichte zu sammeln. "
+                          "Fehlerberichte helfen uns dabei, Probleme zu erkennen und zu beheben. Dafür benötigen wir jedoch deine Zustimmung. "
+                          "Du kannst deine Zustimmung jederzeit in den Einstellungen wiederrufen. Die Einstellung wird mit einem App-Neustart aktiv. Möchtest du Fehlerberichte senden?"),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            ref.read(sentrySettingsProvider.notifier).setSentryEnabled(true);
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Ja"),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            ref.read(sentrySettingsProvider.notifier).setSentryEnabled(false);
+                            Navigator.pop(context);
+                          },
+                          child: const Text("Nein"),
+                        ),
+                      ],
+                    );
+                  },
                 );
               },
             ),

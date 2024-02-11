@@ -6,8 +6,8 @@ part 'sentry_provider.g.dart';
 @riverpod
 class SentrySettings extends _$SentrySettings {
   @override
-  bool build() {
-    return sharedPreferences.getBool('sentryEnabled') ?? false;
+  bool? build() {
+    return sharedPreferences.getBool('sentryEnabled');
   }
 
   Future<void> setSentryEnabled(bool enabled) async {

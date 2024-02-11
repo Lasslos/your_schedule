@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/logger.dart';
+import 'package:your_schedule/util/shared_preferences.dart';
 
 part 'filters.g.dart';
 
@@ -22,7 +23,7 @@ class Filters extends _$Filters {
     _userId = ref.watch(selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.id));
 
     try {
-      initializeFromPrefs();
+      return initializeFromPrefs();
     } catch (e, s) {
       Sentry.captureException(e, stackTrace: s);
       getLogger().e("Error while parsing json", error: e, stackTrace: s);
@@ -55,13 +56,13 @@ class Filters extends _$Filters {
     await prefs.setString('$_userId.filters', jsonEncode(state.toList()));
   }
 
-  Future<void> initializeFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    final filters = prefs.getString('$_userId.filters');
+  Set<int> initializeFromPrefs() {
+    final filters = sharedPreferences.getString('$_userId.filters');
     if (filters != null) {
-      state = Set.unmodifiable(
+      return Set.unmodifiable(
         (jsonDecode(filters) as List<dynamic>).map((e) => e as int).toSet(),
       );
     }
+    return {};
   }
 }

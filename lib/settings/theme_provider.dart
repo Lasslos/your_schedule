@@ -7,9 +7,11 @@ part 'theme_provider.g.dart';
 @riverpod
 class ThemeSetting extends _$ThemeSetting {
   @override
-  ThemeMode build() {
-    return ThemeMode.system;
-  }
+  ThemeMode build() => switch (sharedPreferences.getBool('darkMode')) {
+        true => ThemeMode.dark,
+        false => ThemeMode.light,
+        null => ThemeMode.system,
+      };
 
   Future<void> setTheme(ThemeMode theme) async {
     state = theme;
