@@ -21,27 +21,17 @@ class SettingsScreen extends ConsumerWidget {
                 bottom: 8.0,
               ),
               child: Text(
-                "General",
+                "Design",
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurfaceVariant
-                          .withOpacity(0.8),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
                     ),
               ),
             ),
             ListTile(
               title: const Text("Design"),
-              subtitle: Text(() {
-                switch (ref.watch(themeSettingProvider)) {
-                  case ThemeMode.system:
-                    return "Systemvorgabe";
-                  case ThemeMode.light:
-                    return "Hell";
-                  case ThemeMode.dark:
-                    return "Dunkel";
-                }
-              }()),
+              subtitle: Text(
+                switch (ref.watch(themeSettingProvider)) { ThemeMode.system => "Systemvorgabe", ThemeMode.light => "Hell", ThemeMode.dark => "Dunkel" },
+              ),
               onTap: () {
                 showDialog(
                   context: context,
@@ -50,6 +40,15 @@ class SettingsScreen extends ConsumerWidget {
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        RadioListTile<ThemeMode>(
+                          title: const Text("Systemvorgabe"),
+                          value: ThemeMode.system,
+                          groupValue: ref.watch(themeSettingProvider),
+                          onChanged: (value) {
+                            ref.read(themeSettingProvider.notifier).setTheme(value!);
+                            Navigator.of(context).pop();
+                          },
+                        ),
                         RadioListTile<ThemeMode>(
                           title: const Text("Hell"),
                           value: ThemeMode.light,
@@ -62,15 +61,6 @@ class SettingsScreen extends ConsumerWidget {
                         RadioListTile<ThemeMode>(
                           title: const Text("Dunkel"),
                           value: ThemeMode.dark,
-                          groupValue: ref.watch(themeSettingProvider),
-                          onChanged: (value) {
-                            ref.read(themeSettingProvider.notifier).setTheme(value!);
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        RadioListTile<ThemeMode>(
-                          title: const Text("Systemvorgabe"),
-                          value: ThemeMode.system,
                           groupValue: ref.watch(themeSettingProvider),
                           onChanged: (value) {
                             ref.read(themeSettingProvider.notifier).setTheme(value!);
