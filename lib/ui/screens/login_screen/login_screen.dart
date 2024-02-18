@@ -316,14 +316,14 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       session = await activateSession(ref, session);
       ref.read(untisSessionsProvider.notifier).addSession(session);
 
-      //ignore: use_build_context_synchronously
       Navigator.pushReplacement(
+        //ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-      //ignore: use_build_context_synchronously
       Navigator.push(
-        context,
+        //ignore: use_build_context_synchronously
+      context,
         MaterialPageRoute(builder: (_) => const FilterScreen()),
       );
     } on RPCError catch (e) {

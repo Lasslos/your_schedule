@@ -2,12 +2,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:workmanager/workmanager.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/provider/filters.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
@@ -22,6 +25,7 @@ import 'package:your_schedule/ui/screens/loading_screen/loading_error_screen.dar
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/shared_preferences.dart';
+import 'package:your_schedule/background/service.dart' as background;
 
 void main() async {
   await _initializeApp();
@@ -59,6 +63,38 @@ Future<void> _initializeApp() async {
 
   // Shared Preferences
   await initSharedPreferences();
+
+
+  // periodic background fetching is not supported on IOS due to battery saving restrictions
+  //  a workaround would be to use an external push service, but that would require the users to
+  //  transfer their passwords to a third party service, which is not acceptable.
+  //  Maybe someone will find a better solution in the future. It would be possible to provide a
+  //  self-hosted solution per school, but that's some unlikely idea for the future.
+
+  if (Platform.isAndroid) {
+    PermissionStatus? notificationsPermissionStatus;
+
+    await Permission.notification.isDenied.then((value) async {
+      if (value) {
+        notificationsPermissionStatus = await Permission.notification.request();
+      }
+    });
+    getLogger().i("Notifications permission status: $notificationsPermissionStatus");
+    //ToDo: Implement settings for notifications
+    bool enableNotifications = true;
+    int notificationInterval = 15;
+
+    await Workmanager().cancelAll();
+    if (enableNotifications && (notificationsPermissionStatus ?? PermissionStatus.granted).isGranted) {
+      await Workmanager().initialize(background.callbackDispatcher, isInDebugMode: kDebugMode);
+      await Workmanager().registerPeriodicTask(
+          "",
+          "",
+          frequency: Duration(minutes: notificationInterval),
+      );
+    }
+  }
+
 }
 
 class MyApp extends ConsumerWidget {
