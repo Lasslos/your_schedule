@@ -1,7 +1,7 @@
 {
 description = "Flutter 3.22.x";
 inputs = {
-  nixpkgs.url = "github:NixOS/nixpkgs/23.11";
+  nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
   flake-utils.url = "github:numtide/flake-utils";
 };
 outputs = { self, nixpkgs, flake-utils }:
