@@ -4,7 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'connectivity_provider.g.dart';
 
 @riverpod
-Stream<ConnectivityResult> connectivity(ConnectivityRef ref) async* {
+Stream<List<ConnectivityResult>> connectivity(ConnectivityRef ref) async* {
   yield await Connectivity().checkConnectivity();
   yield* Connectivity().onConnectivityChanged;
 }
@@ -12,5 +12,5 @@ Stream<ConnectivityResult> connectivity(ConnectivityRef ref) async* {
 @riverpod
 bool canMakeRequest(CanMakeRequestRef ref) {
   var connectivity = ref.watch(connectivityProvider);
-  return connectivity.hasValue && connectivity.requireValue != ConnectivityResult.none;
+  return connectivity.hasValue && !connectivity.requireValue.contains(ConnectivityResult.none);
 }

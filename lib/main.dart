@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:your_schedule/background/service.dart' as background;
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/provider/filters.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
@@ -25,7 +26,6 @@ import 'package:your_schedule/ui/screens/loading_screen/loading_error_screen.dar
 import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/shared_preferences.dart';
-import 'package:your_schedule/background/service.dart' as background;
 
 void main() async {
   await _initializeApp();
@@ -34,7 +34,7 @@ void main() async {
       options
         ..dsn = 'https://1be6b663150041f6be6a7a4375e5599f@o4504990166155264.ingest.sentry.io/4504990173167616'
         ..tracesSampleRate = 1.0
-        ..beforeSend = (event, {hint}) {
+        ..beforeSend = (event, hint) {
           if (sharedPreferences.getBool("sentryEnabled") != true) {
             return null;
           }
