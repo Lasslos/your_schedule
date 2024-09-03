@@ -8,7 +8,7 @@ part 'app_shared_secret_params.g.dart';
 class AppSharedSecretParams with _$AppSharedSecretParams {
   const factory AppSharedSecretParams({
     @JsonKey(name: "userName") required String username,
-    required String password,
+    required String password, required String token,
   }) = _AppSharedSecretParams;
 
   factory AppSharedSecretParams.fromJson(Map<String, dynamic> json) =>

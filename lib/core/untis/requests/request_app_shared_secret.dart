@@ -16,7 +16,7 @@ Future<String> requestAppSharedSecret(RequestAppSharedSecretRef ref,
   var response = await rpcRequest(
     method: 'getAppSharedSecret',
     params: [
-      AppSharedSecretParams(username: session.username, password: session.password).toJson(),
+      AppSharedSecretParams(username: session.username, password: session.password, token: session.token).toJson(),
     ],
     serverUrl: Uri.parse(session.school.rpcUrl),
   );

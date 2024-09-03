@@ -14,6 +14,7 @@ sealed class UntisSession with _$UntisSession {
     School school,
     String username,
     String password,
+    String token,
     String appSharedSecret,
     UserData userData,
   ) = ActiveUntisSession;
@@ -22,6 +23,7 @@ sealed class UntisSession with _$UntisSession {
     required School school,
     required String username,
     required String password,
+    required String token,
   }) = InactiveUntisSession;
 
   factory UntisSession.fromJson(Map<String, dynamic> json) => _$UntisSessionFromJson(json);
@@ -42,6 +44,7 @@ Future<ActiveUntisSession> activateSession(WidgetRef ref, UntisSession session) 
     session.school,
     session.username,
     session.password,
+    session.token,
     appSharedSecret,
     userData,
   ) as ActiveUntisSession;

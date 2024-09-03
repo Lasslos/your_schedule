@@ -272,6 +272,7 @@ class _InitializerState extends ConsumerState<Initializer> {
         var newSession = UntisSession.inactive(
           username: session.username,
           password: session.password,
+          token: "",
           school: session.school,
         );
         try {

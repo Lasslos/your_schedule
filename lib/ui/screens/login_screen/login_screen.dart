@@ -163,6 +163,7 @@ class _LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<_LoginScreen> {
   late TextEditingController _usernameFieldController;
   late TextEditingController _passwordFieldController;
+  late TextEditingController _tokenFieldController;
   var isLoading = false;
   var showPassword = false;
   List<FocusNode> focusNodes = [];
@@ -172,7 +173,8 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     super.initState();
     _usernameFieldController = TextEditingController();
     _passwordFieldController = TextEditingController();
-    for (var i = 0; i < 3; i++) {
+    _tokenFieldController = TextEditingController();
+    for (var i = 0; i < 4; i++) {
       focusNodes.add(FocusNode());
     }
     focusNodes[0].requestFocus();
@@ -246,6 +248,21 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    focusNode: focusNodes[2],
+                    autocorrect: false,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.next,
+                    controller: _tokenFieldController,
+                    onEditingComplete: () {
+                      FocusScope.of(context).requestFocus(focusNodes[2]);
+                    },
+                    decoration: const InputDecoration(
+                      labelText: "2FA-Token (Optional):",
+                      prefixIcon: Icon(Icons.lock),
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     ref.watch(loginStateProvider).message,
@@ -266,7 +283,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                           ),
                         )
                       : ElevatedButton(
-                          focusNode: focusNodes[2],
+                          focusNode: focusNodes[3],
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
                               Theme.of(context).colorScheme.primary,
@@ -310,6 +327,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       school: school,
       username: _usernameFieldController.text,
       password: _passwordFieldController.text,
+      token: _tokenFieldController.text,
     );
 
     try {
