@@ -53,7 +53,6 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
     school: school,
     username: username,
     password: password,
-    token: "",
   );
 
   var connectionState = await ref.read(connectivityProvider.future);

@@ -22,4 +22,6 @@ class RPCError with _$RPCError {
   static const tooManyResults = -6003;
   static const invalidClientTime = -8524;
   static const authenticationFailed = -8998;
+  static const twoFactorRequired = -8519;
+  static const invalidTwoFactor = -8511;
 }

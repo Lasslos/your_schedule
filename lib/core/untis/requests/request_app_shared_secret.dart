@@ -11,12 +11,12 @@ part 'request_app_shared_secret.g.dart';
 /// See [RPCError.authenticationFailed].
 @riverpod
 Future<String> requestAppSharedSecret(RequestAppSharedSecretRef ref,
-  UntisSession session,
+  UntisSession session, {String token = "",}
 ) async {
   var response = await rpcRequest(
     method: 'getAppSharedSecret',
     params: [
-      AppSharedSecretParams(username: session.username, password: session.password, token: session.token).toJson(),
+      AppSharedSecretParams(username: session.username, password: session.password, token: token).toJson(),
     ],
     serverUrl: Uri.parse(session.school.rpcUrl),
   );

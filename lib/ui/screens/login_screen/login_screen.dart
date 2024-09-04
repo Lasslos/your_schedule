@@ -166,6 +166,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
   late TextEditingController _tokenFieldController;
   var isLoading = false;
   var showPassword = false;
+  var requireTwoFactor = false;
   List<FocusNode> focusNodes = [];
 
   @override
@@ -249,18 +250,21 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  TextField(
-                    focusNode: focusNodes[2],
-                    autocorrect: false,
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.next,
-                    controller: _tokenFieldController,
-                    onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[2]);
-                    },
-                    decoration: const InputDecoration(
-                      labelText: "2FA-Token (Optional):",
-                      prefixIcon: Icon(Icons.lock),
+                  Visibility(
+                    visible: requireTwoFactor,
+                    child: TextField(
+                      focusNode: focusNodes[2],
+                      autocorrect: false,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      controller: _tokenFieldController,
+                      onEditingComplete: () {
+                        FocusScope.of(context).requestFocus(focusNodes[2]);
+                      },
+                      decoration: const InputDecoration(
+                        labelText: "2FA-Token",
+                        prefixIcon: Icon(Icons.lock),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -327,11 +331,10 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       school: school,
       username: _usernameFieldController.text,
       password: _passwordFieldController.text,
-      token: _tokenFieldController.text,
     );
 
     try {
-      session = await activateSession(ref, session);
+      session = await activateSession(ref, session, token: _tokenFieldController.text);
       ref.read(untisSessionsProvider.notifier).addSession(session);
 
       Navigator.pushReplacement(
@@ -345,8 +348,16 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
         MaterialPageRoute(builder: (_) => const FilterScreen()),
       );
     } on RPCError catch (e) {
+      if (e.code == RPCError.twoFactorRequired) {
+        requireTwoFactor = true;
+      }
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
-            message: e.code == RPCError.authenticationFailed ? "Falsches Passwort" : e.message,
+            message: switch (e.code) {
+              RPCError.authenticationFailed => "Falsches Passwort",
+              RPCError.twoFactorRequired => "2-Faktor-Token benötigt",
+              RPCError.invalidTwoFactor => "Falscher 2-Faktor-Token",
+              int() => e.message,
+            },
           );
     } catch (e, s) {
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
