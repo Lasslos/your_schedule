@@ -214,7 +214,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                     textInputAction: TextInputAction.next,
                     controller: _usernameFieldController,
                     onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[0]);
+                      FocusScope.of(context).requestFocus(focusNodes[1]);
                     },
                     decoration: const InputDecoration(
                       labelText: "Benutzername",
@@ -232,7 +232,12 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                     textInputAction: TextInputAction.next,
                     controller: _passwordFieldController,
                     onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[1]);
+                      if (requireTwoFactor) {
+                        FocusScope.of(context).requestFocus(focusNodes[2]);
+                      } else {
+                        FocusScope.of(context).unfocus();
+                        _login();
+                      }
                     },
                     decoration: InputDecoration(
                       labelText: "Passwort",
@@ -259,7 +264,8 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                       textInputAction: TextInputAction.next,
                       controller: _tokenFieldController,
                       onEditingComplete: () {
-                        FocusScope.of(context).requestFocus(focusNodes[2]);
+                        FocusScope.of(context).unfocus();
+                        _login();
                       },
                       decoration: const InputDecoration(
                         labelText: "2FA-Token",
@@ -350,11 +356,11 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     } on RPCError catch (e) {
       if (e.code == RPCError.twoFactorRequired) {
         requireTwoFactor = true;
+        return;
       }
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
             message: switch (e.code) {
               RPCError.authenticationFailed => "Falsches Passwort",
-              RPCError.twoFactorRequired => "2-Faktor-Token benötigt",
               RPCError.invalidTwoFactor => "Falscher 2-Faktor-Token",
               int() => e.message,
             },

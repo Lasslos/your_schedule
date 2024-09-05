@@ -7,8 +7,10 @@ part 'request_app_shared_secret.g.dart';
 /// Requests the shared secret for the app.
 ///
 /// The shared secret is used to authenticate the app with the server.
-/// Returns a [Future] with the shared secret. If authentication fails, a [RPCError] is thrown.
-/// See [RPCError.authenticationFailed].
+/// Returns a [Future] with the shared secret. If authentication fails,
+/// 2FA is required or an invalid 2FA token was provided, a [RPCError] is thrown.
+/// See [RPCError.authenticationFailed], [RPCError.twoFactorRequired}
+/// and [RPCError.invalidTwoFactor} respectively.
 @riverpod
 Future<String> requestAppSharedSecret(RequestAppSharedSecretRef ref,
   UntisSession session, {String token = "",}
