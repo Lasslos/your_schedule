@@ -27,12 +27,12 @@ sealed class UntisSession with _$UntisSession {
   factory UntisSession.fromJson(Map<String, dynamic> json) => _$UntisSessionFromJson(json);
 }
 
-Future<ActiveUntisSession> activateSession(WidgetRef ref, UntisSession session) async {
+Future<ActiveUntisSession> activateSession(WidgetRef ref, UntisSession session, {String token = ""}) async {
   String appSharedSecret;
   UserData userData;
 
   try {
-    appSharedSecret = await ref.read(requestAppSharedSecretProvider(session).future);
+    appSharedSecret = await ref.read(requestAppSharedSecretProvider(session, token: token).future);
     userData = await ref.read(requestUserDataProvider(session, appSharedSecret).future);
   } catch (e, s) {
     logRequestError("Error while requesting session data", e, s);

@@ -71,7 +71,7 @@ Future<void> _initializeApp() async {
   //  Maybe someone will find a better solution in the future. It would be possible to provide a
   //  self-hosted solution per school, but that's some unlikely idea for the future.
 
-  if (Platform.isAndroid) {
+  if (!kIsWeb && Platform.isAndroid) {
     PermissionStatus? notificationsPermissionStatus;
 
     await Permission.notification.isDenied.then((value) async {

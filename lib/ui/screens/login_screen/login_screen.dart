@@ -163,8 +163,10 @@ class _LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<_LoginScreen> {
   late TextEditingController _usernameFieldController;
   late TextEditingController _passwordFieldController;
+  late TextEditingController _tokenFieldController;
   var isLoading = false;
   var showPassword = false;
+  var requireTwoFactor = false;
   List<FocusNode> focusNodes = [];
 
   @override
@@ -172,7 +174,8 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     super.initState();
     _usernameFieldController = TextEditingController();
     _passwordFieldController = TextEditingController();
-    for (var i = 0; i < 3; i++) {
+    _tokenFieldController = TextEditingController();
+    for (var i = 0; i < 4; i++) {
       focusNodes.add(FocusNode());
     }
     focusNodes[0].requestFocus();
@@ -211,7 +214,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                     textInputAction: TextInputAction.next,
                     controller: _usernameFieldController,
                     onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[0]);
+                      FocusScope.of(context).requestFocus(focusNodes[1]);
                     },
                     decoration: const InputDecoration(
                       labelText: "Benutzername",
@@ -229,7 +232,12 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                     textInputAction: TextInputAction.next,
                     controller: _passwordFieldController,
                     onEditingComplete: () {
-                      FocusScope.of(context).requestFocus(focusNodes[1]);
+                      if (requireTwoFactor) {
+                        FocusScope.of(context).requestFocus(focusNodes[2]);
+                      } else {
+                        FocusScope.of(context).unfocus();
+                        _login();
+                      }
                     },
                     decoration: InputDecoration(
                       labelText: "Passwort",
@@ -243,6 +251,25 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                             showPassword = !showPassword;
                           });
                         },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Visibility(
+                    visible: requireTwoFactor,
+                    child: TextField(
+                      focusNode: focusNodes[2],
+                      autocorrect: false,
+                      keyboardType: TextInputType.number,
+                      textInputAction: TextInputAction.next,
+                      controller: _tokenFieldController,
+                      onEditingComplete: () {
+                        FocusScope.of(context).unfocus();
+                        _login();
+                      },
+                      decoration: const InputDecoration(
+                        labelText: "2FA-Token",
+                        prefixIcon: Icon(Icons.lock),
                       ),
                     ),
                   ),
@@ -266,7 +293,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                           ),
                         )
                       : ElevatedButton(
-                          focusNode: focusNodes[2],
+                          focusNode: focusNodes[3],
                           style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
                               Theme.of(context).colorScheme.primary,
@@ -313,7 +340,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     );
 
     try {
-      session = await activateSession(ref, session);
+      session = await activateSession(ref, session, token: _tokenFieldController.text);
       ref.read(untisSessionsProvider.notifier).addSession(session);
 
       Navigator.pushReplacement(
@@ -327,8 +354,16 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
         MaterialPageRoute(builder: (_) => const FilterScreen()),
       );
     } on RPCError catch (e) {
+      if (e.code == RPCError.twoFactorRequired) {
+        requireTwoFactor = true;
+        return;
+      }
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
-            message: e.code == RPCError.authenticationFailed ? "Falsches Passwort" : e.message,
+            message: switch (e.code) {
+              RPCError.authenticationFailed => "Falsches Passwort",
+              RPCError.invalidTwoFactor => "Falscher 2-Faktor-Token",
+              int() => e.message,
+            },
           );
     } catch (e, s) {
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
