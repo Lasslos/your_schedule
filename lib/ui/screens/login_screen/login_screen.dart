@@ -240,7 +240,7 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                     obscureText: !showPassword,
                     keyboardType: TextInputType.visiblePassword,
                     autofillHints: const [AutofillHints.password],
-                    textInputAction: TextInputAction.next,
+                    textInputAction: requireTwoFactor ? TextInputAction.next : TextInputAction.done,
                     controller: _passwordFieldController,
                     onEditingComplete: () {
                       if (requireTwoFactor) {
@@ -266,25 +266,31 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Visibility(
-                    visible: requireTwoFactor,
-                    child: TextField(
-                      focusNode: focusNodes[2],
-                      autocorrect: false,
-                      keyboardType: TextInputType.number,
-                      textInputAction: TextInputAction.next,
-                      controller: _tokenFieldController,
-                      onEditingComplete: () {
-                        FocusScope.of(context).unfocus();
-                        _login();
-                      },
-                      decoration: const InputDecoration(
-                        labelText: "2FA-Token",
-                        prefixIcon: Icon(Icons.lock),
+                  AnimatedCrossFade(
+                    crossFadeState: requireTwoFactor ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 150),
+                    firstChild: const SizedBox(),
+                    secondChild: Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: TextField(
+                        focusNode: focusNodes[2],
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        keyboardType: TextInputType.number,
+                        autofillHints: const [AutofillHints.oneTimeCode],
+                        textInputAction: TextInputAction.done,
+                        controller: _tokenFieldController,
+                        onEditingComplete: () {
+                          FocusScope.of(context).unfocus();
+                          _login();
+                        },
+                        decoration: const InputDecoration(
+                          labelText: "2FA-Token",
+                          prefixIcon: Icon(Icons.security_outlined),
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
                   Text(
                     ref.watch(loginStateProvider).message,
                     style: Theme.of(context)
@@ -293,35 +299,38 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                         ?.copyWith(color: Colors.red),
                   ),
                   const SizedBox(height: 8),
-                  isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: SizedBox(
-                            height: 48,
-                            child: Center(
-                              child: LinearProgressIndicator(),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: isLoading
+                        ? const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            child: SizedBox(
+                              height: 48,
+                              child: Center(
+                                child: LinearProgressIndicator(),
+                              ),
                             ),
+                          )
+                        : ElevatedButton(
+                            focusNode: focusNodes[3],
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                Theme.of(context).colorScheme.primary,
+                              ),
+                              foregroundColor: WidgetStateProperty.all(
+                                Theme.of(context).colorScheme.onPrimary,
+                              ),
+                              textStyle: WidgetStateProperty.all(
+                                Theme.of(context).textTheme.labelLarge,
+                              ),
+                            ),
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              _login();
+                            },
+                            child: const Text("Log In"),
                           ),
-                        )
-                      : ElevatedButton(
-                          focusNode: focusNodes[3],
-                          style: ButtonStyle(
-                            backgroundColor: WidgetStateProperty.all(
-                              Theme.of(context).colorScheme.primary,
-                            ),
-                            foregroundColor: WidgetStateProperty.all(
-                              Theme.of(context).colorScheme.onPrimary,
-                            ),
-                            textStyle: WidgetStateProperty.all(
-                              Theme.of(context).textTheme.labelLarge,
-                            ),
-                          ),
-                          onPressed: () {
-                            FocusScope.of(context).unfocus();
-                            _login();
-                          },
-                          child: const Text("Log In"),
-                        ),
+                  ),
                 ],
               ),
             ),
@@ -369,6 +378,7 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
         setState(() {
           requireTwoFactor = true;
         });
+        focusNodes[2].requestFocus();
         return;
       }
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
