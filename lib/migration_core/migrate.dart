@@ -56,7 +56,7 @@ Future<void> migrate(SharedPreferences prefs, WidgetRef ref, BuildContext contex
   );
 
   var connectionState = await ref.read(connectivityProvider.future);
-  if (connectionState == ConnectivityResult.none) {
+  if (connectionState.contains(ConnectivityResult.none)) {
     return;
   }
 
