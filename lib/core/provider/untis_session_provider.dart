@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/untis.dart';
+import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/shared_preferences.dart';
 
 part 'untis_session_provider.g.dart';
@@ -83,5 +84,9 @@ class UntisSessions extends _$UntisSessions {
 
 @riverpod
 UntisSession selectedUntisSession(SelectedUntisSessionRef ref) {
+  ref.onDispose(() {
+    ref.read(untisSessionsProvider.notifier).removeMarkedSession();
+    getLogger().i("Removed marked session");
+  });
   return ref.watch(untisSessionsProvider.select((value) => value[0]));
 }

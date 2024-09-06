@@ -12,24 +12,11 @@ import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart'
 import 'package:your_schedule/ui/screens/login_screen/welcome_widget.dart';
 import 'package:your_schedule/utils.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(untisSessionsProvider.notifier).removeMarkedSession();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
         appBar: ref.watch(loginStateProvider).currentPage == 1
             ? AppBar(
                 leading: IconButton(
