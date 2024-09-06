@@ -67,15 +67,13 @@ class MyDrawer extends ConsumerWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              ref.read(untisSessionsProvider.notifier).removeSessionWhenDone(
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ),
-                    ),
-                    session,
-                  );
+              ref.read(untisSessionsProvider.notifier).markSessionForRemoval(session);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ),
+              );
             },
           ),
         ],

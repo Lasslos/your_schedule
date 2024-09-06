@@ -266,7 +266,7 @@ class _InitializerState extends ConsumerState<Initializer> {
           ),
         );
         return false;
-      case RPCError.badCredentials || RPCError.authenticationFailed:
+      case RPCError.authenticationFailed:
         getLogger().w("Bad credentials, reauthenticating");
         var session = sessions.first;
         var newSession = UntisSession.inactive(

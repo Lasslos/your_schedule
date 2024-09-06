@@ -27,12 +27,23 @@ class UntisSessions extends _$UntisSessions {
     state = List.unmodifiable([...state]..remove(session));
   }
 
-  void clearSessions() {
-    state = List.unmodifiable([]);
+  UntisSession? _sessionMarkedForRemoval;
+
+  /// Mark a session for removal. The session will be removed on the next call to removeMarkedSession,
+  /// typically called by login_screen.dart
+  void markSessionForRemoval(UntisSession session) {
+    _sessionMarkedForRemoval = session;
   }
 
-  void removeSessionWhenDone(Future f, UntisSession session) {
-    f.whenComplete(() => removeSession(session));
+  void removeMarkedSession() {
+    if (_sessionMarkedForRemoval != null) {
+      removeSession(_sessionMarkedForRemoval!);
+      _sessionMarkedForRemoval = null;
+    }
+  }
+
+  void clearSessions() {
+    state = List.unmodifiable([]);
   }
 
   void updateSession(UntisSession oldSession, UntisSession newSession) {

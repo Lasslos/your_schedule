@@ -12,13 +12,24 @@ import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart'
 import 'package:your_schedule/ui/screens/login_screen/welcome_widget.dart';
 import 'package:your_schedule/utils.dart';
 
-class LoginScreen extends ConsumerWidget {
-  const LoginScreen({
-    super.key,
-  });
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
+  ConsumerState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(untisSessionsProvider.notifier).removeMarkedSession();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
         appBar: ref.watch(loginStateProvider).currentPage == 1
             ? AppBar(
                 leading: IconButton(
@@ -39,7 +50,7 @@ class LoginScreen extends ConsumerWidget {
             transitionType: SharedAxisTransitionType.horizontal,
             child: child,
           ),
-          child: ref.watch(loginStateProvider).currentPage == 0 ? const _SelectSchoolScreen() : const _LoginScreen(),
+          child: ref.watch(loginStateProvider).currentPage == 0 ? const _SelectSchoolScreen() : const _InternLoginScreen(),
         ),
       );
 }
@@ -96,7 +107,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                     return;
                   }
                   var connectivityResult = await ref.read(connectivityProvider.future);
-                  if (connectivityResult == ConnectivityResult.none) {
+                  if (connectivityResult.contains(ConnectivityResult.none)) {
                     setState(() {
                       _errorMessage = "Keine Internetverbindung";
                     });
@@ -153,14 +164,14 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
   }
 }
 
-class _LoginScreen extends ConsumerStatefulWidget {
-  const _LoginScreen();
+class _InternLoginScreen extends ConsumerStatefulWidget {
+  const _InternLoginScreen();
 
   @override
-  ConsumerState createState() => _LoginScreenState();
+  ConsumerState createState() => _InternLoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<_LoginScreen> {
+class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
   late TextEditingController _usernameFieldController;
   late TextEditingController _passwordFieldController;
   late TextEditingController _tokenFieldController;
@@ -295,13 +306,13 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
                       : ElevatedButton(
                           focusNode: focusNodes[3],
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
+                            backgroundColor: WidgetStateProperty.all(
                               Theme.of(context).colorScheme.primary,
                             ),
-                            foregroundColor: MaterialStateProperty.all(
+                            foregroundColor: WidgetStateProperty.all(
                               Theme.of(context).colorScheme.onPrimary,
                             ),
-                            textStyle: MaterialStateProperty.all(
+                            textStyle: WidgetStateProperty.all(
                               Theme.of(context).textTheme.labelLarge,
                             ),
                           ),
@@ -324,7 +335,7 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
     });
 
     var connectivityResult = await ref.read(connectivityProvider.future);
-    if (connectivityResult == ConnectivityResult.none) {
+    if (connectivityResult.contains(ConnectivityResult.none)) {
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider.notifier).state.copyWith(message: "Keine Internetverbindung");
       setState(() {
         isLoading = false;
@@ -355,7 +366,9 @@ class _LoginScreenState extends ConsumerState<_LoginScreen> {
       );
     } on RPCError catch (e) {
       if (e.code == RPCError.twoFactorRequired) {
-        requireTwoFactor = true;
+        setState(() {
+          requireTwoFactor = true;
+        });
         return;
       }
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
