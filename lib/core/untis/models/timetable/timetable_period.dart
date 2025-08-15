@@ -11,7 +11,7 @@ typedef TimeTableDay = List<TimeTablePeriod>;
 typedef TimeTableWeek = Map<Date, TimeTableDay>;
 
 @freezed
-class TimeTablePeriod with _$TimeTablePeriod {
+abstract class TimeTablePeriod with _$TimeTablePeriod {
   @JsonSerializable(explicitToJson: true)
   const factory TimeTablePeriod(
     int id,

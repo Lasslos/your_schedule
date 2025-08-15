@@ -5,7 +5,7 @@ part 'klasse.freezed.dart';
 part 'klasse.g.dart';
 
 @freezed
-class Klasse with _$Klasse {
+abstract class Klasse with _$Klasse {
   const factory Klasse(
     String name,
     String longName,

@@ -5,7 +5,7 @@ part 'rpc_error.freezed.dart';
 part 'rpc_error.g.dart';
 
 @Freezed(fromJson: true, toJson: false)
-class RPCError with _$RPCError {
+abstract class RPCError with _$RPCError {
   const factory RPCError(
     int code,
     String message,

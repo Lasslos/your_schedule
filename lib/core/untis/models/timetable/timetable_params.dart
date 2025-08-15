@@ -5,7 +5,7 @@ part 'timetable_params.freezed.dart';
 part 'timetable_params.g.dart';
 
 @freezed
-class TimeTableParams with _$TimeTableParams {
+abstract class TimeTableParams with _$TimeTableParams {
   const factory TimeTableParams(
     int id,
     String type,

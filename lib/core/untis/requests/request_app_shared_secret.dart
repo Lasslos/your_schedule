@@ -12,7 +12,7 @@ part 'request_app_shared_secret.g.dart';
 /// See [RPCError.authenticationFailed], [RPCError.twoFactorRequired}
 /// and [RPCError.invalidTwoFactor} respectively.
 @riverpod
-Future<String> requestAppSharedSecret(RequestAppSharedSecretRef ref,
+Future<String> requestAppSharedSecret(Ref ref,
   UntisSession session, {String token = "",}
 ) async {
   var response = await rpcRequest(

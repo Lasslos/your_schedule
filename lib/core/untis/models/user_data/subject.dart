@@ -5,7 +5,7 @@ part 'subject.freezed.dart';
 part 'subject.g.dart';
 
 @freezed
-class Subject with _$Subject {
+abstract class Subject with _$Subject {
   const factory Subject(
     String name,
     String longName,

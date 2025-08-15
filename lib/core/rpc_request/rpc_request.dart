@@ -12,7 +12,7 @@ part 'rpc_request.freezed.dart';
 
 /// Authentication parameters for the Untis API
 @Freezed(toJson: false, fromJson: false)
-class AuthParams with _$AuthParams {
+abstract class AuthParams with _$AuthParams {
   const factory AuthParams({
     required String user,
     required String appSharedSecret,

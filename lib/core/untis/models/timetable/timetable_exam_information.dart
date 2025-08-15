@@ -5,7 +5,7 @@ part 'timetable_exam_information.freezed.dart';
 part 'timetable_exam_information.g.dart';
 
 @freezed
-class TimeTableExamInformation with _$TimeTableExamInformation {
+abstract class TimeTableExamInformation with _$TimeTableExamInformation {
   const factory TimeTableExamInformation(
     int id,
     String? examType,

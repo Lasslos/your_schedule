@@ -8,7 +8,7 @@ part 'request_school_list.g.dart';
 ///
 /// The request is send to the schoolsearch server and uses the [query] to search for schools.
 @riverpod
-Future<List<School>> requestSchoolList(RequestSchoolListRef ref, String query) async {
+Future<List<School>> requestSchoolList(Ref ref, String query) async {
   final response = await rpcRequest(
     serverUrl: Uri.parse("https://schoolsearch.webuntis.com/schoolquery2"),
     method: "searchSchool",

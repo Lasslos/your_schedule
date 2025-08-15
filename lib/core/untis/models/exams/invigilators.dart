@@ -6,7 +6,7 @@ part 'invigilators.freezed.dart';
 part 'invigilators.g.dart';
 
 @freezed
-class Invigilators with _$Invigilators {
+abstract class Invigilators with _$Invigilators {
   const factory Invigilators(
     int id,
     @TimeOfDaySerializer() TimeOfDay startTime,

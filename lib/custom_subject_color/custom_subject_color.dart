@@ -6,7 +6,7 @@ part 'custom_subject_color.freezed.dart';
 part 'custom_subject_color.g.dart';
 
 @freezed
-class CustomSubjectColor with _$CustomSubjectColor {
+abstract class CustomSubjectColor with _$CustomSubjectColor {
   const factory CustomSubjectColor(
     int subjectId,
     @ColorConverter() Color color,

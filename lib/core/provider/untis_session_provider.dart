@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/logger.dart';
@@ -12,7 +13,7 @@ part 'untis_session_provider.g.dart';
 class UntisSessions extends _$UntisSessions {
   @override
   List<UntisSession> build() {
-    ref.listenSelf((previous, next) {
+    listenSelf((previous, next) {
       if (previous != null && previous != next) {
         _setCachedSessions(next);
       }
@@ -83,7 +84,7 @@ class UntisSessions extends _$UntisSessions {
 }
 
 @riverpod
-UntisSession selectedUntisSession(SelectedUntisSessionRef ref) {
+UntisSession selectedUntisSession(Ref ref) {
   ref.onDispose(() {
     ref.read(untisSessionsProvider.notifier).removeMarkedSession();
     getLogger().i("Removed marked session");

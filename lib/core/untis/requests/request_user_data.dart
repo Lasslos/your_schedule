@@ -8,7 +8,7 @@ part 'request_user_data.g.dart';
 ///
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
 @riverpod
-Future<UserData> requestUserData(RequestUserDataRef ref,
+Future<UserData> requestUserData(Ref ref,
   UntisSession session,
   String appSharedSecret,
 ) async {

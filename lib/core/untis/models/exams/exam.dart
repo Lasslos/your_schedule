@@ -6,7 +6,7 @@ part 'exam.freezed.dart';
 part 'exam.g.dart';
 
 @freezed
-class Exam with _$Exam {
+abstract class Exam with _$Exam {
   const factory Exam(
     int id,
     String? examType,

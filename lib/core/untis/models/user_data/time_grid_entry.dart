@@ -6,7 +6,7 @@ part 'time_grid_entry.freezed.dart';
 part 'time_grid_entry.g.dart';
 
 @freezed
-class TimeGridEntry with _$TimeGridEntry {
+abstract class TimeGridEntry with _$TimeGridEntry {
   const factory TimeGridEntry(
     String label,
     @TimeOfDaySerializer() TimeOfDay startTime,

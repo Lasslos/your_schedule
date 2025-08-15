@@ -5,7 +5,7 @@ import 'package:your_schedule/core/untis.dart';
 part 'user_data.freezed.dart';
 
 @Freezed(fromJson: false, toJson: false)
-class UserData with _$UserData {
+abstract class UserData with _$UserData {
   const factory UserData(
     int timeStamp,
     Map<int, Holiday> holidays,

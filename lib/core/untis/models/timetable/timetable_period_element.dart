@@ -5,7 +5,7 @@ part 'timetable_period_element.freezed.dart';
 part 'timetable_period_element.g.dart';
 
 @Freezed(unionKey: 'type')
-class TimeTablePeriodElement with _$TimeTablePeriodElement {
+sealed class TimeTablePeriodElement with _$TimeTablePeriodElement {
   @JsonSerializable(explicitToJson: true)
   @FreezedUnionValue('CLASS')
   const factory TimeTablePeriodElement.clazz(

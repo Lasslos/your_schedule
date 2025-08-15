@@ -42,8 +42,10 @@ void main() async {
         };
     },
     appRunner: () => runApp(
-      const ProviderScope(
-        child: MyApp(),
+      ProviderScope(
+        // Never retry any provider
+        retry: (retryCount, error) => null,
+        child: const MyApp(),
       ),
     ),
   );
