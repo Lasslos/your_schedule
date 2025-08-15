@@ -20,7 +20,7 @@
       # emulator # optional, if you need the Android emulator
     ]);
 
-    flutter = pkgs.flutter;
+    flutter = pkgs.flutter335;
     openjdk = pkgs.openjdk17;
   in
   {
