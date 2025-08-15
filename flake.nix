@@ -1,36 +1,57 @@
 {
-description = "Flutter 3.22.x";
-inputs = {
-  nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-  flake-utils.url = "github:numtide/flake-utils";
-};
-outputs = { self, nixpkgs, flake-utils }:
-  flake-utils.lib.eachDefaultSystem (system:
-    let
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          android_sdk.accept_license = true;
-          allowUnfree = true;
-        };
-      };
-      buildToolsVersion = "34.0.0";
-      androidComposition = pkgs.androidenv.composeAndroidPackages {
-        buildToolsVersions = [ buildToolsVersion "28.0.3" ];
-        platformVersions = [ "34" "28" ];
-        abiVersions = [ "armeabi-v7a" "arm64-v8a" ];
-      };
-      androidSdk = androidComposition.androidsdk;
-    in
-    {
-      devShell =
-        with pkgs; mkShell rec {
-          ANDROID_SDK_ROOT = "${androidSdk}/libexec/android-sdk";
-          buildInputs = [
-            flutter
-            androidSdk # The customized SDK that we've made above
-            jdk17
-          ];
-        };
-    });
+  description = "Flutter + Android dev shell";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    android-nixpkgs.url = "github:tadfisher/android-nixpkgs";
+  };
+
+  outputs = { self, nixpkgs, android-nixpkgs, ... }:
+  let
+    system = "x86_64-linux";
+    pkgs = nixpkgs.legacyPackages.${system};
+
+    # Tadfisher Android SDK components
+    androidPkgs = android-nixpkgs.sdk.${system} (sdkPkgs: with sdkPkgs; [
+      cmdline-tools-latest
+      build-tools-36-0-0
+      platform-tools
+      platforms-android-36
+      # emulator # optional, if you need the Android emulator
+    ]);
+
+    flutter = pkgs.flutter;
+    openjdk = pkgs.openjdk17;
+  in
+  {
+    devShells.${system}.default = pkgs.mkShell {
+      name = "flutter-android-dev-shell";
+
+      packages = with pkgs; [
+        flutter
+        dart
+        git
+        unzip
+        zip
+        openjdk
+        androidPkgs
+        mesa-demos
+        # Optional: gradle, if you need it for builds outside Flutter
+        gradle
+      ];
+
+      shellHook = ''
+        # Android SDK
+        export ANDROID_SDK_ROOT=${androidPkgs}/share/android-sdk
+
+        # Java
+        export JAVA_HOME=${openjdk}
+
+        # Add Flutter and Android platform-tools to PATH
+        export PATH=$PATH:${flutter}/bin:${androidPkgs}/platform-tools/bin
+
+        echo "Flutter + Android dev environment ready!"
+      '';
+    };
+  };
 }
