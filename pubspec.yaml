@@ -43,7 +43,7 @@ dev_dependencies:
 
 flutter_launcher_icons:
   android: true
-  ios: true
+  ios: false
   image_path: "assets/school_padding.png"
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "assets/school_padding.png"
@@ -52,7 +52,7 @@ flutter_native_splash:
   color: "#FFFFFF"
   image: "assets/school_padding.png"
   android: true
-  ios: true
+  ios: false
 
 flutter:
   uses-material-design: true
