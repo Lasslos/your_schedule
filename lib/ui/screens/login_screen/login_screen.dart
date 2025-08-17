@@ -59,7 +59,9 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
   String? _errorMessage;
 
   @override
-  Widget build(BuildContext context) => SafeArea(
+  Widget build(BuildContext context) {
+    Future<List<ConnectivityResult>> connectivity = ref.watch(connectivityProvider.future);
+    return SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ListView(
@@ -93,7 +95,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                     );
                     return;
                   }
-                  var connectivityResult = await ref.read(connectivityProvider.future);
+                  var connectivityResult = await connectivity;
                   if (connectivityResult.contains(ConnectivityResult.none)) {
                     setState(() {
                       _errorMessage = "Keine Internetverbindung";
@@ -143,6 +145,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
           ),
         ),
       );
+  }
 
   @override
   void dispose() {
@@ -180,7 +183,9 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => Center(
+  Widget build(BuildContext context) {
+    Future<List<ConnectivityResult>> connectivity = ref.watch(connectivityProvider.future);
+    return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Card(
@@ -234,7 +239,7 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                         FocusScope.of(context).requestFocus(focusNodes[2]);
                       } else {
                         FocusScope.of(context).unfocus();
-                        _login();
+                        _login(connectivity);
                       }
                     },
                     decoration: InputDecoration(
@@ -269,7 +274,7 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                         controller: _tokenFieldController,
                         onEditingComplete: () {
                           FocusScope.of(context).unfocus();
-                          _login();
+                          _login(connectivity);
                         },
                         decoration: const InputDecoration(
                           labelText: "2FA-Token",
@@ -313,7 +318,7 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                             ),
                             onPressed: () {
                               FocusScope.of(context).unfocus();
-                              _login();
+                              _login(connectivity);
                             },
                             child: const Text("Log In"),
                           ),
@@ -324,13 +329,14 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
           ),
         ),
       );
+  }
 
-  void _login() async {
+  void _login(Future<List<ConnectivityResult>> connectivity) async {
     setState(() {
       isLoading = true;
     });
 
-    var connectivityResult = await ref.read(connectivityProvider.future);
+    var connectivityResult = await connectivity;
     if (connectivityResult.contains(ConnectivityResult.none)) {
       ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider.notifier).state.copyWith(message: "Keine Internetverbindung");
       setState(() {

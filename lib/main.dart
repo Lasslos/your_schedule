@@ -2,16 +2,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:workmanager/workmanager.dart';
-import 'package:your_schedule/background/service.dart' as background;
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/provider/filters.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
@@ -70,7 +67,7 @@ Future<void> _initializeApp() async {
   //  transfer their passwords to a third party service, which is not acceptable.
   //  Maybe someone will find a better solution in the future. It would be possible to provide a
   //  self-hosted solution per school, but that's some unlikely idea for the future.
-
+  /* ToDo: Add notifications
   if (!kIsWeb && Platform.isAndroid) {
     PermissionStatus? notificationsPermissionStatus;
 
@@ -93,7 +90,7 @@ Future<void> _initializeApp() async {
           frequency: Duration(minutes: notificationInterval),
       );
     }
-  }
+  }*/
 
 }
 
@@ -105,7 +102,6 @@ class MyApp extends ConsumerWidget {
     var theme = ref.watch(themeSettingProvider);
     return MaterialApp(
       title: 'Stundenplan',
-      //Erster Screen: LoadingScreen
       home: const Initializer(),
       theme: ThemeData(
         colorSchemeSeed: Colors.lightBlue,
@@ -128,6 +124,8 @@ class Initializer extends ConsumerStatefulWidget {
 }
 
 class _InitializerState extends ConsumerState<Initializer> {
+  late Future<List<ConnectivityResult>> connectivity;
+
   @override
   void initState() {
     super.initState();
@@ -138,13 +136,14 @@ class _InitializerState extends ConsumerState<Initializer> {
 
   @override
   Widget build(BuildContext context) {
+    connectivity = ref.watch(connectivityProvider.future);
     return Container();
   }
 
   Future<void> _postFrameInitialization() async {
     getLogger().i("Post frame initialization started");
     //Migrating shared preferences
-    await migrate(sharedPreferences, ref, context);
+    await migrate(sharedPreferences, ref, context, connectivity);
 
     // Find sessions
     List<UntisSession> sessions = ref.read(untisSessionsProvider);

@@ -35,9 +35,14 @@ class UntisSessions extends _$UntisSessions {
   /// typically called by login_screen.dart
   void markSessionForRemoval(UntisSession session) {
     _sessionMarkedForRemoval = session;
+    // Remove sessions after small delay
+    removeMarkedSession();
+    getLogger().i("Removed session!");
   }
 
-  void removeMarkedSession() {
+  Future<void> removeMarkedSession() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
     if (_sessionMarkedForRemoval != null) {
       removeSession(_sessionMarkedForRemoval!);
       _sessionMarkedForRemoval = null;
@@ -85,9 +90,5 @@ class UntisSessions extends _$UntisSessions {
 
 @riverpod
 UntisSession selectedUntisSession(Ref ref) {
-  ref.onDispose(() {
-    ref.read(untisSessionsProvider.notifier).removeMarkedSession();
-    getLogger().i("Removed marked session");
-  });
   return ref.watch(untisSessionsProvider.select((value) => value[0]));
 }

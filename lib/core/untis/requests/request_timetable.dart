@@ -13,6 +13,7 @@ part 'request_timetable.g.dart';
 /// All [Date]s are normalized to the start of the day.
 @Riverpod(keepAlive: true)
 class RequestTimeTable extends _$RequestTimeTable {
+  @override
   Future<TimeTableWeek> build(UntisSession activeSession, Week week) async {
     assert(activeSession is ActiveUntisSession, "Session must be active!");
     ActiveUntisSession session = activeSession as ActiveUntisSession;

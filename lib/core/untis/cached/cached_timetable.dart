@@ -7,7 +7,7 @@ import 'package:your_schedule/utils.dart';
 
 part 'cached_timetable.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CachedTimeTable extends _$CachedTimeTable {
   @override
   TimeTableWeek build(UntisSession activeSession, Week week) {
@@ -45,7 +45,7 @@ class CachedTimeTable extends _$CachedTimeTable {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CachedTimeTableTimestamp extends _$CachedTimeTableTimestamp {
   @override
   DateTime build(Week week) {

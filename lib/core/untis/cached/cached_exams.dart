@@ -7,7 +7,7 @@ import 'package:your_schedule/utils.dart';
 
 part 'cached_exams.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class CachedExams extends _$CachedExams {
   @override
   Map<Date, List<Exam>> build(UntisSession activeSession, Week week) {

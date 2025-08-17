@@ -24,7 +24,8 @@ class RequestExams extends _$RequestExams {
       data.when(
         data: (data) {
           ref.read(cachedExamsProvider(session, week).notifier).setCachedExams(
-              data);
+            data,
+          );
         },
         error: (error, stackTrace) {
           logRequestError(

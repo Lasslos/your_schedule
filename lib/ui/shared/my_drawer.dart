@@ -65,7 +65,7 @@ class MyDrawer extends ConsumerWidget {
               "Logout",
               style: TextStyle(color: theme.colorScheme.error),
             ),
-            onTap: () {
+            onTap: () async {
               Navigator.pop(context);
               ref.read(untisSessionsProvider.notifier).markSessionForRemoval(session);
               Navigator.pushReplacement(
