@@ -15,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Stundenplan'),
+        title: const Text('Untis Connect'),
         actions: [
           IconButton(
             icon: const Icon(Icons.today),

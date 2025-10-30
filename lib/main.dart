@@ -101,7 +101,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = ref.watch(themeSettingProvider);
     return MaterialApp(
-      title: 'Stundenplan',
+      title: 'Untis Connect',
       home: const Initializer(),
       theme: ThemeData(
         colorSchemeSeed: Colors.lightBlue,
@@ -197,7 +197,7 @@ class _InitializerState extends ConsumerState<Initializer> {
             builder: (context, ref, child) {
               return AlertDialog(
                 title: const Text("Fehlerberichte senden?"),
-                content: const Text("Stundenplan wird kontinuierlich verbessert. Wir verwenden Sentry, um Fehlerberichte zu sammeln. "
+                content: const Text("Untis Connect wird kontinuierlich verbessert. Wir verwenden Sentry, um Fehlerberichte zu sammeln. "
                     "Fehlerberichte helfen uns dabei, Probleme zu erkennen und zu beheben. Dafür benötigen wir jedoch deine Zustimmung. "
                     "Du kannst deine Zustimmung jederzeit in den Einstellungen wiederrufen. Die Einstellung wird mit einem App-Neustart aktiv. Möchtest du Fehlerberichte senden?"),
                 actions: [

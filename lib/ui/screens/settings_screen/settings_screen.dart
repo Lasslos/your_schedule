@@ -126,7 +126,7 @@ class SettingsScreen extends ConsumerWidget {
                   builder: (context) {
                     return AlertDialog(
                       title: const Text("Fehlerberichte senden?"),
-                      content: const Text("Stundenplan wird kontinuierlich verbessert. Wir verwenden Sentry, um Fehlerberichte zu sammeln. "
+                      content: const Text("Untis Connect wird kontinuierlich verbessert. Wir verwenden Sentry, um Fehlerberichte zu sammeln. "
                           "Fehlerberichte helfen uns dabei, Probleme zu erkennen und zu beheben. Dafür benötigen wir jedoch deine Zustimmung. "
                           "Du kannst deine Zustimmung jederzeit in den Einstellungen wiederrufen. Die Einstellung wird mit einem App-Neustart aktiv. Möchtest du Fehlerberichte senden?"),
                       actions: [

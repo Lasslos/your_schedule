@@ -1,15 +1,15 @@
 <img src="https://raw.githubusercontent.com/Lasslos/your_schedule/main/assets/school_blue.png" alt="Icon" width="256">
 
-# Stundenplan
+# Untis Connect (previously Stundenplan)
 
-Stundenplan is a third-party mobile client for the Untis timetable.
+Untis Connect is a third-party mobile client for the Untis timetable.
 
 <a href="https://play.google.com/store/apps/details?id=eu.laslo_hauschild.your_schedule&utm_source=github&utm_campaign=badge"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="80"/></a>
 <a href="https://apt.izzysoft.de/fdroid/index/apk/eu.laslo_hauschild.your_schedule"><img alt="Get it on IzzyOnDroid" src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="80"/></a>
 
 ## Features
 
-Stundenplan correctly reads the timetable from the Untis API and displays it to you - customizable.
+Untis Connect reads the timetable from the Untis API and displays it to you - customizable.
 
 - Filter by class - No need to look endlessly for your classes, as only your classes are displayed.
 - Change color of classes - Capture everything with a quick glance - Due to customizable colors.

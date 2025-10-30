@@ -1,1 +1,9 @@
-<p><i>Stundenplan</i> ist ein Open-Source Tool, das dir deinen Untis-Stundenplan übersichtlich anzeigt.</p><p>Warum <i>Stundenplan?</i></p><ul><li>Farben der Fächer selbst festlegen</li><li>Irrelevante Kurse ausblenden</li><li>Schönes Design</li><li>Open-Source</li></ul><p>Feedback, Fehlermeldungen, Featureanfragen usw. nehme ich gerne auf dem IssueTracker und per E-Mail an (laslo.hauschild (at) web.de) an.</p>
+<p><i>Untis Connect</i> ist ein Open-Source Tool, das dir deinen Untis-Stundenplan übersichtlich anzeigt.</p>
+<p>Warum <i>Untis Connect?</i></p>
+<ul>
+    <li>Farben der Fächer selbst festlegen</li>
+    <li>Irrelevante Kurse ausblenden</li>
+    <li>Schönes Design</li>
+    <li>Open-Source</li>
+</ul>
+<p>Feedback, Fehlermeldungen, Featureanfragen usw. nehme ich gerne auf dem IssueTracker und per E-Mail an (laslo.hauschild (at) web.de) an.</p>

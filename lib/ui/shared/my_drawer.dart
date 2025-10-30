@@ -30,7 +30,7 @@ class MyDrawer extends ConsumerWidget {
             //TODO: Multiple accounts
           ),
           ListTile(
-            title: const Text("Stundenplan"),
+            title: const Text("Untis Connect"),
             onTap: () {
               Navigator.pop(context);
             },
