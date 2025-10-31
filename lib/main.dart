@@ -14,13 +14,12 @@ import 'package:your_schedule/core/provider/filters.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
-import 'package:your_schedule/migration_core/migrate.dart';
 import 'package:your_schedule/settings/sentry_provider.dart';
 import 'package:your_schedule/settings/theme_provider.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
 import 'package:your_schedule/ui/screens/loading_screen/loading_error_screen.dart';
-import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
+import 'package:your_schedule/ui/screens/login_screen/welcome_screen.dart';
 import 'package:your_schedule/util/logger.dart';
 import 'package:your_schedule/util/shared_preferences.dart';
 
@@ -31,6 +30,7 @@ void main() async {
       options
         ..dsn = 'https://1be6b663150041f6be6a7a4375e5599f@o4504990166155264.ingest.sentry.io/4504990173167616'
         ..tracesSampleRate = 1.0
+        ..debug = true //TODO
         ..beforeSend = (event, hint) {
           if (sharedPreferences.getBool("sentryEnabled") != true) {
             return null;
@@ -142,8 +142,6 @@ class _InitializerState extends ConsumerState<Initializer> {
 
   Future<void> _postFrameInitialization() async {
     getLogger().i("Post frame initialization started");
-    //Migrating shared preferences
-    await migrate(sharedPreferences, ref, context, connectivity);
 
     // Find sessions
     List<UntisSession> sessions = ref.read(untisSessionsProvider);
@@ -154,7 +152,7 @@ class _InitializerState extends ConsumerState<Initializer> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
+          builder: (context) => const WelcomeScreen(),
         ),
       );
     } else {

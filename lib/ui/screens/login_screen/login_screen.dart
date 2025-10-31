@@ -1,204 +1,25 @@
-import 'package:animations/animations.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
-import 'package:your_schedule/core/rpc_request/rpc.dart';
-import 'package:your_schedule/core/untis.dart';
+import 'package:your_schedule/core/rpc_request/rpc_error.dart';
+import 'package:your_schedule/core/untis/models/school_search/school.dart';
+import 'package:your_schedule/core/untis/untis_session.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
-import 'package:your_schedule/ui/screens/login_screen/login_state_provider.dart';
-import 'package:your_schedule/ui/screens/login_screen/welcome_widget.dart';
-import 'package:your_schedule/utils.dart';
+import 'package:your_schedule/util/logger.dart';
 
-class LoginScreen extends ConsumerWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends ConsumerStatefulWidget {
+  final School school;
+
+  const LoginScreen({required this.school, super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
-        appBar: ref.watch(loginStateProvider).currentPage == 1
-            ? AppBar(
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: () {
-                    ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
-                          currentPage: 0,
-                          message: '',
-                        );
-                  },
-                ),
-              )
-            : null,
-        body: PageTransitionSwitcher(
-          transitionBuilder: (child, animation, secondaryAnimation) => SharedAxisTransition(
-            animation: animation,
-            secondaryAnimation: secondaryAnimation,
-            transitionType: SharedAxisTransitionType.horizontal,
-            child: child,
-          ),
-          child: ref.watch(loginStateProvider).currentPage == 0 ? const _SelectSchoolScreen() : const _InternLoginScreen(),
-        ),
-      );
+  ConsumerState createState() => LoginScreenState();
 }
 
-class _SelectSchoolScreen extends ConsumerStatefulWidget {
-  const _SelectSchoolScreen();
-
-  @override
-  ConsumerState createState() => _SelectSchoolScreenState();
-}
-
-class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
-  final TextEditingController _schoolFieldController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-  final GlobalKey _welcomeKey = GlobalKey<WelcomeWidgetState>();
-
-  bool showSchoolList = false;
-  List<School> _possibleSchools = [];
-  String? _errorMessage;
-  String? _helperMessage;
-
-  @override
-  Widget build(BuildContext context) {
-    Future<List<ConnectivityResult>> connectivity = ref.watch(connectivityProvider.future);
-    return SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: ListView(
-            controller: _scrollController,
-            children: [
-              WelcomeWidget(key: _welcomeKey),
-              TextField(
-                autocorrect: false,
-                autofillHints: const [
-                  AutofillHints.username,
-                  AutofillHints.fullStreetAddress,
-                ],
-                controller: _schoolFieldController,
-                keyboardType: TextInputType.name,
-                decoration: InputDecoration(
-                  helperText: _helperMessage,
-                  hintText: "Schulname oder Adresse",
-                  errorText: _errorMessage,
-                  border: const OutlineInputBorder(),
-                ),
-                onChanged: (s) async {
-                  if (s.length < 3) {
-                    setState(() {
-                      _possibleSchools = [];
-                      _errorMessage = null;
-                      showSchoolList = false;
-                    });
-                    if (s.isNotEmpty) {
-                      setState(() {
-                        _helperMessage = "Gib mindestens 3 Zeichen ein";
-                        _errorMessage = null;
-                      });
-                    } else {
-                      setState(() {
-                        _helperMessage = null;
-                      });
-                    }
-                    _scrollController.animateTo(
-                      0,
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeInOut,
-                    );
-                    return;
-                  }
-                  var connectivityResult = await connectivity;
-                  if (connectivityResult.contains(ConnectivityResult.none)) {
-                    setState(() {
-                      _errorMessage = "Keine Internetverbindung";
-                    });
-                    return;
-                  }
-
-                  try {
-                    var schools = await ref.read(requestSchoolListProvider(s).future);
-                    if (schools.isEmpty) {
-                      setState(() {
-                        showSchoolList = false;
-                        _possibleSchools = schools;
-                        _errorMessage = "Keine Ergebnisse";
-                        _helperMessage = null;
-                      });
-                    } else {
-                      setState(() {
-                        showSchoolList = true;
-                        _possibleSchools = schools;
-                        _errorMessage = null;
-                        _helperMessage = null;
-                      });
-                    }
-                    _scrollController.animateTo(
-                      _welcomeKey.currentContext!.size!.height - 16,
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  } on RPCError catch (e, s) {
-                    if (e.code == RPCError.tooManyResults) {
-                      setState(() {
-                        _helperMessage = "Zu viele Ergebnisse, bitte gib etwas genauers ein!";
-                        _errorMessage = null;
-                      });
-                      return;
-                    }
-                    logRequestError("Error while requesting school list", e, s);
-                    setState(() {
-                      _errorMessage = e.message;
-                    });
-                  } on ClientException catch (e, s) {
-                    logRequestError("ClientException while requesting school list", e, s);
-                    setState(() {
-                      _errorMessage = e.message;
-                    });
-                  } catch (e, s) {
-                    logRequestError("Unknown error while requesting school list", e, s);
-                    setState(() {
-                      _errorMessage = e.toString();
-                    });
-                  }
-                },
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              if (showSchoolList)
-                for (var school in _possibleSchools)
-                  ListTile(
-                    title: Text(school.displayName),
-                    subtitle: Text(school.address),
-                    onTap: () {
-                      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider.notifier).state.copyWith(
-                            school: school,
-                            currentPage: 1,
-                          );
-                    },
-                  ),
-            ],
-          ),
-        ),
-      );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _schoolFieldController.dispose();
-  }
-}
-
-class _InternLoginScreen extends ConsumerStatefulWidget {
-  const _InternLoginScreen();
-
-  @override
-  ConsumerState createState() => _InternLoginScreenState();
-}
-
-class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
+class LoginScreenState extends ConsumerState<LoginScreen> {
   late TextEditingController _usernameFieldController;
   late TextEditingController _passwordFieldController;
   late TextEditingController _tokenFieldController;
@@ -206,6 +27,8 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
   var showPassword = false;
   var requireTwoFactor = false;
   List<FocusNode> focusNodes = [];
+
+  String message = "";
 
   @override
   void initState() {
@@ -221,8 +44,10 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Future<List<ConnectivityResult>> connectivity = ref.watch(connectivityProvider.future);
-    return Center(
+    Future<List<ConnectivityResult>> connectivity = ref.watch(
+        connectivityProvider.future);
+    return Scaffold(
+      body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 25),
           child: Card(
@@ -234,7 +59,8 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                 children: [
                   Text(
                     "Login",
-                    style: Theme.of(context)
+                    style: Theme
+                        .of(context)
                         .textTheme
                         .displaySmall
                         ?.copyWith(fontWeight: FontWeight.bold),
@@ -242,7 +68,10 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                   const SizedBox(height: 8),
                   Text(
                     "Melde dich mit deinem Untis-Konto an",
-                    style: Theme.of(context).textTheme.labelMedium,
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .labelMedium,
                   ),
                   const SizedBox(height: 8),
                   TextField(
@@ -269,7 +98,9 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                     obscureText: !showPassword,
                     keyboardType: TextInputType.visiblePassword,
                     autofillHints: const [AutofillHints.password],
-                    textInputAction: requireTwoFactor ? TextInputAction.next : TextInputAction.done,
+                    textInputAction: requireTwoFactor
+                        ? TextInputAction.next
+                        : TextInputAction.done,
                     controller: _passwordFieldController,
                     onEditingComplete: () {
                       if (requireTwoFactor) {
@@ -296,7 +127,9 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   AnimatedCrossFade(
-                    crossFadeState: requireTwoFactor ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                    crossFadeState: requireTwoFactor
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
                     duration: const Duration(milliseconds: 150),
                     firstChild: const SizedBox(),
                     secondChild: Padding(
@@ -321,8 +154,9 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                     ),
                   ),
                   Text(
-                    ref.watch(loginStateProvider).message,
-                    style: Theme.of(context)
+                    message,
+                    style: Theme
+                        .of(context)
                         .textTheme
                         .labelMedium
                         ?.copyWith(color: Colors.red),
@@ -332,40 +166,50 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
                     duration: const Duration(milliseconds: 300),
                     child: isLoading
                         ? const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            child: SizedBox(
-                              height: 48,
-                              child: Center(
-                                child: LinearProgressIndicator(),
-                              ),
-                            ),
-                          )
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: SizedBox(
+                        height: 48,
+                        child: Center(
+                          child: LinearProgressIndicator(),
+                        ),
+                      ),
+                    )
                         : ElevatedButton(
-                            focusNode: focusNodes[3],
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                Theme.of(context).colorScheme.primary,
-                              ),
-                              foregroundColor: WidgetStateProperty.all(
-                                Theme.of(context).colorScheme.onPrimary,
-                              ),
-                              textStyle: WidgetStateProperty.all(
-                                Theme.of(context).textTheme.labelLarge,
-                              ),
-                            ),
-                            onPressed: () {
-                              FocusScope.of(context).unfocus();
-                              _login(connectivity);
-                            },
-                            child: const Text("Log In"),
-                          ),
+                      focusNode: focusNodes[3],
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStateProperty.all(
+                          Theme
+                              .of(context)
+                              .colorScheme
+                              .primary,
+                        ),
+                        foregroundColor: WidgetStateProperty.all(
+                          Theme
+                              .of(context)
+                              .colorScheme
+                              .onPrimary,
+                        ),
+                        textStyle: WidgetStateProperty.all(
+                          Theme
+                              .of(context)
+                              .textTheme
+                              .labelLarge,
+                        ),
+                      ),
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        _login(connectivity);
+                      },
+                      child: const Text("Log In"),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   void _login(Future<List<ConnectivityResult>> connectivity) async {
@@ -375,22 +219,22 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
 
     var connectivityResult = await connectivity;
     if (connectivityResult.contains(ConnectivityResult.none)) {
-      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider.notifier).state.copyWith(message: "Keine Internetverbindung");
       setState(() {
+        message = "Keine Internetverbindung";
         isLoading = false;
       });
       return;
     }
 
-    var school = ref.read(loginStateProvider).school!;
     UntisSession session = UntisSession.inactive(
-      school: school,
+      school: widget.school,
       username: _usernameFieldController.text,
       password: _passwordFieldController.text,
     );
 
     try {
-      session = await activateSession(ref, session, token: _tokenFieldController.text);
+      session =
+      await activateSession(ref, session, token: _tokenFieldController.text);
       ref.read(untisSessionsProvider.notifier).addSession(session);
 
       Navigator.pushReplacement(
@@ -400,7 +244,7 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
       );
       Navigator.push(
         //ignore: use_build_context_synchronously
-      context,
+        context,
         MaterialPageRoute(builder: (_) => const FilterScreen()),
       );
     } on RPCError catch (e) {
@@ -411,18 +255,19 @@ class _InternLoginScreenState extends ConsumerState<_InternLoginScreen> {
         focusNodes[2].requestFocus();
         return;
       }
-      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
-            message: switch (e.code) {
-              RPCError.authenticationFailed => "Falsches Passwort",
-              RPCError.invalidTwoFactor => "Falscher 2-Faktor-Token",
-              int() => e.message,
-            },
-          );
+
+      setState(() {
+        message = switch (e.code) {
+          RPCError.authenticationFailed => "Falsches Passwort",
+          RPCError.invalidTwoFactor => "Falscher 2-Faktor-Token",
+          int() => e.message,
+        };
+      });
     } catch (e, s) {
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
-      ref.read(loginStateProvider.notifier).state = ref.read(loginStateProvider).copyWith(
-            message: "Unbekannter Fehler",
-          );
+      setState(() {
+        message = "Unbekannter Fehler";
+      });
     } finally {
       setState(() {
         isLoading = false;

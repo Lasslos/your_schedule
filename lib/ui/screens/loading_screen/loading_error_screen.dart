@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
-import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
+import 'package:your_schedule/ui/screens/login_screen/welcome_screen.dart';
 
 class LoadingErrorScreen extends ConsumerWidget {
   final String message;
@@ -41,7 +41,7 @@ class LoadingErrorScreen extends ConsumerWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) {
-                      return const LoginScreen();
+                      return const WelcomeScreen();
                     },
                   ),
                 );

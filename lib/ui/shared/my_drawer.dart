@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
-import 'package:your_schedule/ui/screens/login_screen/login_screen.dart';
+import 'package:your_schedule/ui/screens/login_screen/welcome_screen.dart';
 import 'package:your_schedule/ui/screens/settings_screen/settings_screen.dart';
 
 class MyDrawer extends ConsumerWidget {
@@ -71,7 +71,7 @@ class MyDrawer extends ConsumerWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
+                  builder: (context) => const WelcomeScreen(),
                 ),
               );
             },

@@ -32,7 +32,7 @@ class UntisSessions extends _$UntisSessions {
   UntisSession? _sessionMarkedForRemoval;
 
   /// Mark a session for removal. The session will be removed on the next call to removeMarkedSession,
-  /// typically called by login_screen.dart
+  /// typically called by welcome_screen.dart
   void markSessionForRemoval(UntisSession session) {
     _sessionMarkedForRemoval = session;
     // Remove sessions after small delay
