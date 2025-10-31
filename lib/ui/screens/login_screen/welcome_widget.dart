@@ -21,7 +21,7 @@ class WelcomeWidgetState extends State<WelcomeWidget> {
             ),
           ),
           Text(
-            'Willkommen in der App Untis Connect!',
+            'Willkommen bei\nUntis Connect!',
             style: Theme.of(context).textTheme.displaySmall,
             textAlign: TextAlign.center,
           ),

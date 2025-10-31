@@ -2,6 +2,7 @@ import 'package:animations/animations.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
@@ -57,6 +58,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
   bool showSchoolList = false;
   List<School> _possibleSchools = [];
   String? _errorMessage;
+  String? _helperMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +79,7 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                 controller: _schoolFieldController,
                 keyboardType: TextInputType.name,
                 decoration: InputDecoration(
+                  helperText: _helperMessage,
                   hintText: "Schulname oder Adresse",
                   errorText: _errorMessage,
                   border: const OutlineInputBorder(),
@@ -88,6 +91,16 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                       _errorMessage = null;
                       showSchoolList = false;
                     });
+                    if (s.isNotEmpty) {
+                      setState(() {
+                        _helperMessage = "Gib mindestens 3 Zeichen ein";
+                        _errorMessage = null;
+                      });
+                    } else {
+                      setState(() {
+                        _helperMessage = null;
+                      });
+                    }
                     _scrollController.animateTo(
                       0,
                       duration: const Duration(milliseconds: 500),
@@ -105,11 +118,21 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
 
                   try {
                     var schools = await ref.read(requestSchoolListProvider(s).future);
-                    setState(() {
-                      showSchoolList = true;
-                      _possibleSchools = schools;
-                      _errorMessage = null;
-                    });
+                    if (schools.isEmpty) {
+                      setState(() {
+                        showSchoolList = false;
+                        _possibleSchools = schools;
+                        _errorMessage = "Keine Ergebnisse";
+                        _helperMessage = null;
+                      });
+                    } else {
+                      setState(() {
+                        showSchoolList = true;
+                        _possibleSchools = schools;
+                        _errorMessage = null;
+                        _helperMessage = null;
+                      });
+                    }
                     _scrollController.animateTo(
                       _welcomeKey.currentContext!.size!.height - 16,
                       duration: const Duration(milliseconds: 300),
@@ -117,11 +140,25 @@ class _SelectSchoolScreenState extends ConsumerState<_SelectSchoolScreen> {
                     );
                   } on RPCError catch (e, s) {
                     if (e.code == RPCError.tooManyResults) {
+                      setState(() {
+                        _helperMessage = "Zu viele Ergebnisse, bitte gib etwas genauers ein!";
+                        _errorMessage = null;
+                      });
                       return;
                     }
                     logRequestError("Error while requesting school list", e, s);
                     setState(() {
                       _errorMessage = e.message;
+                    });
+                  } on ClientException catch (e, s) {
+                    logRequestError("ClientException while requesting school list", e, s);
+                    setState(() {
+                      _errorMessage = e.message;
+                    });
+                  } catch (e, s) {
+                    logRequestError("Unknown error while requesting school list", e, s);
+                    setState(() {
+                      _errorMessage = e.toString();
                     });
                   }
                 },
