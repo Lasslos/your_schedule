@@ -20,6 +20,7 @@ class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       child: SizedBox(
         height: 750,
         child: Row(

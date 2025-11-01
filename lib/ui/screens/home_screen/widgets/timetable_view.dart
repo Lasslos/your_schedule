@@ -30,19 +30,22 @@ class TimeTableView extends ConsumerWidget {
       onRefresh: () async {
         var session = ref.read(selectedUntisSessionProvider);
         ref.invalidate(requestTimeTableProvider(session, Week.fromDate(date)));
+        await ref.read(requestTimeTableProvider(session, Week.fromDate(date)).future);
       },
-      child: Stack(
+      child: Column(
         children: [
-          TimeGridWidget(
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+          Expanded(
+            child: TimeGridWidget(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+              ),
             ),
           ),
           Align(
             alignment: Alignment.bottomRight,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(bottom: 16, right: 16, top: 8),
               child: Text(
                 "Zuletzt aktualisiert am ${DateFormat.Md().format(timestamp)} um ${DateFormat.Hms().format(timestamp)}.",
                 style: Theme.of(context).textTheme.bodySmall,
