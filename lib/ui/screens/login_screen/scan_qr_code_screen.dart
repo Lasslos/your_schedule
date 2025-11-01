@@ -56,12 +56,12 @@ class _ScanQrCodeScreenState extends ConsumerState<ScanQrCodeScreen> {
                       AnimatedOpacity(
                         duration: const Duration(milliseconds: 300),
                         opacity: lock ? 1 : 0,
-                        child: const CircularProgressIndicator(),
+                        child: const LinearProgressIndicator(),
                       ),
-                      const SizedBox(height: 16.0),
+                      const SizedBox(height: 8.0),
                       Text(
                         message ?? "",
-                        style: TextStyle(color: Colors.red),
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ],
                   ),

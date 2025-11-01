@@ -129,7 +129,6 @@ Future<RPCResponse> rpcRequest({
         response.reasonPhrase.toString(),
         uri: serverUrl,
       );
-      break;
   }
 }
 
