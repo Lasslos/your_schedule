@@ -1,56 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:vibration/vibration.dart';
 import 'package:your_schedule/util/logger.dart';
-
-Future<Barcode?> showScanDialog(BuildContext context) {
-  return showDialog<Barcode>(
-    context: context,
-    builder: (dialogContext) => Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(16).copyWith(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                'QR-Code scannen',
-                style: Theme.of(dialogContext).textTheme.headlineSmall,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: QRCodeScanner(
-                onScan: (Barcode barcode) async {
-                  Navigator.of(dialogContext).maybePop(barcode);
-                  if (await Vibration.hasVibrator()) {
-                    getLogger().i("Vibrating");
-                    await Vibration.vibrate(amplitude: 64, duration: 32);
-                  }
-                },
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(dialogContext);
-                  },
-                  child: const Text('Abbrechen'),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
 
 class QRCodeScanner extends ConsumerStatefulWidget {
   const QRCodeScanner({required this.onScan, super.key});
