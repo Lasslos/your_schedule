@@ -1,9 +1,13 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dart_extensions_methods/dart_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
+import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc_error.dart';
 import 'package:your_schedule/core/untis/models/school_search/school.dart';
+import 'package:your_schedule/core/untis/requests/request_school_list.dart';
 import 'package:your_schedule/core/untis/untis_session.dart';
 import 'package:your_schedule/ui/screens/filter_screen/filter_screen.dart';
 import 'package:your_schedule/ui/screens/home_screen/home_screen.dart';
@@ -285,9 +289,28 @@ class _ManualLoginScreenState extends ConsumerState<ManualLoginScreen> {
       });
       return;
     }
-    /*
+
+    List<School> schools = await ref.read(requestSchoolListProvider(_schoolFieldController.text).future);
+    School school = schools.firstWhereOrNull(
+        (school) {
+          if (school.server == _urlFieldController.text.trim()
+            && school.loginName == _schoolFieldController.text.trim()) {
+            getLogger().i("Found matching school");
+            return true;
+          }
+          return false;
+        }
+    ) ?? (School(
+      _urlFieldController.text.trim(),
+      "No address",
+      _schoolFieldController.text.trim(),
+      _schoolFieldController.text.trim(),
+      -1,
+      "https://${_urlFieldController.text.trim()}/WebUntis/?school=${_schoolFieldController.text.trim()}",
+    ).also((_) => getLogger().w("Did not find matching school")));
+
     UntisSession session = UntisSession.inactive(
-      school: widget.school,
+      school: school,
       username: _usernameFieldController.text,
       password: _passwordFieldController.text,
     );
@@ -296,10 +319,11 @@ class _ManualLoginScreenState extends ConsumerState<ManualLoginScreen> {
       session = await activateSession(ref, session, token: _tokenFieldController.text);
       ref.read(untisSessionsProvider.notifier).addSession(session);
 
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         //ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
       );
       Navigator.push(
         //ignore: use_build_context_synchronously
@@ -319,18 +343,24 @@ class _ManualLoginScreenState extends ConsumerState<ManualLoginScreen> {
         message = switch (e.code) {
           RPCError.authenticationFailed => "Falsches Passwort",
           RPCError.invalidTwoFactor => "Falscher 2-Faktor-Token",
+          RPCError.invalidSchoolName => "Ungültiger Schulname",
           int() => e.message,
         };
+      });
+    } on ClientException catch (e, s) {
+      getLogger().e("ClientException while logging in", error: e, stackTrace: s);
+      setState(() {
+        message = e.toString();
       });
     } catch (e, s) {
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
       setState(() {
-        message = "Unbekannter Fehler";
+        message = e.toString();
       });
     } finally {
       setState(() {
         isLoading = false;
       });
-    }*/
+    }
   }
 }

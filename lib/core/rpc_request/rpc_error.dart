@@ -23,5 +23,7 @@ abstract class RPCError with _$RPCError {
   static const invalidClientTime = -8524;
   static const authenticationFailed = -8998;
   static const twoFactorRequired = -8519;
-  static const invalidTwoFactor = -8511;
+  static const invalidTwoFactor = -9999; //Unknown
+  static const invalidSchoolName = -8500;
+  static const userLocked = -8511;
 }

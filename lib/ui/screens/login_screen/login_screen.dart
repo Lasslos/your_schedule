@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 import 'package:your_schedule/core/provider/connectivity_provider.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
 import 'package:your_schedule/core/rpc_request/rpc_error.dart';
@@ -257,14 +258,14 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
     );
 
     try {
-      session =
-      await activateSession(ref, session, token: _tokenFieldController.text);
+      session = await activateSession(ref, session, token: _tokenFieldController.text);
       ref.read(untisSessionsProvider.notifier).addSession(session);
 
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         //ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (route) => false,
       );
       Navigator.push(
         //ignore: use_build_context_synchronously
@@ -287,10 +288,15 @@ class LoginScreenState extends ConsumerState<LoginScreen> {
           int() => e.message,
         };
       });
+    } on ClientException catch (e, s) {
+      getLogger().e("ClientException while logging in", error: e, stackTrace: s);
+      setState(() {
+        message = e.toString();
+      });
     } catch (e, s) {
       getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
       setState(() {
-        message = "Unbekannter Fehler";
+        message = e.toString();
       });
     } finally {
       setState(() {

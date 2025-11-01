@@ -98,26 +98,38 @@ Future<RPCResponse> rpcRequest({
     rethrow;
   }
 
-  if (response.statusCode == 200) {
-    var rpcResponse = RPCResponse.fromJson(jsonDecode(response.body));
-    if (rpcResponse.id != id.toString()) {
-      getLogger().f('id of response does not match id of request');
-      throw const IllegalIdTokenException();
-    }
-    getLogger().i("Successful RPC Request: $method"
-        "\n${rpcResponse.toStringNoResult()}");
-    return rpcResponse;
-  } else {
-    getLogger().e(
-      'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
-      error: response,
-      stackTrace: StackTrace.current,
-    );
-    throw HttpException(
-      response.statusCode,
-      response.reasonPhrase.toString(),
-      uri: serverUrl,
-    );
+  switch (response.statusCode) {
+    case 200:
+      var rpcResponse = RPCResponse.fromJson(jsonDecode(response.body));
+      if (rpcResponse.id != id.toString()) {
+        getLogger().f('id of response does not match id of request');
+        throw const IllegalIdTokenException();
+      }
+      getLogger().i("Successful RPC Request: $method"
+          "\n${rpcResponse.toStringNoResult()}");
+      return rpcResponse;
+    case 404:
+      try {
+        var rpcResponse = RPCResponse.fromJson(jsonDecode(response.body));
+        getLogger().w("404 RPC Request: $method"
+            "\n${rpcResponse.toStringNoResult()}");
+        return rpcResponse;
+      } catch (e, s) {
+        getLogger().e("Error while performing rpcRequest $method to server $serverUrl", error: e, stackTrace: s);
+        rethrow;
+      }
+    default:
+      getLogger().e(
+        'HTTP Error: ${response.statusCode} ${response.reasonPhrase}',
+        error: response,
+        stackTrace: StackTrace.current,
+      );
+      throw HttpException(
+        response.statusCode,
+        response.reasonPhrase.toString(),
+        uri: serverUrl,
+      );
+      break;
   }
 }
 
