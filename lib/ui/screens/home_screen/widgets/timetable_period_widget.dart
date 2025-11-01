@@ -301,6 +301,29 @@ class PeriodDetailsView extends ConsumerWidget {
           const Divider(
             thickness: 1,
           ),
+          if (subject?.name != null && subject!.name.isNotEmpty && subject!.name != subject!.longName)
+            ListTile(
+              leading: const Icon(Icons.subject),
+              title: const Text("Kurs"),
+              subtitle: Text.rich(
+                TextSpan(
+                  children: [
+                    if (orgSubject != subject)
+                      TextSpan(
+                        text: orgSubject?.name ?? period.subject?.id.toString() ?? period.lessonText,
+                        style: TextStyle(
+                          color: Theme.of(context).disabledColor,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    if (orgSubject != subject) const TextSpan(text: " "),
+                    TextSpan(
+                      text: subject!.name,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ListTile(
             leading: const Icon(Icons.person_outline),
             title: const Text("Lehrer"),
