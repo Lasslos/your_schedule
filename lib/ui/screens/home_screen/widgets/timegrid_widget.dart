@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
@@ -19,10 +21,28 @@ class TimeGridWidget extends ConsumerStatefulWidget {
 class _TimeGridWidgetState extends ConsumerState<TimeGridWidget> {
   @override
   Widget build(BuildContext context) {
+    var timeGrid = ref.watch(
+      selectedUntisSessionProvider.select((value) => (value as ActiveUntisSession).userData.timeGrid),
+    );
+    TimeOfDay startTime = timeGrid.first.startTime;
+    TimeOfDay endTime = timeGrid.last.endTime;
+    Duration dayDuration = endTime.difference(startTime);
+
+    Duration medianClassDuration = (timeGrid
+        .map((e) => e.length)
+        .toList()
+        ..sort())[timeGrid.length ~/ 2];
+
+    // One class duration should be 82 pixels.
+    // The header is 42 pixels.
+
+    double height = dayDuration.inMinutes / medianClassDuration.inMinutes * 82 + 42;
+    height = max(150, height);
+
     return SingleChildScrollView(
       physics: const AlwaysScrollableScrollPhysics(),
       child: SizedBox(
-        height: 750,
+        height: height,
         child: Row(
           children: [
             Column(
