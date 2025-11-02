@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:your_schedule/core/provider/untis_session_provider.dart';
+import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
 import 'package:your_schedule/util/logger.dart';
 
@@ -15,6 +16,7 @@ sealed class UntisSession with _$UntisSession {
     String username,
     String password,
     String appSharedSecret,
+    @JsonKey(defaultValue: false) bool passwordIsAppSharedSecret,
     UserData userData,
   ) = ActiveUntisSession;
 
@@ -29,20 +31,48 @@ sealed class UntisSession with _$UntisSession {
 
 Future<ActiveUntisSession> activateSession(WidgetRef ref, UntisSession session, {String token = ""}) async {
   String appSharedSecret;
-  UserData userData;
+  bool passwordIsAppSharedSecret = false;
+  UserData? userData;
 
   try {
-    appSharedSecret = await ref.read(requestAppSharedSecretProvider(session, token: token).future);
-    userData = await ref.read(requestUserDataProvider(session, appSharedSecret).future);
+    appSharedSecret = await requestAppSharedSecret(session, token: token);
+  } on RPCError catch (e, s) {
+    if (e.code == RPCError.authenticationFailed) {
+      // Maybe, password is secret? This is the case in QR-Codes, for example.
+      getLogger().i("Trying password as key");
+      try {
+        userData = await requestUserData(session, session.password);
+      } catch (_) {
+        // Didn't work. Throw e.
+        logRequestError("Error while requesting session data", e, s);
+        throw e;
+      }
+      // It worked! Set the variables to it.
+      appSharedSecret = session.password;
+      passwordIsAppSharedSecret = true;
+    } else {
+      rethrow;
+    }
   } catch (e, s) {
     logRequestError("Error while requesting session data", e, s);
     rethrow;
   }
+
+  if (userData == null) {
+    try {
+      userData = await requestUserData(session, appSharedSecret);
+    } catch (e, s) {
+      logRequestError("Error while requesting session data", e, s);
+      rethrow;
+    }
+  }
+
   var activeSession = UntisSession.active(
     session.school,
     session.username,
     session.password,
     appSharedSecret,
+    passwordIsAppSharedSecret,
     userData,
   ) as ActiveUntisSession;
   ref.read(untisSessionsProvider.notifier).updateSession(session, activeSession);
@@ -52,7 +82,7 @@ Future<ActiveUntisSession> activateSession(WidgetRef ref, UntisSession session, 
 Future<ActiveUntisSession> refreshSession(WidgetRef ref, ActiveUntisSession session) async {
   UserData userData;
   try {
-    userData = await ref.read(requestUserDataProvider(session, session.appSharedSecret).future);
+    userData = await requestUserData(session, session.appSharedSecret);
   } catch (e, s) {
     logRequestError("Error while requesting session data", e, s);
     rethrow;

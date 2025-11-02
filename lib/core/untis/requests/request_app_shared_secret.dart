@@ -1,8 +1,5 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
-
-part 'request_app_shared_secret.g.dart';
 
 /// Requests the shared secret for the app.
 ///
@@ -11,9 +8,7 @@ part 'request_app_shared_secret.g.dart';
 /// 2FA is required or an invalid 2FA token was provided, a [RPCError] is thrown.
 /// See [RPCError.authenticationFailed], [RPCError.twoFactorRequired}
 /// and [RPCError.invalidTwoFactor} respectively.
-@riverpod
-Future<String> requestAppSharedSecret(Ref ref,
-  UntisSession session, {String token = "",}
+Future<String> requestAppSharedSecret(UntisSession session, {String token = "",}
 ) async {
   var response = await rpcRequest(
     method: 'getAppSharedSecret',

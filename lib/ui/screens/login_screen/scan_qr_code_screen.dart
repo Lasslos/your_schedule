@@ -211,7 +211,7 @@ class _ScanQrCodeScreenState extends ConsumerState<ScanQrCodeScreen> {
         message = e.toString();
       });
     } catch (e, s) {
-      getLogger().e("Unknown Error while logging in", error: e, stackTrace: s);
+      getLogger().e("Unknown error while logging in", error: e, stackTrace: s);
       setState(() {
         message = e.toString();
       });

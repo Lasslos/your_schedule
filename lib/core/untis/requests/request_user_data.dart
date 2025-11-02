@@ -1,14 +1,10 @@
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:your_schedule/core/rpc_request/rpc.dart';
 import 'package:your_schedule/core/untis.dart';
-
-part 'request_user_data.g.dart';
 
 /// Requests the user data for the given user in [authParams].
 ///
 /// The request is send to [apiBaseUrl] and uses the [authParams] to authenticate.
-@riverpod
-Future<UserData> requestUserData(Ref ref,
+Future<UserData> requestUserData(
   UntisSession session,
   String appSharedSecret,
 ) async {

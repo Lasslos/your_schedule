@@ -51,30 +51,39 @@ class _ManualLoginScreenState extends ConsumerState<ManualLoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25),
-          child: Column(
-            children: [
-              Expanded(
-                child: Center(
-                  child: buildLoginCard(context),
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    label: const Text("Zurück"),
-                    icon: const Icon(Icons.arrow_back),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: buildLoginCard(context),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: OutlinedButton.icon(
+                              onPressed: () => Navigator.pop(context),
+                              label: const Text("Zurück"),
+                              icon: const Icon(Icons.arrow_back),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -290,7 +299,25 @@ class _ManualLoginScreenState extends ConsumerState<ManualLoginScreen> {
       return;
     }
 
-    List<School> schools = await ref.read(requestSchoolListProvider(_schoolFieldController.text).future);
+    List<School> schools;
+    try {
+      schools = await ref.read(
+          requestSchoolListProvider(_schoolFieldController.text).future);
+    } on RPCError catch (e) {
+      setState(() {
+        message = "Fehler: ${e.message}";
+        isLoading = false;
+      });
+      return;
+    } catch (e, s) {
+      getLogger().e("Error while requesting school list", error: e, stackTrace: s);
+      setState(() {
+        message = "Fehler: ${e.toString()}";
+        isLoading = false;
+      });
+      return;
+    }
+
     School school = schools.firstWhereOrNull(
         (school) {
           if (school.server == _urlFieldController.text.trim()

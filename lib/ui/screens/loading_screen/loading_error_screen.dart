@@ -15,41 +15,48 @@ class LoadingErrorScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: SizedBox.expand(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Spacer(),
-            SizedBox(
-              height: 200,
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Image.asset("assets/school_blue.png"),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Spacer(),
+              SizedBox(
+                height: 200,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset("assets/school_blue.png"),
+                ),
               ),
-            ),
-            const Spacer(),
-            Text(
-              message,
-              style: GoogleFonts.lato(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(untisSessionsProvider.notifier).clearSessions();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return const WelcomeScreen();
-                    },
+              Flexible(
+                flex: 4,
+                child: SingleChildScrollView(
+                  child: Text(
+                    message,
+                    style: GoogleFonts.lato(fontSize: 16),
+                    textAlign: TextAlign.center,
                   ),
-                );
-              },
-              child: const Text("Account entfernen und neu anmelden"),
-            ),
-            const Spacer(),
-          ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  ref.read(untisSessionsProvider.notifier).clearSessions();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const WelcomeScreen();
+                      },
+                    ),
+                  );
+                },
+                child: const Text("Account entfernen und neu anmelden"),
+              ),
+              const Spacer(),
+            ],
+          ),
         ),
       ),
     );
