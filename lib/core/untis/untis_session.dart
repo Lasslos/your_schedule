@@ -37,7 +37,7 @@ Future<ActiveUntisSession> activateSession(WidgetRef ref, UntisSession session, 
   try {
     appSharedSecret = await requestAppSharedSecret(session, token: token);
   } on RPCError catch (e, s) {
-    if (e.code == RPCError.authenticationFailed) {
+    if (e.code == RPCError.authenticationFailed || e.code == RPCError.userLocked) {
       // Maybe, password is secret? This is the case in QR-Codes, for example.
       getLogger().i("Trying password as key");
       try {

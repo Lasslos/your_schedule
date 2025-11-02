@@ -42,7 +42,3 @@ Generate the nessessary code:
 ```shell
 dart run build_runner build
 ```
-
-## NixOS + IntelliJ Idea
-
-Open the project in nixos, then **File > Settings > Tools > Terminal > Shell Path > "/run/current-system/sw/bin/nix develop -c zsh"**
