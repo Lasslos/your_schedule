@@ -14,7 +14,7 @@ abstract class UserData with _$UserData {
     Map<int, Subject> subjects,
     Map<int, Teacher> teachers,
     List<TimeGridEntry> timeGrid,
-    String type,
+    String? type,
     int id,
     String displayName,
     String schoolName,
@@ -38,7 +38,7 @@ abstract class UserData with _$UserData {
           .map((e) {
         return TimeGridEntry.fromJson(e);
       }).toList(),
-      json['userData']['elemType'] as String,
+      json['userData']['elemType'] as String?,
       json['userData']['elemId'] as int,
       json['userData']['displayName'] as String,
       json['userData']['schoolName'] as String,
