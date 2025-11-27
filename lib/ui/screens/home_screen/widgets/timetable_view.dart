@@ -32,27 +32,29 @@ class TimeTableView extends ConsumerWidget {
         ref.invalidate(requestTimeTableProvider(session, Week.fromDate(date)));
         await ref.read(requestTimeTableProvider(session, Week.fromDate(date)).future);
       },
-      child: Column(
-        children: [
-          Expanded(
-            child: TimeGridWidget(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+      child: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: TimeGridWidget(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  child: viewMode == ViewMode.day ? const DayView() : const WeekView(),
+                ),
               ),
             ),
-          ),
-          Align(
-            alignment: Alignment.bottomRight,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16, right: 16, top: 8),
-              child: Text(
-                "Zuletzt aktualisiert am ${DateFormat.Md().format(timestamp)} um ${DateFormat.Hms().format(timestamp)}.",
-                style: Theme.of(context).textTheme.bodySmall,
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16, right: 16, top: 8),
+                child: Text(
+                  "Zuletzt aktualisiert am ${DateFormat.Md().format(timestamp)} um ${DateFormat.Hms().format(timestamp)}.",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
