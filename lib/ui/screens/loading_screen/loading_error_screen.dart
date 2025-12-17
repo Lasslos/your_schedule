@@ -6,9 +6,11 @@ import 'package:your_schedule/ui/screens/login_screen/welcome_screen.dart';
 
 class LoadingErrorScreen extends ConsumerWidget {
   final String message;
+  final String? error;
 
   const LoadingErrorScreen({
     required this.message,
+    this.error,
     super.key,
   });
 
@@ -31,12 +33,21 @@ class LoadingErrorScreen extends ConsumerWidget {
               ),
               Flexible(
                 flex: 4,
-                child: SingleChildScrollView(
-                  child: Text(
-                    message,
-                    style: GoogleFonts.lato(fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
+                child: ListView(
+                  children: [
+                    Text(
+                      "$message\n",
+                      style: const TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      error ?? "",
+                      style: GoogleFonts.lato(fontSize: 12).copyWith(
+                        color: Colors.red
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ]
                 ),
               ),
               const SizedBox(height: 16),

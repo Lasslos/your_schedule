@@ -136,7 +136,7 @@ class _InitializerState extends ConsumerState<Initializer> {
           MaterialPageRoute(
             builder: (context) {
               return LoadingErrorScreen(message: "Ein unbekannter Fehler ist aufgetreten.\n"
-                  "Bitte logge dich erneut ein!\n\nError: $e");
+                  "Bitte logge dich erneut ein!", error: e.toString());
             },
           ),
         );
@@ -252,7 +252,7 @@ class _InitializerState extends ConsumerState<Initializer> {
         context,
         MaterialPageRoute(
           builder: (context) {
-            return LoadingErrorScreen(message: "Es ist ein unbekannter Fehler aufgetreten: $e");
+            return LoadingErrorScreen(message: "Es ist ein unbekannter Fehler aufgetreten", error: e.toString());
           },
         ),
       );
@@ -305,7 +305,7 @@ class _InitializerState extends ConsumerState<Initializer> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return LoadingErrorScreen(message: "Während der Reauthentifizierung ist ein unbekannter Fehler aufgetreten. $e");
+                return LoadingErrorScreen(message: "Während der Reauthentifizierung ist ein unbekannter Fehler aufgetreten.", error: e.toString());
               },
             ),
           );
@@ -316,7 +316,7 @@ class _InitializerState extends ConsumerState<Initializer> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return LoadingErrorScreen(message: "Ein unbekannter Fehler ist aufgetreten: $e");
+              return LoadingErrorScreen(message: "Ein unbekannter Fehler ist aufgetreten.", error: e.toString());
             },
           ),
         );
