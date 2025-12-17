@@ -46,20 +46,28 @@ Response Body:
       ],
       "klassen": [
         {
-          "id": 555,
-          "name": "5A",
-          "longName": "Willemsen, Bolle",
-          "startDate": "2022-08-08",
-          "endDate": "2023-06-25",
+          "id": 1484,
+          "name": "10A",
+          "longName": "Tallert,Galinat",
+          "departmentId": 2,
+          "startDate": "2025-08-25",
+          "endDate": "2026-07-19",
+          "foreColor": null,
+          "backColor": null,
           "active": true,
+          "displayable": false
         },
         {
-          "id": 560,
-          "name": "5B",
-          "longName": "Dr. Peters,Oboth",
-          "startDate": "2022-08-08",
-          "endDate": "2023-06-25",
+          "id": 1487,
+          "name": "10B",
+          "longName": "Reinhold,Sonnabend",
+          "departmentId": 2,
+          "startDate": "2025-08-25",
+          "endDate": "2026-07-19",
+          "foreColor": null,
+          "backColor": null,
           "active": true,
+          "displayable": false
         },
         ...
       ],
