@@ -12,7 +12,7 @@ abstract class Klasse with _$Klasse {
     DateTime startDate,
     DateTime endDate,
     bool active,
-    bool displayable
+    @JsonKey(defaultValue: true) bool displayable
   ) = _Klasse;
 
   factory Klasse.fromJson(Map<String, dynamic> json) => _$KlasseFromJson(json);
